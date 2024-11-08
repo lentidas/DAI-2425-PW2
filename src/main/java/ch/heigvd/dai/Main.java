@@ -1,5 +1,5 @@
 /*
- * Wheel Of Fortune - a Java server/client implementation of the television game
+ * Wheel Of Fortune - a Java server/client CLI implementation of the television game
  * Copyright (C) 2024 Pedro Alves da Silva, Gonçalo Carvalheiro Heleno
  *
  * This program is free software: you can redistribute it and/or modify
