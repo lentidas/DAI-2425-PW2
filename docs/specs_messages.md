@@ -18,41 +18,285 @@
 
 : Liste de tous les messages qui peuvent être échangés
 
+
+## Notes d'implémentation
+
+Afin de simplifier ce laboratoire, nous avons pris les choix suivants:
+
+- Les commandes sont envoyées en clair
+
+- Le serveur ne vérifie pas que le joueur qui a envoyé la commande est celui qui doit répondre
+
+- Les joueurs ne peuvent pas envoyer arbitrairement des commandes au serveur, car ils devront
+  attendre que le serveur interagisse avec eux. Exception pour les commandes `JOIN` et `QUIT`
+
+- D'après les règles du jeu, la lettre 'Y' est une consonne, et ne peut, donc, pas être achetée
+  avec la commande `VOWEL`
+
+
 ## `END`
 
-TODO
+### Description
+
+Cette commande annonce la fin du jeu à tous les joueurs dans le lobby. Cette command fourni les
+résultats finaux, permettant l'application Client de les afficher à l'écran pour que les joueurs
+puissent les lire.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `END <winner> <player_1> <money1_> ... <player_n> <money_n>`      |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+| Nom    | Taille [B] | Description                                                               |
+|:-------|:----------:|:--------------------------------------------------------------------------|
+| winner | k          | Username du joueur qui a gagné. Si aucun joueur a gagné, username = "-"   |
+| player_n | m        | Username du joueur $n$ de la liste                                        |
+| money_n | 4         | Argent gagné par le joueur $n$ de la liste                                |
+
+: Paramètres de la commande
 
 ## `FILL`
 
-TODO
+### Description
+
+Cette commande est utilisée quand le joueur veut tenter sa chance en devinant le puzzle.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `FILL <puzzle>`                                                   |
+| Server $\rightarrow$ Client |                                                                   |
+| Client $\rightarrow$ Server | $\checkmark$                                                      |
+| Réponses acceptées          | `STATUS wrong_answer` si la réponse est fausse                    |
+|                             | `STATUS right_answer` si la réponse est correcte                  |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
+underscores (caractère `_`). Les lettres sont case-insensitive, mais doivent être envoyées en
+majuscule.
+
+| Nom    | Taille [B] | Description                                                               |
+|:-------|:----------:|:--------------------------------------------------------------------------|
+| puzzle | n          | Tentative de résolution du puzzle                                         |
+
+: Paramètres de la commande
 
 ## `GUESS`
 
-TODO
+### Description
+
+Utilisée lors du début du tour, quand le joueur essaye de deviner une consonne qui peut se trouver
+dans le puzzle à résoudre.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `GUESS <letter>`                                                  |
+| Server $\rightarrow$ Client |                                                                   |
+| Client $\rightarrow$ Server | $\checkmark$                                                      |
+| Réponses acceptées          | `STATUS timeout` si le joueur n'a pas répondu à temps             |
+|                             | `STATUS letter_missing` si la lettre n'existe pas dans le puzzle  |
+|                             | `STATUS letter_exists` si la lettre existe dans le puzzle         |
+|                             | `STATUS wrong_format` si la lettre n'est pas une consonne         |
+|                             | `STATUS already_tried` si la lettre a déjà été utilisée           |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
+underscores (caractère `_`). La lettre est case-insensitive, mais doit être envoyée en majuscule.
+
+| Nom    | Taille [B] | Description                                                               |
+|:-------|:----------:|:--------------------------------------------------------------------------|
+| letter | 1          | Consonne à vérifier par le serveur                                        |
+
+: Paramètres de la commande
 
 ## `INFO`
 
-TODO
+### Description
+
+Fourni les toutes dernières informations de la manche à un joueur. L'envoi de cette commande
+démarre le timer d'attente de la réponse du joueur.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `INFO <puzzle> <used_letters>`                                    |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | `GUESS` quand le joueur essaie de deviner une consonne            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
+underscores (caractère `_`). De plus, les cases à trouver sont remplacées par `*`. Les lettres sont
+case-insensitive, mais doivent être envoyées en majuscule.
+
+| Nom    | Taille [B] | Description                                                               |
+|:-------|:----------:|:--------------------------------------------------------------------------|
+| puzzle | n          | Puzzle à trouver                                                          |
+
+: Paramètres de la commande
 
 ## `LOBBY`
 
-TODO
+### Description
+
+Fourni la liste de tous les joueurs actuellement connectés dans la partie.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `LOBBY <player_1> ... <player_n>`                                 |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+| Nom      | Taille [B] | Description                                                               |
+|:---------|:----------:|:--------------------------------------------------------------------------|
+| player_n | k          | Username du joueur dans le lobby                                          |
+
+: Paramètres de la commande
 
 ## `JOIN`
 
-TODO
+### Description
+
+Demande au serveur l'authorisation de connection d'un joueur.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `JOIN <username>`                                                 |
+| Server $\rightarrow$ Client |                                                                   |
+| Client $\rightarrow$ Server | $\checkmark$                                                      |
+| Réponses acceptées          | `STATUS ok` si le serveur a accepté la connection                 |
+|                             | `STATUS full` si la partie est déjà au complet                    |
+|                             | `STATUS wrong_format` si l'username n'est pas valable             |
+|                             | `STATUS duplicate_name` si un autre joueur avec ce username est déjà dans la partie |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le nom de l'utilisateur ne doit contenir que les caractères `[a-zA-Z0-9_]`. Tout autre caractère
+doit forcer le serveur à envoyer `STATUS wrong_format`.
+
+| Nom      | Taille [B] | Description                                                               |
+|:---------|:----------:|:--------------------------------------------------------------------------|
+| username | k          | Username souhaité                                                         |
+
+: Paramètres de la commande
 
 ## `QUIT`
 
-TODO
+### Description
+
+Informe le serveur de la déconnection d'un joueur.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `QUIT <username>`                                                 |
+| Server $\rightarrow$ Client |                                                                   |
+| Client $\rightarrow$ Server | $\checkmark$                                                      |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le nom de l'utilisateur ne doit contenir que les caractères `[a-zA-Z0-9_]`. Tout autre caractère
+doit faire en sorte que le serveur réponde avec `STATUS wrong_format`.
+
+| Nom      | Taille [B] | Description                                                               |
+|:---------|:----------:|:--------------------------------------------------------------------------|
+| username | k          | Username souhaité                                                         |
+
+: Paramètres de la commande
 
 ## `ROUND`
 
-TODO
+### Description
+
+Informe tous les joueurs de la fin de la manche.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `ROUND <puzzle>`                                                 |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
+underscores (caractère `_`).
+
+| Nom    | Taille [B] | Description                                                               |
+|:-------|:----------:|:--------------------------------------------------------------------------|
+| puzzle | k          | Le puzzle complété                                                        |
+
+: Paramètres de la commande
 
 ## `START`
 
-TODO
+### Description
+
+Informe tous les joueurs du début de une nouvelle manche.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `START <round_number> <puzzle>`                                   |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
+underscores (caractère `_`). De plus, les cases à trouver sont remplacées par `*`. Les lettres sont
+case-insensitive, mais doivent être envoyées en majuscule.
+
+| Nom          | Taille [B] | Description                                                         |
+|:-------------|:----------:|:--------------------------------------------------------------------|
+| round_number | 1          | Le numéro de la manche qui a commencé                               |
+| puzzle       | k          | Le puzzle à compléter                                               |
+
+: Paramètres de la commande
 
 ## `STATUS`
 
@@ -71,7 +315,7 @@ Toutefois, pour un laboratoire de cette taille, nous avons jugé ce point dénec
 | Format                      | `STATUS <status>`                                                 |
 | Server $\rightarrow$ Client | $\checkmark$                                                      |
 | Client $\rightarrow$ Server | $\checkmark$                                                      |
-| Réponse attendue            | Aucune                                                            |
+| Réponses acceptées          | Aucune                                                            |
 
 : Tableau du format et réponse acceptées
 
@@ -81,7 +325,7 @@ Toutefois, pour un laboratoire de cette taille, nous avons jugé ce point dénec
 |:-------|:----------:|:--------------------------------------------------------------------------|
 | Status | 2          | Code du status, au format hexadécimal majuscule                           |
 
-: Paramètres de la commande `STATUS`
+: Paramètres de la commande
 
 ### Valeurs acceptées
 
@@ -100,28 +344,93 @@ l'état "Idle".
 | 0x06   | LETTER_EXISTS    |              | La lettre fournie existe. Le joueur peut continuer son tour    |
 | 0x07   | LETTER_MISSING   |              | La lettre fournie n'existe pas. Le tour du joueur est terminé  |
 | 0x08   | TIMEOUT          |              | Le temps est écoulé. Le tour du joueur est terminé             |
-| 0x09   | NOT_YOU          |              | Un joueur a envoyé une commande lorsque ce n'était pas son tour |
+| 0x09   | ALREADY_TRIED    |              | La lettre a déjà été utilisée dans le puzzle                   |
 | 0x0A   | WRONG_ANSWER     |              | La tentative de résolution du puzzle a échoué. Fin du tour     |
 | 0x0B   | RIGHT_ANSWER     |              | La tentative de résolution du puzzle a réussi. Fin de la manche |
 | 0x0C   | DUPLICATE_NAME   |              | Un autre joueur avec ce nom est déjà présent dans le lobby     |
 | 0x0D   | CLOSING          | $\checkmark$ | Le serveur est en train de fermer. Tous les joueurs quittent   |
 | 0x0E   | NO_FUNDS         |              | Le joueur n'a pas assez d'argent pour effectuer l'achat        |
 | 0x0F   | SKIP             |              | Le joueur termine son tour sans effectuer d'action             |
+| 0x10   | FULL             |              | La partie est au complet                                       |
 
 : Valeur acceptées pour la commande `STATUS`
 
 
 ## `TURN`
 
-TODO
+### Description
+
+Informe un joueur que ça à son tour.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `TURN <money> <total_money>`                                                    |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+| Nom          | Taille [B] | Description                                                         |
+|:-------------|:----------:|:--------------------------------------------------------------------|
+| money        | 2          | Somme d'argent gagnée pour cette manche                             |
+| total_money  | 4          | Somme d'argent cumulée depuis le début de la partie                 |
+
+: Paramètres de la commande
 
 ## `VOWEL`
 
-TODO
+Le joueur demande l'achat d'une voyelle spécifique.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `VOWEL <vowel>`                                                   |
+| Server $\rightarrow$ Client |                                                                   |
+| Client $\rightarrow$ Server | $\checkmark$                                                      |
+| Réponses acceptées          | `STATUS letter_exists` si la lettre existe dans le puzzle         |
+|                             | `STATUS letter_missing` si la lettre n'existe pas dans le puzzle  |
+|                             | `STATUS no_funds` si le joueur n'a pas assez d'argent             |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+La lettre est case-insensitive, mais doit être envoyée en majuscule.
+
+| Nom          | Taille [B] | Description                                                         |
+|:-------------|:----------:|:--------------------------------------------------------------------|
+| vowel        | 1          | Voyelle demandée                                                    |
+
+: Paramètres de la commande
 
 ## `WINNER`
 
-TODO
+Déclare le gagnant des manches précédentes. Le gagnant participe au dernier round.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `WINNER <username>`                                               |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+| Nom          | Taille [B] | Description                                                         |
+|:-------------|:----------:|:--------------------------------------------------------------------|
+| username     | k          | Username du joueur qui participe à la dernière manche               |
+
+: Paramètres de la commande
 
 # Diagramme de séquence
 
@@ -132,7 +441,7 @@ le serveur, il répondra avec un `STATUS` acceptable. La commande `STATUS` est e
 joueurs dans le lobby pour les informer qu'un joueur a rejoint la partie. La command `LOBBY` est
 ensuite envoyée à chacun des joueurs dans le lobby.
 
-![Joueurs rejoignent la partie](./img/lobby_join.svg)
+![Joueurs rejoignent la partie](./img/lobby_join.svg){ width=40% }
 
 <!--
 title Joueurs rejoignent le lobby
@@ -158,7 +467,7 @@ Le serveur informe un joueur que son tour a commencé. Il reçoit la somme d'arg
 que le puzzle à résoudre. À la fin de son tour, le serveur effectuera le même échange avec le
 prochain participant dans la liste des joueurs.
 
-![Tour d'un joueur](img/player_round.svg)
+![Tour d'un joueur](img/player_round.svg){ width=40% }
 
 <!--
 title Tour d'un joueur
@@ -184,7 +493,7 @@ Server->(1)Joueur 3: INFO
 Lorsqu'un joueur devine correctement le puzzle, la fin de la manche est annoncée à chacun des
 joueurs dans la partie.
 
-![Fin de manche](img/round_end.svg)
+![Fin de manche](img/round_end.svg){ width=40% }
 
 <!--
 title Fin de manche
@@ -219,7 +528,7 @@ doit trouver le puzzle qui lui est affiché à l'écran. S'il parvient à la ré
 le temps qui lui a été imparti, il gagne le jeu. Même s'il ne le gagne pas, tous les joueurs
 reçoivent le résultat du jeu.
 
-![Début du dernier puzzle, fin du jeu](img/game_end.svg)
+![Début du dernier puzzle, fin du jeu](img/game_end.svg){ width=40% }
 
 <!--
 title Début du dernier puzzle, fin du jeu
