@@ -16,12 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.commands;
 
-import ch.heigvd.dai.logic.commands.GameCommandType;
+import java.util.InvalidPropertiesFormatException;
 
-public interface IGameEndpoint {
+public class GuessCommand extends GameCommand {
 
-  boolean canRunCommand(GameCommandType commandType);
+  // Add handler
+  static {
+    GameCommand.addFactoryHandler(GameCommandType.GUESS, GuessCommand::fromTcpBody);
+  }
 
+  public GuessCommand(char letter) {
+    super(GameCommandType.GUESS);
+    args.add(letter);
+  }
+
+  public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
+    if(args.length != 1
+    || args[0] == null
+    || args[0].length() != 1) {
+      throw new InvalidPropertiesFormatException("Command did not receive a single letter");
+    }
+    
+    return new GuessCommand(args[0].charAt(0));
+  }
 }

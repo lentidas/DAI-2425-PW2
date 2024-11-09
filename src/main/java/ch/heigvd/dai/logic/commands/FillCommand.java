@@ -16,12 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.commands;
 
-import ch.heigvd.dai.logic.commands.GameCommandType;
+import java.util.InvalidPropertiesFormatException;
 
-public interface IGameEndpoint {
+public class FillCommand extends GameCommand {
 
-  boolean canRunCommand(GameCommandType commandType);
+  // Add handler
+  static {
+    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
+  }
 
+  public FillCommand(String puzzle) {
+    super(GameCommandType.FILL);
+    args.add(puzzle);
+  }
+
+  public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
+    if(args.length != 1
+    || args[0] == null
+    || args[0].isEmpty()) {
+      throw new InvalidPropertiesFormatException("Command did not receive the completed puzzle");
+    }
+    
+    return new FillCommand(args[0]);
+  }
 }

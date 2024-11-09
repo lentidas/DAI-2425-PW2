@@ -16,12 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.commands;
 
-import ch.heigvd.dai.logic.commands.GameCommandType;
+import java.util.InvalidPropertiesFormatException;
+import java.util.List;
 
-public interface IGameEndpoint {
+public class EndCommand extends GameCommand {
 
-  boolean canRunCommand(GameCommandType commandType);
+  // Add handler
+  static {
+    GameCommand.addFactoryHandler(GameCommandType.END, EndCommand::fromTcpBody);
+  }
 
+  public EndCommand() {
+    super(GameCommandType.END);
+  }
+
+  public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
+    if(args.length > 0) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
+    }
+    
+    return new EndCommand();
+  }
 }

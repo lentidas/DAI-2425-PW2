@@ -16,12 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.commands;
 
-import ch.heigvd.dai.logic.commands.GameCommandType;
+import java.util.InvalidPropertiesFormatException;
 
-public interface IGameEndpoint {
-
-  boolean canRunCommand(GameCommandType commandType);
-
+@FunctionalInterface
+public interface CommandFactoryFunction {
+  GameCommand apply(String[] args) throws InvalidPropertiesFormatException;
 }

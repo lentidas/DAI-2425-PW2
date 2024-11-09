@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.commands;
 
-public enum GameCommand {
+public enum GameCommandType {
   END, /* 0 */
   FILL,
   GUESS,
