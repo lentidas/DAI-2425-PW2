@@ -1,5 +1,5 @@
 /*
- * Wheel Of Fortune - a Java server/client CLI implementation of the television game
+ * Wheel Of Fortune - a Java server/client implementation of the television game
  * Copyright (C) 2024 Pedro Alves da Silva, Gonçalo Carvalheiro Heleno
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,19 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.commands;
+package ch.heigvd.dai.network;
 
-import picocli.CommandLine;
+import com.google.common.net.HostAndPort;
 
-@CommandLine.Command(
-    description =
-        "Wheel Of Fortune - a Java server/client CLI implementation of the television game",
-    version = "0.1.0", // x-release-please-version
-    subcommands = {Server.class, Client.class},
-    scope = CommandLine.ScopeType.INHERIT,
-    mixinStandardHelpOptions = true)
-public class Root {
+public class SocketClient extends Socket implements Runnable {
+  public SocketClient(HostAndPort hostAndPort) {
+    super(hostAndPort);
+  }
 
-  public static final String DEFAULT_PORT = "1234"; // TODO Define the port we want to use
-  public static final String DEFAULT_HOST = "127.0.0.1";
+  @Override
+  public void run() {}
 }

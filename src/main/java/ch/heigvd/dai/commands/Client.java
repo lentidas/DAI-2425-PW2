@@ -18,20 +18,49 @@
 
 package ch.heigvd.dai.commands;
 
+import ch.heigvd.dai.network.SocketClient;
+import com.google.common.net.*;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
 @CommandLine.Command(
     name = "client",
-    description = "Start the client and connect to a given server."
-)
+    description = "Start the client and connect to a given server.")
 public class Client implements Callable<Integer> {
 
-  @CommandLine.ParentCommand
-  private Root parent;
+  // TODO Remove this reference to the Root class if we do not use any root parameters/options.
+  @CommandLine.ParentCommand private Root parent;
+
+  @CommandLine.Option(
+      names = {"-h", "--host"},
+      description =
+          """
+              IP address of the game server.
+              Can be passed in the format '[host]:[port]' or simply '[host]'.
+              IPv6 is supported, but if using the format '[host]:[port]' you are required to use
+              square brackets to enclose the IP.
+              Default: '${DEFAULT-VALUE}'""",
+      defaultValue = Root.DEFAULT_HOST)
+  private String serverAddress;
+
+  @CommandLine.Option(
+      names = {"-p", "--port"},
+      description =
+          """
+          Port where the server is expecting client connections.
+          If the port is specified along side the IP address, then this value is ignored.
+          Default: ${DEFAULT-VALUE}""",
+      defaultValue = Root.DEFAULT_PORT)
+  private int serverPort;
 
   @Override
   public Integer call() {
+    HostAndPort hostAndPort =
+        HostAndPort.fromString(serverAddress).withDefaultPort(serverPort).requireBracketsForIPv6();
+
+    SocketClient client = new SocketClient(hostAndPort);
+    client.run();
+
     return 0;
   }
 }
