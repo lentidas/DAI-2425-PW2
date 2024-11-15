@@ -28,8 +28,9 @@ public enum GameCommandType {
   JOIN,
   QUIT,
   ROUND,
-  STATUS,
-  TURN, /* 10 */
+  START,
+  STATUS, /* 10 */
+  TURN,
   VOWEL,
-  WINNER /* 12 */
+  WINNER /* 13 */
 }

@@ -1,20 +1,20 @@
 # Messages
 
-| Message   | Server $\rightarrow$ Client | Server $\leftarrow$ Client  | Description             |
-|:----------|:------------:|:------------:|:------------------------------------------------------|
-| `END`     | $\checkmark$ |              | Annonce de la fin du jeu, avec résultats              |
-| `FILL`    |              | $\checkmark$ | Le joueur essaye de compléter le puzzle               |
-| `GUESS`   |              | $\checkmark$ | Le joueur essaye devine une consonne                  |
-| `INFO`    | $\checkmark$ |              | Envoit les toutes dernières informations de la manche |
-| `LAST`    | $\checkmark$ |              | Demande au gagnant de deviner le puzzle               |
-| `LOBBY`   | $\checkmark$ |              | Envoie la liste actuelle de joueurs dans la partie    |
-| `JOIN`    |              | $\checkmark$ | Demande au serveur d'authoriser un joueur à rejoindre |
-| `QUIT`    |              | $\checkmark$ | Demande la déconnection d'un joueur                   |
-| `ROUND`   | $\checkmark$ |              | Fin de tour: le puzzle a été résolu                   |
-| `STATUS`  | $\checkmark$ | $\checkmark$ | Renvoit un code de status à l'autre bout              |
-| `TURN`    | $\checkmark$ |              | Le serveur tourne la roue pour un joueur              |
-| `VOWEL`   |              | $\checkmark$ | Le joueur achète une voyelle                          |
-| `WINNER`  | $\checkmark$ |              | Annonce le gagnant des manches. Début du dernier puzzle |
+| Message  | Server $\rightarrow$ Client | Server $\leftarrow$ Client  | Description             |
+|:---------|:------------:|:------------:|:------------------------------------------------------|
+| `END`    | $\checkmark$ |              | Annonce de la fin du jeu, avec résultats              |
+| `FILL`   |              | $\checkmark$ | Le joueur essaye de compléter le puzzle               |
+| `GUESS`  |              | $\checkmark$ | Le joueur essaye devine une consonne                  |
+| `INFO`   | $\checkmark$ |              | Envoit les toutes dernières informations de la manche |
+| `JOIN`   |              | $\checkmark$ | Demande au serveur d'authoriser un joueur à rejoindre |
+| `LAST`   | $\checkmark$ |              | Demande au gagnant de deviner le puzzle               |
+| `LOBBY`  | $\checkmark$ |              | Envoie la liste actuelle de joueurs dans la partie    |
+| `QUIT`   |              | $\checkmark$ | Demande la déconnection d'un joueur                   |
+| `ROUND`  | $\checkmark$ |              | Fin de tour: le puzzle a été résolu                   |
+| `STATUS` | $\checkmark$ | $\checkmark$ | Renvoit un code de status à l'autre bout              |
+| `TURN`   | $\checkmark$ |              | Le serveur tourne la roue pour un joueur              |
+| `VOWEL`  |              | $\checkmark$ | Le joueur achète une voyelle                          |
+| `WINNER` | $\checkmark$ |              | Annonce le gagnant des manches. Début du dernier puzzle |
 
 : Liste de tous les messages qui peuvent être échangés
 
@@ -83,9 +83,8 @@ Cette commande est utilisée quand le joueur veut tenter sa chance en devinant l
 
 #### Paramètres
 
-Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
-underscores (caractère `_`). Les lettres sont case-insensitive, mais doivent être envoyées en
-majuscule.
+Le paramètre `puzzle` doit être envoyé entre guillemets. Les lettres sont case-insensitive, mais
+doivent être envoyées en majuscule.
 
 | Nom    | Taille [B] | Description                                                               |
 |:-------|:----------:|:--------------------------------------------------------------------------|
@@ -117,9 +116,6 @@ dans le puzzle à résoudre.
 
 #### Paramètres
 
-Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
-underscores (caractère `_`). La lettre est case-insensitive, mais doit être envoyée en majuscule.
-
 | Nom    | Taille [B] | Description                                                               |
 |:-------|:----------:|:--------------------------------------------------------------------------|
 | letter | 1          | Consonne à vérifier par le serveur                                        |
@@ -135,51 +131,29 @@ démarre le timer d'attente de la réponse du joueur.
 
 ### Format, paramètres, réponses acceptées
 
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `INFO <puzzle> <used_letters>`                                    |
-| Server $\rightarrow$ Client | $\checkmark$                                                      |
-| Client $\rightarrow$ Server |                                                                   |
-| Réponses acceptées          | `GUESS` quand le joueur essaie de deviner une consonne            |
+| Nom                         | Description                                            |
+|:----------------------------|--------------------------------------------------------|
+| Format                      | `INFO <puzzle> <category> <used_letters>`              |
+| Server $\rightarrow$ Client | $\checkmark$                                           |
+| Client $\rightarrow$ Server |                                                        |
+| Réponses acceptées          | `GUESS` quand le joueur essaie de deviner une consonne |
 
 : Tableau du format et réponse acceptées
 
 #### Paramètres
 
-Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
-underscores (caractère `_`). De plus, les cases à trouver sont remplacées par `*`. Les lettres sont
-case-insensitive, mais doivent être envoyées en majuscule.
+Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Les lettres sont
+case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
+remplacées par `*`.
 
-| Nom    | Taille [B] | Description                                                               |
-|:-------|:----------:|:--------------------------------------------------------------------------|
-| puzzle | n          | Puzzle à trouver                                                          |
-
-: Paramètres de la commande
-
-## `LOBBY`
-
-### Description
-
-Fourni la liste de tous les joueurs actuellement connectés dans la partie.
-
-### Format, paramètres, réponses acceptées
-
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `LOBBY <player_1> ... <player_n>`                                 |
-| Server $\rightarrow$ Client | $\checkmark$                                                      |
-| Client $\rightarrow$ Server |                                                                   |
-| Réponses acceptées          | Aucune                                                            |
-
-: Tableau du format et réponse acceptées
-
-#### Paramètres
-
-| Nom      | Taille [B] | Description                                                               |
-|:---------|:----------:|:--------------------------------------------------------------------------|
-| player_n | k          | Username du joueur dans le lobby                                          |
+| Nom          | Taille [B] | Description            |
+|:-------------|:----------:|:-----------------------|
+| puzzle       |     m      | Puzzle à trouver       |
+| category     |     n      | Catégorie du puzzle    |
+| used_letters |     k      | Lettres déjà utilisées |
 
 : Paramètres de la commande
+
 
 ## `JOIN`
 
@@ -206,9 +180,66 @@ Demande au serveur l'authorisation de connection d'un joueur.
 Le nom de l'utilisateur ne doit contenir que les caractères `[a-zA-Z0-9_]`. Tout autre caractère
 doit forcer le serveur à envoyer `STATUS wrong_format`.
 
+| Nom      | Taille [B] | Description       |
+|:---------|:----------:|:------------------|
+| username |     k      | Username souhaité |
+
+: Paramètres de la commande
+
+
+## `LAST`
+
+### Description
+
+Informe un joueur que ça à son tour, et que c'est le dernier puzzle de la partie.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                          |
+|:----------------------------|--------------------------------------|
+| Format                      | `LAST <timeout> <puzzle> <category>` |
+| Server $\rightarrow$ Client | $\checkmark$                         |
+| Client $\rightarrow$ Server |                                      |
+| Réponses acceptées          | FILL                                 |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Les lettres sont
+case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
+remplacées par `*`.
+
+| Nom      | Taille [B] | Description                                                                    |
+|:---------|:----------:|:-------------------------------------------------------------------------------|
+| timeout  |     1      | Nombre de secondes, avant que le joueur perde la partie. Example: 2s -> '\x02' |
+| puzzle   |     m      | Puzzle à résoudre                                                              |
+| category |     n      | Catégorie du puzzle                                                            |
+
+: Paramètres de la commande
+
+## `LOBBY`
+
+### Description
+
+Fourni la liste de tous les joueurs actuellement connectés dans la partie.
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                                                       |
+|:----------------------------|-------------------------------------------------------------------|
+| Format                      | `LOBBY <player_1> ... <player_n>`                                 |
+| Server $\rightarrow$ Client | $\checkmark$                                                      |
+| Client $\rightarrow$ Server |                                                                   |
+| Réponses acceptées          | Aucune                                                            |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
 | Nom      | Taille [B] | Description                                                               |
 |:---------|:----------:|:--------------------------------------------------------------------------|
-| username | k          | Username souhaité                                                         |
+| player_n | k          | Username du joueur dans le lobby                                          |
 
 : Paramètres de la commande
 
@@ -248,19 +279,19 @@ Informe tous les joueurs de la fin de la manche.
 
 ### Format, paramètres, réponses acceptées
 
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `ROUND <puzzle>`                                                 |
-| Server $\rightarrow$ Client | $\checkmark$                                                      |
-| Client $\rightarrow$ Server |                                                                   |
-| Réponses acceptées          | Aucune                                                            |
+| Nom                         | Description      |
+|:----------------------------|------------------|
+| Format                      | `ROUND <puzzle>` |
+| Server $\rightarrow$ Client | $\checkmark$     |
+| Client $\rightarrow$ Server |                  |
+| Réponses acceptées          | Aucune           |
 
 : Tableau du format et réponse acceptées
 
 #### Paramètres
 
-Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
-underscores (caractère `_`).
+Le paramètre `puzzle` doit être envoyé entre guillemets. Les lettres sont case-insensitive, mais
+doivent être envoyées en majuscule.
 
 | Nom    | Taille [B] | Description                                                               |
 |:-------|:----------:|:--------------------------------------------------------------------------|
@@ -276,25 +307,26 @@ Informe tous les joueurs du début de une nouvelle manche.
 
 ### Format, paramètres, réponses acceptées
 
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `START <round_number> <puzzle>`                                   |
-| Server $\rightarrow$ Client | $\checkmark$                                                      |
-| Client $\rightarrow$ Server |                                                                   |
-| Réponses acceptées          | Aucune                                                            |
+| Nom                         | Description                                |
+|:----------------------------|--------------------------------------------|
+| Format                      | `START <round_number> <puzzle> <category>` |
+| Server $\rightarrow$ Client | $\checkmark$                               |
+| Client $\rightarrow$ Server |                                            |
+| Réponses acceptées          | Aucune                                     |
 
 : Tableau du format et réponse acceptées
 
 #### Paramètres
 
-Le paramètre `puzzle` ne doit pas contenir des espaces. Tous les espaces sont remplacés par des
-underscores (caractère `_`). De plus, les cases à trouver sont remplacées par `*`. Les lettres sont
-case-insensitive, mais doivent être envoyées en majuscule.
+Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Les lettres sont
+case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
+remplacées par `*`.
 
-| Nom          | Taille [B] | Description                                                         |
-|:-------------|:----------:|:--------------------------------------------------------------------|
-| round_number | 1          | Le numéro de la manche qui a commencé                               |
-| puzzle       | k          | Le puzzle à compléter                                               |
+| Nom          | Taille [B] | Description                                                        |
+|:-------------|:----------:|:-------------------------------------------------------------------|
+| round_number |     1      | Le numéro de la manche qui a commencé. Example: manche 2 -> '\x02' |
+| puzzle       |     k      | Le puzzle à compléter                                              |
+| category     |     m      | La catégorie du puzzle                                             |
 
 : Paramètres de la commande
 
@@ -364,21 +396,21 @@ Informe un joueur que ça à son tour.
 
 ### Format, paramètres, réponses acceptées
 
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `TURN <money> <total_money>`                                                    |
-| Server $\rightarrow$ Client | $\checkmark$                                                      |
-| Client $\rightarrow$ Server |                                                                   |
-| Réponses acceptées          | Aucune                                                            |
+| Nom                         | Description                  |
+|:----------------------------|------------------------------|
+| Format                      | `TURN <money> <total_money>` |
+| Server $\rightarrow$ Client | $\checkmark$                 |
+| Client $\rightarrow$ Server |                              |
+| Réponses acceptées          | Aucune                       |
 
 : Tableau du format et réponse acceptées
 
 #### Paramètres
 
-| Nom          | Taille [B] | Description                                                         |
-|:-------------|:----------:|:--------------------------------------------------------------------|
-| money        | 2          | Somme d'argent gagnée pour cette manche                             |
-| total_money  | 4          | Somme d'argent cumulée depuis le début de la partie                 |
+| Nom          | Taille [B] | Description                                                                               |
+|:-------------|:----------:|:------------------------------------------------------------------------------------------|
+| money        | 2          | Somme d'argent gagnée pour cette manche. Exemple: 256$ -> '\x00\x10'                      |
+| total_money  | 4          | Somme d'argent cumulée depuis le début de la partie. Exemple: 4096$ -> '\x00\x00\x10\x00' |
 
 : Paramètres de la commande
 

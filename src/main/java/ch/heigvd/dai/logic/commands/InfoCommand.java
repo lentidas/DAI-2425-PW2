@@ -18,18 +18,22 @@
 
 package ch.heigvd.dai.logic.commands;
 
+import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
+import java.util.Objects;
 
-public class FillCommand extends GameCommand {
+public class InfoCommand extends GameCommand {
 
   // Add handler
   static {
-    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.INFO, InfoCommand::fromTcpBody);
   }
 
-  public FillCommand(String puzzle) {
-    super(GameCommandType.FILL);
+  public InfoCommand(String puzzle, String category, char[] usedLetters) {
+    super(GameCommandType.INFO);
     args.add(puzzle);
+    args.add(category);
+    args.add(usedLetters);
   }
 
   public String getPuzzle()
@@ -37,13 +41,22 @@ public class FillCommand extends GameCommand {
     return (String)args.getFirst();
   }
 
+  public String getCategory()
+  {
+    return (String)args.get(1);
+  }
+
+  public String[] getUsedLetters()
+  {
+    return ((String[])args.get(2)).clone();
+  }
+
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || args[0] == null
-    || args[0].isEmpty()) {
-      throw new InvalidPropertiesFormatException("Command did not receive the completed puzzle");
+    if(args.length != 3
+    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+      throw new InvalidPropertiesFormatException("Command did not receive correct parameters");
     }
     
-    return new FillCommand(args[0]);
+    return new InfoCommand(args[0], args[1], args[2].toCharArray());
   }
 }

@@ -18,32 +18,51 @@
 
 package ch.heigvd.dai.logic.commands;
 
+import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
+import java.util.Objects;
 
-public class FillCommand extends GameCommand {
+public class TurnCommand extends GameCommand {
 
   // Add handler
   static {
-    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.TURN, TurnCommand::fromTcpBody);
   }
 
-  public FillCommand(String puzzle) {
-    super(GameCommandType.FILL);
-    args.add(puzzle);
+  public TurnCommand(int turnMoney, int totalMoney) {
+    super(GameCommandType.TURN);
+    args.add(turnMoney);
+    args.add(totalMoney);
   }
 
-  public String getPuzzle()
-  {
-    return (String)args.getFirst();
+  public int getTurnMoney() {
+    return (int)args.getFirst();
+  }
+
+  public int getTotalMoney() {
+    return (int)args.get(1);
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || args[0] == null
-    || args[0].isEmpty()) {
-      throw new InvalidPropertiesFormatException("Command did not receive the completed puzzle");
+    if(args.length != 2
+    || Arrays.stream(args).anyMatch(Objects::isNull)
+    || args[0].length() != 2
+    || args[1].length() != 4) {
+      throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
     }
-    
-    return new FillCommand(args[0]);
+
+    int turnMoney = 0;
+    for(int i = 0; i < args[0].length(); i++) {
+      turnMoney <<= 8;
+      turnMoney |= args[0].charAt(i);
+    }
+
+    int totalMoney = 0;
+    for(int i = 0; i < args[1].length(); i++) {
+      totalMoney <<= 8;
+      totalMoney |= args[1].charAt(i);
+    }
+
+    return new TurnCommand(turnMoney, totalMoney);
   }
 }

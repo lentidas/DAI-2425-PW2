@@ -18,32 +18,33 @@
 
 package ch.heigvd.dai.logic.commands;
 
+import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
+import java.util.Objects;
 
-public class FillCommand extends GameCommand {
+public class LobbyCommand extends GameCommand {
 
   // Add handler
   static {
-    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.LOBBY, LobbyCommand::fromTcpBody);
   }
 
-  public FillCommand(String puzzle) {
-    super(GameCommandType.FILL);
-    args.add(puzzle);
+  public LobbyCommand(String[] players) {
+    super(GameCommandType.LOBBY);
+    args.add(players);
   }
 
-  public String getPuzzle()
+  public String[] getPlayers()
   {
-    return (String)args.getFirst();
+    return ((String[])args.getFirst()).clone();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || args[0] == null
-    || args[0].isEmpty()) {
-      throw new InvalidPropertiesFormatException("Command did not receive the completed puzzle");
+    if(args.length == 0
+    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+      throw new InvalidPropertiesFormatException("Command did not receive any player usernames");
     }
     
-    return new FillCommand(args[0]);
+    return new LobbyCommand(args);
   }
 }

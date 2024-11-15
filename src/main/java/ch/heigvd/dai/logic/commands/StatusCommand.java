@@ -18,32 +18,43 @@
 
 package ch.heigvd.dai.logic.commands;
 
+import ch.heigvd.dai.logic.StatusCode;
+import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
+import java.util.Objects;
 
-public class FillCommand extends GameCommand {
+public class StatusCommand extends GameCommand {
 
   // Add handler
   static {
-    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.STATUS, StatusCommand::fromTcpBody);
   }
 
-  public FillCommand(String puzzle) {
-    super(GameCommandType.FILL);
-    args.add(puzzle);
+  public StatusCommand(StatusCode status) {
+    super(GameCommandType.STATUS);
+    args.add(status);
   }
 
-  public String getPuzzle()
+  public StatusCode getStatus()
   {
-    return (String)args.getFirst();
+    return (StatusCode)args.getFirst();
   }
 
-  public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
+  public static GameCommand fromTcpBody(String[] args) throws IllegalArgumentException, InvalidPropertiesFormatException {
     if(args.length != 1
-    || args[0] == null
-    || args[0].isEmpty()) {
-      throw new InvalidPropertiesFormatException("Command did not receive the completed puzzle");
+    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
-    
-    return new FillCommand(args[0]);
+
+    StatusCode status;
+    try
+    {
+      status = StatusCode.valueOf(args[0]);
+    } catch(IllegalArgumentException e)
+    {
+      throw new IllegalArgumentException("Unknown status code");
+    }
+
+    return new StatusCommand(status);
   }
 }

@@ -18,7 +18,9 @@
 
 package ch.heigvd.dai.logic.commands;
 
+import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
+import java.util.Objects;
 
 public class GuessCommand extends GameCommand {
 
@@ -32,9 +34,13 @@ public class GuessCommand extends GameCommand {
     args.add(letter);
   }
 
+  public char getGuessedLetter() {
+    return (char)args.getFirst();
+  }
+
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if(args.length != 1
-    || args[0] == null
+    || Arrays.stream(args).anyMatch(Objects::isNull)
     || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive a single letter");
     }
