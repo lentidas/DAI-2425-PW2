@@ -210,11 +210,11 @@ Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Le
 case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
 remplacées par `*`.
 
-| Nom      | Taille [B] | Description                                                                    |
-|:---------|:----------:|:-------------------------------------------------------------------------------|
-| timeout  |     1      | Nombre de secondes, avant que le joueur perde la partie. Example: 2s -> '\x02' |
-| puzzle   |     m      | Puzzle à résoudre                                                              |
-| category |     n      | Catégorie du puzzle                                                            |
+| Nom      | Taille [B] | Description                                                                     |
+|:---------|:----------:|:--------------------------------------------------------------------------------|
+| timeout  |     1      | Nombre de secondes, avant que le joueur perde la partie. Example: 2s -> '\\x02' |
+| puzzle   |     m      | Puzzle à résoudre                                                               |
+| category |     n      | Catégorie du puzzle                                                             |
 
 : Paramètres de la commande
 
@@ -322,11 +322,11 @@ Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Le
 case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
 remplacées par `*`.
 
-| Nom          | Taille [B] | Description                                                        |
-|:-------------|:----------:|:-------------------------------------------------------------------|
-| round_number |     1      | Le numéro de la manche qui a commencé. Example: manche 2 -> '\x02' |
-| puzzle       |     k      | Le puzzle à compléter                                              |
-| category     |     m      | La catégorie du puzzle                                             |
+| Nom          | Taille [B] | Description                                                         |
+|:-------------|:----------:|:--------------------------------------------------------------------|
+| round_number |     1      | Le numéro de la manche qui a commencé. Example: manche 2 -> '\\x02' |
+| puzzle       |     k      | Le puzzle à compléter                                               |
+| category     |     m      | La catégorie du puzzle                                              |
 
 : Paramètres de la commande
 
@@ -407,10 +407,10 @@ Informe un joueur que ça à son tour.
 
 #### Paramètres
 
-| Nom          | Taille [B] | Description                                                                               |
-|:-------------|:----------:|:------------------------------------------------------------------------------------------|
-| money        | 2          | Somme d'argent gagnée pour cette manche. Exemple: 256$ -> '\x00\x10'                      |
-| total_money  | 4          | Somme d'argent cumulée depuis le début de la partie. Exemple: 4096$ -> '\x00\x00\x10\x00' |
+| Nom          | Taille [B] | Description                                                                                   |
+|:-------------|:----------:|:----------------------------------------------------------------------------------------------|
+| money        | 2          | Somme d'argent gagnée pour cette manche. Exemple: 256$ -> '\\x00\\x10'                        |
+| total_money  | 4          | Somme d'argent cumulée depuis le début de la partie. Exemple: 4096$ -> '\\x00\\x00\\x10\\x00' |
 
 : Paramètres de la commande
 
