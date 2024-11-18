@@ -21,7 +21,6 @@ package ch.heigvd.dai.network;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

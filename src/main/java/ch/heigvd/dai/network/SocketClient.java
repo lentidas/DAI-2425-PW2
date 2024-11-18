@@ -21,7 +21,6 @@ package ch.heigvd.dai.network;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 public class SocketClient extends SocketAbstract {
@@ -90,7 +89,10 @@ public class SocketClient extends SocketAbstract {
               socket.close();
               continue;
             }
-            case HELP -> help();
+            case HELP -> {
+              help();
+              continue;
+            }
           }
 
           // Send request to server if it is non-null.
