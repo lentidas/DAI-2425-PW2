@@ -20,8 +20,9 @@ package ch.heigvd.dai.network;
 
 import com.google.common.net.HostAndPort;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-abstract class Socket {
+abstract class SocketAbstract implements Runnable {
 
   private final HostAndPort hostAndPort;
   private final InetAddress host;
@@ -29,41 +30,40 @@ abstract class Socket {
 
   public static final String END_OF_LINE = "\n";
 
-  Socket(HostAndPort hostAndPort) throws IllegalArgumentException {
+  /**
+   * Default constructor.
+   *
+   * @throws NullPointerException if {@code hostAndPort} is null
+   * @throws IllegalArgumentException if {@code hostAndPort} does not contain a port number
+   * @throws UnknownHostException if {@code hostAndPort} contains a hostname that is unresolvable to
+   *     a valid IP
+   */
+  SocketAbstract(HostAndPort hostAndPort)
+      throws NullPointerException, IllegalArgumentException, UnknownHostException {
     if (hostAndPort == null) {
-      throw new IllegalArgumentException("hostAndPort cannot be null");
+      throw new NullPointerException("hostAndPort cannot be null");
     }
     if (!hostAndPort.hasPort()) {
       throw new IllegalArgumentException("hostAndPort needs to contain a port number");
     }
     this.hostAndPort = hostAndPort;
-  }
-
-  Socket(InetAddress host, int port) {
-    if (host == null) {
-      throw new NullPointerException("Socket class requires non-null InetAddress");
-    }
-    if (port < 0 || port > 65535) {
-      throw new IllegalArgumentException("Invalid port in Socket constructor");
-    }
-    this.host = host;
-    this.port = port;
-  }
-
-  public String getHost() {
-    return hostAndPort.getHost();
-  }
-
-  public int getPort() {
-    return hostAndPort.getPort();
+    this.host = InetAddress.getByName(hostAndPort.getHost());
+    this.port = hostAndPort.getPort();
   }
 
   public HostAndPort getHostAndPort() {
     return hostAndPort;
   }
 
-  // TODO
-  boolean isIpAny() {
-    return true;
+  public InetAddress getHost() {
+    return host;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public boolean isHostAny() {
+    return hostAndPort.getHost().equals("0.0.0.0") || hostAndPort.getHost().equals("::");
   }
 }

@@ -20,6 +20,7 @@ package ch.heigvd.dai.commands;
 
 import ch.heigvd.dai.network.SocketServer;
 import com.google.common.net.HostAndPort;
+import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
@@ -35,10 +36,15 @@ public class Server implements Callable<Integer> {
       names = {"-b", "--bind"},
       description =
           """
-              IP address where the server will bind to and listen for connections.
-              Can be passed in the format '[host]:[port]' or simply '[host]'.
-              IPv6 is supported, but if using the format '[host]:[port]' you are required to use
-              square brackets to enclose the IP.
+              IP address where the server will bind to and listen for connections. Can be passed in the format '[host]:[port]' or simply 'host'.
+              IPv4 cannot have square brackets if passed without the port number.
+              IPv6 is supported, but the IP should always be enclosed by square brackets.
+              Passing '0.0.0.0' or '::' means the server socket will bind to all available IPs on the machine.
+              Valid inputs:
+                10.1.1.10
+                [10.1.1.10]:[8912]
+                [2001:0db8:85a3:0000:0000:8a2e:0370:7334]
+                [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:[8912]
               Default: '${DEFAULT-VALUE}'""",
       defaultValue = Root.DEFAULT_HOST)
   private String bindAddress;
@@ -58,7 +64,14 @@ public class Server implements Callable<Integer> {
     HostAndPort hostAndPort =
         HostAndPort.fromString(bindAddress).withDefaultPort(serverPort).requireBracketsForIPv6();
 
-    SocketServer server = new SocketServer(hostAndPort);
+    SocketServer server = null;
+    try {
+      server = new SocketServer(hostAndPort);
+    } catch (UnknownHostException | NullPointerException | IllegalArgumentException e) {
+      // TODO Maybe handle each exception in a separate catch block
+      System.err.println("[Server] Exception when creating SocketServer: " + e);
+      return 1;
+    }
     server.run();
 
     return 0;

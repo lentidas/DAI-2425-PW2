@@ -20,6 +20,7 @@ package ch.heigvd.dai.commands;
 
 import ch.heigvd.dai.network.SocketClient;
 import com.google.common.net.*;
+import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
@@ -35,10 +36,14 @@ public class Client implements Callable<Integer> {
       names = {"-h", "--host"},
       description =
           """
-              IP address of the game server.
-              Can be passed in the format '[host]:[port]' or simply '[host]'.
-              IPv6 is supported, but if using the format '[host]:[port]' you are required to use
-              square brackets to enclose the IP.
+              IP address where the server will bind to and listen for connections. Can be passed in the format '[host]:[port]' or simply 'host'.
+              IPv4 cannot have square brackets if passed without the port number.
+              IPv6 is supported, but the IP should always be enclosed by square brackets.
+              Valid inputs:
+                10.1.1.10
+                [10.1.1.10]:[8912]
+                [2001:0db8:85a3:0000:0000:8a2e:0370:7334]
+                [2001:0db8:85a3::8a2e:0370:7334]:[8912]
               Default: '${DEFAULT-VALUE}'""",
       defaultValue = Root.DEFAULT_HOST)
   private String serverAddress;
@@ -58,7 +63,14 @@ public class Client implements Callable<Integer> {
     HostAndPort hostAndPort =
         HostAndPort.fromString(serverAddress).withDefaultPort(serverPort).requireBracketsForIPv6();
 
-    SocketClient client = new SocketClient(hostAndPort);
+    SocketClient client = null;
+    try {
+      client = new SocketClient(hostAndPort);
+    } catch (UnknownHostException | NullPointerException | IllegalArgumentException e) {
+      // TODO Maybe handle each exception in a separate catch block
+      System.err.println("[Client] Exception when creating SocketClient: " + e);
+      return 1;
+    }
     client.run();
 
     return 0;
