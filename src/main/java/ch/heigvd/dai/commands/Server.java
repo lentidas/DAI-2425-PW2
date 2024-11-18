@@ -36,15 +36,15 @@ public class Server implements Callable<Integer> {
       names = {"-b", "--bind"},
       description =
           """
-              IP address where the server will bind to and listen for connections. Can be passed in the format '[host]:[port]' or simply 'host'.
+              IP address where the server will bind to and listen for connections. Can be passed in the format 'host:port' or simply 'host'.
               IPv4 cannot have square brackets if passed without the port number.
               IPv6 is supported, but the IP should always be enclosed by square brackets.
               Passing '0.0.0.0' or '::' means the server socket will bind to all available IPs on the machine.
               Valid inputs:
-                10.1.1.10
-                [10.1.1.10]:[8912]
-                [2001:0db8:85a3:0000:0000:8a2e:0370:7334]
-                [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:[8912]
+              - 10.1.1.10
+              - 10.1.1.10:8912
+              - [2001:0db8:85a3:0000:0000:8a2e:0370:7334]
+              - [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8912
               Default: '${DEFAULT-VALUE}'""",
       defaultValue = Root.DEFAULT_HOST)
   private String bindAddress;

@@ -40,10 +40,10 @@ public class Client implements Callable<Integer> {
               IPv4 cannot have square brackets if passed without the port number.
               IPv6 is supported, but the IP should always be enclosed by square brackets.
               Valid inputs:
-                10.1.1.10
-                [10.1.1.10]:[8912]
-                [2001:0db8:85a3:0000:0000:8a2e:0370:7334]
-                [2001:0db8:85a3::8a2e:0370:7334]:[8912]
+              - 10.1.1.10
+              - 10.1.1.10:8912
+              - [2001:0db8:85a3:0000:0000:8a2e:0370:7334]
+              - [2001:0db8:85a3::8a2e:0370:7334]:8912
               Default: '${DEFAULT-VALUE}'""",
       defaultValue = Root.DEFAULT_HOST)
   private String serverAddress;
