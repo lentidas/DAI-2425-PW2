@@ -51,7 +51,9 @@ public class SocketClient extends SocketAbstract {
         Reader reader = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
         BufferedReader in = new BufferedReader(reader);
         Writer writer = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-        BufferedWriter out = new BufferedWriter(writer)) {
+        BufferedWriter out = new BufferedWriter(writer);
+        Reader inputReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
+        BufferedReader bir = new BufferedReader(inputReader)) {
       // Print message to acknowledge successful connection to the server.
       // TODO Check if the output includes brackets when connecting to IPv6
       System.out.println(
@@ -67,8 +69,6 @@ public class SocketClient extends SocketAbstract {
         System.out.print("> ");
 
         // Read user input from console.
-        Reader inputReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
-        BufferedReader bir = new BufferedReader(inputReader);
         String userInput = bir.readLine();
 
         try {
@@ -118,7 +118,6 @@ public class SocketClient extends SocketAbstract {
         // part are the arguments).
         String[] serverResponseParts = serverResponse.split(" ", 2);
 
-        //
         ServerCommand message = null;
         try {
           message = ServerCommand.valueOf(serverResponseParts[0]);
