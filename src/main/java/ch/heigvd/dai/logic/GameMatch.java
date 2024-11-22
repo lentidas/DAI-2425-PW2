@@ -19,21 +19,24 @@
 package ch.heigvd.dai.logic;
 
 import ch.heigvd.dai.Player;
+import ch.heigvd.dai.logic.puzzle.Puzzle;
+import ch.heigvd.dai.logic.wheel.Wedge;
 import ch.heigvd.dai.logic.wheel.Wheel;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GameLobby {
+public class GameMatch {
 
   public static int MaxPlayers = 4;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
   private GamePhase currentPhase;
-  private Player currentPlayer;
-  private Wheel wheel;
+  private int currPlayerIndex;
+  private final Wheel wheel;
+  private Puzzle roundPuzzle;
 
-  public GameLobby() {
+  public GameMatch() {
     connectedPlayers = new CopyOnWriteArrayList<>();
     wheel = new Wheel();
-    currentPlayer = null;
+    currPlayerIndex = 0;
     currentPhase = GamePhase.WAITING_FOR_PLAYERS;
   }
 
@@ -65,10 +68,16 @@ public class GameLobby {
   {
     if(currentPhase == GamePhase.WAITING_FOR_PLAYERS) {
       currentPhase = GamePhase.NORMAL_TURN;
-      currentPlayer = connectedPlayers.getFirst();
+      roundPuzzle = Puzzle.createNewPuzzle("");
+      currPlayerIndex = 0;
       return true;
     }
 
     return false;
+  }
+
+  public Wedge spinTheWheel()
+  {
+    return wheel.spinTheWheel();
   }
 }
