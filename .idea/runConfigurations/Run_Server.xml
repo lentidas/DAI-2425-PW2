@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Application" type="Application" factoryName="Application">
+  <configuration default="false" name="Run Server" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="ch.heigvd.dai.Main" />
     <module name="DAI-2425-PW2" />
+    <option name="PROGRAM_PARAMETERS" value="server" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
