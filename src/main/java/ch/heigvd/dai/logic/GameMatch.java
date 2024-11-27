@@ -24,6 +24,7 @@ import ch.heigvd.dai.logic.wheel.Wedge;
 import ch.heigvd.dai.logic.wheel.Wheel;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+
 public class GameMatch {
 
   public static int MaxPlayers = 4;
@@ -66,7 +67,7 @@ public class GameMatch {
 
   public boolean startGame()
   {
-    if(currentPhase == GamePhase.WAITING_FOR_PLAYERS) {
+    if(currentPhase == GamePhase.WAITING_FOR_PLAYERS || currentPhase == GamePhase.START_NEW_TURN) {
       currentPhase = GamePhase.NORMAL_TURN;
       roundPuzzle = Puzzle.createNewPuzzle("");
       currPlayerIndex = 0;
@@ -78,6 +79,32 @@ public class GameMatch {
 
   public Wedge spinTheWheel()
   {
-    return wheel.spinTheWheel();
+    if(currentPhase == GamePhase.NORMAL_TURN) {
+      return wheel.spinTheWheel();
+    }
+
+    return null;
+  }
+
+
+  public String getCurrentPuzzle()
+  {
+    if(currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
+      return roundPuzzle.getCurrentPuzzleState();
+    }
+
+    return null;
+  }
+
+  public String getCurrentPuzzleCategory()
+  {
+    if(currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
+      String puzzleCatStr = roundPuzzle.getCategory().name();
+      puzzleCatStr = puzzleCatStr.replace('_', ' ');
+      puzzleCatStr = puzzleCatStr.toLowerCase();
+      return roundPuzzle.getCurrentPuzzleState();
+    }
+
+    return null;
   }
 }
