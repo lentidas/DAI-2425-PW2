@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class StartCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.START, StartCommand::fromTcpBody);
-  }
-
   public StartCommand(int roundNumber, String puzzle, String category) {
     super(GameCommandType.START);
     args.add(roundNumber);

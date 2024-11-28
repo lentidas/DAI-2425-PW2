@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class InfoCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.INFO, InfoCommand::fromTcpBody);
-  }
-
   public InfoCommand(String puzzle, String category, char[] usedLetters) {
     super(GameCommandType.INFO);
     args.add(puzzle);

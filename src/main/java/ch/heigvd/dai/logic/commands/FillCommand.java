@@ -22,11 +22,6 @@ import java.util.InvalidPropertiesFormatException;
 
 public class FillCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
-  }
-
   public FillCommand(String puzzle) {
     super(GameCommandType.FILL);
     args.add(puzzle);

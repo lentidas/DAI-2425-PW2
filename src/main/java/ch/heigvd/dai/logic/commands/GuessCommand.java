@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class GuessCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.GUESS, GuessCommand::fromTcpBody);
-  }
-
   public GuessCommand(char letter) {
     super(GameCommandType.GUESS);
     args.add(letter);

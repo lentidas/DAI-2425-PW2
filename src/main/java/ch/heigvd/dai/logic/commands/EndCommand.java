@@ -23,11 +23,6 @@ import java.util.List;
 
 public class EndCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.END, EndCommand::fromTcpBody);
-  }
-
   public EndCommand() {
     super(GameCommandType.END);
   }

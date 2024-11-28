@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class VowelCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.VOWEL, VowelCommand::fromTcpBody);
-  }
-
   public VowelCommand(char vowel) {
     super(GameCommandType.VOWEL);
     args.add(vowel);

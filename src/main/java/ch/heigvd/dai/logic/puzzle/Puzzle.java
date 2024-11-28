@@ -66,7 +66,7 @@ public class Puzzle {
    * @param letter Letter to check
    * @return True if previously checked, false if not
    */
-  boolean hasLetterBeenGuessed(char letter) {
+  public boolean hasLetterBeenGuessed(char letter) {
     return lettersGuessed.contains(letter);
   }
 
@@ -76,7 +76,7 @@ public class Puzzle {
    * @param letter Letter guessed
    * @return True if letter exists in puzzle, false if not
    */
-  boolean tryGuessLetter(char letter) {
+  public boolean tryGuessLetter(char letter) {
     String upperLetter = Character.toString(letter).toUpperCase();
     char upperLetterChar = upperLetter.charAt(0);
 
@@ -110,7 +110,7 @@ public class Puzzle {
    * @param fullPuzzle Full puzzle guess
    * @return True if guess is right, false if not
    */
-  boolean guessPuzzle(String fullPuzzle)
+  public boolean guessPuzzle(String fullPuzzle)
   {
     if(record.puzzle().contentEquals(fullPuzzle.toUpperCase()))
     {
@@ -128,7 +128,7 @@ public class Puzzle {
    * @param letter Letter to search
    * @return Number of times it appears. 0 means it doesn't appear, or hasn't been guessed
    */
-  int getLetterCount(char letter)
+  public int getLetterCount(char letter)
   {
     int count = 0;
     String upperLetter = Character.toString(letter).toUpperCase();

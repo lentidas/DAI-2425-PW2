@@ -30,7 +30,7 @@ public class Wheel {
   public Wheel()
   {
     rand = new Random();
-    wedges = new ArrayList<Wedge>();
+    wedges = new ArrayList<>();
 
     wedges.add(new Wedge(WedgeType.BANKRUPT, 0));
     wedges.add(new Wedge(WedgeType.BANKRUPT, 0));

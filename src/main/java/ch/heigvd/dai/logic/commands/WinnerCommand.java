@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class WinnerCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.WINNER, WinnerCommand::fromTcpBody);
-  }
-
   public WinnerCommand(String username) {
     super(GameCommandType.WINNER);
     args.add(username);

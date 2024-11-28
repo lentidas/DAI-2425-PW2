@@ -18,28 +18,19 @@
 
 package ch.heigvd.dai.logic.commands;
 
-import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Objects;
 
-public class JoinCommand extends GameCommand {
+public class GoCommand extends GameCommand {
 
-  public JoinCommand(String username) {
-    super(GameCommandType.JOIN);
-    args.add(username);
-  }
-
-  public String getUsername()
-  {
-    return (String)args.getFirst();
+  public GoCommand() {
+    super(GameCommandType.GO);
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
-      throw new InvalidPropertiesFormatException("Command did not receive a player username");
+    if(args.length > 0) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
     
-    return new JoinCommand(args[0]);
+    return new GoCommand();
   }
 }

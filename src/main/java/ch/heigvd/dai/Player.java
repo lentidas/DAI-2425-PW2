@@ -18,18 +18,22 @@
 
 package ch.heigvd.dai;
 
+import ch.heigvd.dai.logic.wheel.Wedge;
+
 public class Player {
 
   private final String username;
   private int turnOrder;
   private int money;
   private boolean isLastRoundPlayer;
+  private Wedge currentWedge;
 
   public Player(String username) {
     this.username = username;
     this.turnOrder = -1;
     money = 0;
     isLastRoundPlayer = false;
+    currentWedge = null;
   }
 
   public void setIsLastRoundPlayer(boolean lastRoundPlayer) {
@@ -63,5 +67,18 @@ public class Player {
 
   public String getUsername() {
     return username;
+  }
+
+  public void setCurrentWedge(Wedge currentWedge) {
+    this.currentWedge = currentWedge;
+  }
+
+  public Wedge getCurrentWedge() {
+    return currentWedge;
+  }
+
+  @Override
+  public String toString() {
+    return "Player " + username;
   }
 }

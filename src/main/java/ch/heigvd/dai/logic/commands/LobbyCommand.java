@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class LobbyCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.LOBBY, LobbyCommand::fromTcpBody);
-  }
-
   public LobbyCommand(String[] players) {
     super(GameCommandType.LOBBY);
     args.add(players);

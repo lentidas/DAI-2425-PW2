@@ -25,11 +25,6 @@ import java.util.Objects;
 
 public class StatusCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.STATUS, StatusCommand::fromTcpBody);
-  }
-
   public StatusCommand(StatusCode status) {
     super(GameCommandType.STATUS);
     args.add(status);

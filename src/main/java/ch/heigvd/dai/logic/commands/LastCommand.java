@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class LastCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.LAST, LastCommand::fromTcpBody);
-  }
-
   public LastCommand(int timeout, String puzzle, String category) {
     super(GameCommandType.LAST);
     args.add(timeout);

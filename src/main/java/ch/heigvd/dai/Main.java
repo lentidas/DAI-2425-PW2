@@ -19,6 +19,7 @@
 package ch.heigvd.dai;
 
 import ch.heigvd.dai.commands.Root;
+import ch.heigvd.dai.logic.commands.GameCommand;
 import java.io.File;
 import picocli.CommandLine;
 
@@ -37,6 +38,9 @@ public class Main {
     String jarFilename =
         new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
             .getName();
+
+    // Register game command handlers
+    GameCommand.registerHandlers();
 
     // Create root command and CommandLine
     CommandLine command = new CommandLine(new Root());

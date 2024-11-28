@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class QuitCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.QUIT, QuitCommand::fromTcpBody);
-  }
-
   public QuitCommand(String player) {
     super(GameCommandType.QUIT);
     args.add(player);

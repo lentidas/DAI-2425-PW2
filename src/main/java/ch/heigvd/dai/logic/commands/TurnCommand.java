@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class TurnCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.TURN, TurnCommand::fromTcpBody);
-  }
-
   public TurnCommand(int turnMoney, int totalMoney) {
     super(GameCommandType.TURN);
     args.add(turnMoney);

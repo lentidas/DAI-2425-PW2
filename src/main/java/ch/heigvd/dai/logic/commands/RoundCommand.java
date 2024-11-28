@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class RoundCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.ROUND, RoundCommand::fromTcpBody);
-  }
-
   public RoundCommand(String puzzle) {
     super(GameCommandType.ROUND);
     args.add(puzzle);

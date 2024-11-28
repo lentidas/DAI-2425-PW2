@@ -35,5 +35,7 @@ public enum StatusCode {
   CLOSING,
   NO_FUNDS,
   SKIP,
-  FULL /* 16 */
+  FULL,
+  LOST_A_TURN,
+  BANKRUPT /* 18 */
 }

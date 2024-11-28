@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.commands;
 
+import ch.heigvd.dai.logic.GameMatch;
 import ch.heigvd.dai.network.SocketServer;
 import com.google.common.net.HostAndPort;
 import java.net.UnknownHostException;
@@ -64,9 +65,10 @@ public class Server implements Callable<Integer> {
     HostAndPort hostAndPort =
         HostAndPort.fromString(bindAddress).withDefaultPort(serverPort).requireBracketsForIPv6();
 
+    GameMatch match = new GameMatch();
     SocketServer server = null;
     try {
-      server = new SocketServer(hostAndPort);
+      server = new SocketServer(hostAndPort, match);
     } catch (UnknownHostException | NullPointerException | IllegalArgumentException e) {
       // TODO Maybe handle each exception in a separate catch block
       System.err.println("[Server] Exception when creating SocketServer: " + e);

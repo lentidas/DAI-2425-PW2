@@ -32,5 +32,6 @@ public enum GameCommandType {
   STATUS, /* 10 */
   TURN,
   VOWEL,
-  WINNER /* 13 */
+  WINNER,
+  GO /* 14 */
 }
