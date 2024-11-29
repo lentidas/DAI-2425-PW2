@@ -150,6 +150,12 @@ public class SocketServer extends SocketAbstract {
               }
             }
 
+            if(null != player && match.isMyTurn(player))
+            {
+              // TODO: add wait
+              continue;
+            }
+
             // Read response from client, or wait for a timeout
             String clientRequest = in.readLine();
             System.out.println(clientRequest);
@@ -203,7 +209,7 @@ public class SocketServer extends SocketAbstract {
                 {
                   System.out.println(player + " tried to guess a consonant, but it's not their turn");
                 } else {
-                  response = match.guessConsonant((GuessCommand) command).toTcpBody() + END_OF_LINE;
+                  response = match.guessConsonant((GuessCommand) command).toTcpBody();
                 }
               }
 
