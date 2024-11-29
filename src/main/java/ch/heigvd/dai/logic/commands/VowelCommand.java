@@ -29,19 +29,18 @@ public class VowelCommand extends GameCommand {
     args.add(vowel);
   }
 
-  public char getVowel()
-  {
-    return (char)args.getFirst();
+  public char getVowel() {
+    return (char) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)
-    || args[0].length() != 1) {
+    if (null == args
+        || args.length != 1
+        || Arrays.stream(args).anyMatch(Objects::isNull)
+        || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
     }
-    
+
     return new VowelCommand(args[0].charAt(0));
   }
 }

@@ -23,5 +23,4 @@ import ch.heigvd.dai.logic.commands.GameCommandType;
 public interface IGameEndpoint {
 
   boolean canRunCommand(GameCommandType commandType);
-
 }

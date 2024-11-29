@@ -31,28 +31,23 @@ public class InfoCommand extends GameCommand {
     args.add(new String(usedLetters));
   }
 
-  public String getPuzzle()
-  {
-    return (String)args.getFirst();
+  public String getPuzzle() {
+    return (String) args.getFirst();
   }
 
-  public String getCategory()
-  {
-    return (String)args.get(1);
+  public String getCategory() {
+    return (String) args.get(1);
   }
 
-  public String[] getUsedLetters()
-  {
-    return ((String[])args.get(2)).clone();
+  public String[] getUsedLetters() {
+    return ((String[]) args.get(2)).clone();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length != 3
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+    if (null == args || args.length != 3 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive correct parameters");
     }
-    
+
     return new InfoCommand(args[0], args[1], args[2].toCharArray());
   }
 }

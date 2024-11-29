@@ -19,7 +19,6 @@
 package ch.heigvd.dai.logic.commands;
 
 import java.util.InvalidPropertiesFormatException;
-import java.util.List;
 
 public class EndCommand extends GameCommand {
 
@@ -28,10 +27,10 @@ public class EndCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null != args && args.length > 0) {
+    if (null != args && args.length > 0) {
       throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
-    
+
     return new EndCommand();
   }
 }

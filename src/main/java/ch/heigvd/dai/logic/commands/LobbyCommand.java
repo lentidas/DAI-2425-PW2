@@ -29,18 +29,15 @@ public class LobbyCommand extends GameCommand {
     args.add(players);
   }
 
-  public String[] getPlayers()
-  {
-    return ((String[])args.getFirst()).clone();
+  public String[] getPlayers() {
+    return ((String[]) args.getFirst()).clone();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length == 0
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+    if (null == args || args.length == 0 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive any player usernames");
     }
-    
+
     return new LobbyCommand(args);
   }
 }

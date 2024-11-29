@@ -29,18 +29,15 @@ public class QuitCommand extends GameCommand {
     args.add(player);
   }
 
-  public String getPlayer()
-  {
-    return (String)args.getFirst();
+  public String getPlayer() {
+    return (String) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+    if (null == args || args.length != 1 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive any player usernames");
     }
-    
+
     return new QuitCommand(args[0]);
   }
 }

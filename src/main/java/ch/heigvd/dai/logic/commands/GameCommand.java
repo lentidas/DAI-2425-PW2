@@ -19,34 +19,31 @@
 package ch.heigvd.dai.logic.commands;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class GameCommand {
-  
+
   protected final GameCommandType type;
   protected List<Object> args;
-  private static final Map<GameCommandType, CommandFactoryFunction> _factoryHandlers = new HashMap<>();
-  
+  private static final Map<GameCommandType, CommandFactoryFunction> _factoryHandlers =
+      new HashMap<>();
+
   public GameCommand(GameCommandType type) {
     this.type = type;
     this.args = new LinkedList<>();
   }
 
-  public GameCommandType getType()
-  {
+  public GameCommandType getType() {
     return type;
   }
-  
-  public int getArgCount()
-  {
+
+  public int getArgCount() {
     return args.size();
   }
 
@@ -65,10 +62,10 @@ public abstract class GameCommand {
       throw new InvalidPropertiesFormatException("Invalid command name: " + commandName);
     }
 
-    if(!_factoryHandlers.containsKey(commandType)) {
+    if (!_factoryHandlers.containsKey(commandType)) {
       throw new InvalidPropertiesFormatException("No handler for command " + commandName);
     }
-    
+
     // Split word by word, unless quoted
     String argsSubstr = body.substring(commandName.length()).stripLeading();
     Pattern regexPatt = Pattern.compile("([^\"]\\S*|.+?\")\\s*");
@@ -80,14 +77,14 @@ public abstract class GameCommand {
       allMatches.add(matcher.group());
     }
 
-    if(!allMatches.isEmpty()) {
+    if (!allMatches.isEmpty()) {
       commandArgs = new String[allMatches.size()];
 
       int i = 0;
-      for(String arg : allMatches) {
+      for (String arg : allMatches) {
 
         // Remove start and end quotes
-        if(arg.startsWith("\"") && arg.endsWith("\"")) {
+        if (arg.startsWith("\"") && arg.endsWith("\"")) {
           arg = arg.substring(1, arg.length() - 1);
         }
         commandArgs[i] = arg;
@@ -97,15 +94,13 @@ public abstract class GameCommand {
 
     return _factoryHandlers.get(commandType).apply(commandArgs);
   }
-  
-  protected static void addFactoryHandler(GameCommandType type, CommandFactoryFunction handler)
-  {
+
+  protected static void addFactoryHandler(GameCommandType type, CommandFactoryFunction handler) {
     _factoryHandlers.put(type, handler);
     System.out.println("Added handler for " + type);
   }
 
-  public static void registerHandlers()
-  {
+  public static void registerHandlers() {
     GameCommand.addFactoryHandler(GameCommandType.END, EndCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.GO, GoCommand::fromTcpBody);
@@ -123,36 +118,29 @@ public abstract class GameCommand {
     GameCommand.addFactoryHandler(GameCommandType.WINNER, WinnerCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.SKIP, SkipCommand::fromTcpBody);
   }
-  
-  public String toTcpBody()
-  {
+
+  public String toTcpBody() {
     StringBuilder sb = new StringBuilder();
     sb.append(type.name());
 
-    if(null != args) {
-      for(Object arg : args) {
+    if (null != args) {
+      for (Object arg : args) {
         sb.append(' ');
-        if(arg instanceof String && ((String) arg).contains(" ")) {
-          sb.append('"')
-              .append(arg)
-              .append('"');
+        if (arg instanceof String && ((String) arg).contains(" ")) {
+          sb.append('"').append(arg).append('"');
         } else {
           sb.append(arg);
         }
       }
     }
-    
+
     return sb.toString();
   }
-  
-  public List<Object> getArgs()
-  {
-    if(null != args)
-    {
+
+  public List<Object> getArgs() {
+    if (null != args) {
       return List.copyOf(args);
-    }
-    else
-    {
+    } else {
       return new LinkedList<>();
     }
   }

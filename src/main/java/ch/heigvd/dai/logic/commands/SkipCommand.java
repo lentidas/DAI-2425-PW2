@@ -27,10 +27,10 @@ public class SkipCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null != args && args.length > 0) {
+    if (null != args && args.length > 0) {
       throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
-    
+
     return new SkipCommand();
   }
 }

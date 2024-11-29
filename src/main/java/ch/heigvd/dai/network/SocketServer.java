@@ -25,8 +25,6 @@ import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.JoinCommand;
-import ch.heigvd.dai.logic.commands.LobbyCommand;
-import ch.heigvd.dai.logic.commands.StartCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
 import ch.heigvd.dai.logic.commands.VowelCommand;
 import com.google.common.net.HostAndPort;
@@ -34,9 +32,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.InvalidPropertiesFormatException;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -98,16 +93,14 @@ public class SocketServer extends SocketAbstract {
       }
     }
 
-
     /*
      * Command handlers
      */
 
-    GameCommand parseJoin(JoinCommand joinCommand)
-    {
+    GameCommand parseJoin(JoinCommand joinCommand) {
       StatusCode joinStatus = match.addPlayer(joinCommand.getUsername());
 
-      if(null == joinStatus) {
+      if (null == joinStatus) {
         joinStatus = StatusCode.KO;
       } else if (StatusCode.OK == joinStatus) {
         player = match.getPlayer(joinCommand.getUsername());
@@ -116,7 +109,6 @@ public class SocketServer extends SocketAbstract {
 
       return new StatusCommand(joinStatus);
     }
-
 
     /*
      * Socket reader / writer
@@ -141,10 +133,9 @@ public class SocketServer extends SocketAbstract {
         // Run REPL until client disconnects.
         while (!socket.isClosed()) {
 
-          try
-          {
+          try {
             // Send all remaining global commands
-            if(null != player) {
+            if (null != player) {
               for (GameCommand pendingCommand : match.getPendingCommands(player)) {
                 out.write(pendingCommand.toTcpBody() + END_OF_LINE);
                 out.flush();
@@ -177,19 +168,20 @@ public class SocketServer extends SocketAbstract {
 
             // Prepare response from the server back to the client.
             String response = null;
-            if(null != player)
-            {
+            if (null != player) {
               System.out.println(player + " sent command " + command.getType());
-            }
-            else
-            {
-              System.out.println("Player from IP " + socket.getInetAddress().getHostAddress() + " sent command " + command.getType());
+            } else {
+              System.out.println(
+                  "Player from IP "
+                      + socket.getInetAddress().getHostAddress()
+                      + " sent command "
+                      + command.getType());
             }
 
             // Handle the request and setup appropriate response.
             switch (command.getType()) {
               case JOIN -> {
-                if(null == player) {
+                if (null == player) {
                   response = parseJoin((JoinCommand) command).toTcpBody();
                 } else {
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
@@ -198,39 +190,36 @@ public class SocketServer extends SocketAbstract {
               }
 
               case GO -> {
-                if(!match.startGame()) {
-                  System.out.println(player + " tried to start the match, but it was already ongoing");
+                if (!match.startGame()) {
+                  System.out.println(
+                      player + " tried to start the match, but it was already ongoing");
                 } else {
                   System.out.println(player + " started the match");
                 }
               }
 
-              case GUESS ->
-              {
-                if(!match.isMyTurn(player))
-                {
-                  System.out.println(player + " tried to guess a consonant, but it's not their turn");
+              case GUESS -> {
+                if (!match.isMyTurn(player)) {
+                  System.out.println(
+                      player + " tried to guess a consonant, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   response = match.guessConsonant((GuessCommand) command).toTcpBody();
                 }
               }
 
-              case FILL ->
-              {
-                if(!match.isMyTurn(player))
-                {
-                  System.out.println(player + " tried to fill in the puzzle, but it's not their turn");
+              case FILL -> {
+                if (!match.isMyTurn(player)) {
+                  System.out.println(
+                      player + " tried to fill in the puzzle, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   response = match.solvePuzzle((FillCommand) command).toTcpBody();
                 }
               }
 
-              case SKIP ->
-              {
-                if(!match.isMyTurn(player))
-                {
+              case SKIP -> {
+                if (!match.isMyTurn(player)) {
                   System.out.println(player + " tried to skip their turn, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
@@ -239,32 +228,29 @@ public class SocketServer extends SocketAbstract {
                 }
               }
 
-              case VOWEL ->
-              {
-                if(!match.isMyTurn(player))
-                {
+              case VOWEL -> {
+                if (!match.isMyTurn(player)) {
                   System.out.println(player + " tried to buy a vowel, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   System.out.println(player + " bought a vowel");
-                  response = match.guessVowel((VowelCommand)command).toTcpBody();
+                  response = match.guessVowel((VowelCommand) command).toTcpBody();
                 }
               }
 
               default -> {
-                System.out.println( "Command " + command.getType() + " was uncaught!");
+                System.out.println("Command " + command.getType() + " was uncaught!");
                 response = new StatusCommand(StatusCode.KO).toTcpBody();
               }
             }
 
             // Send the response back to the client.
-            if(null != response)
-            {
+            if (null != response) {
               out.write(response + END_OF_LINE);
               out.flush();
             }
 
-          } catch(SocketTimeoutException e) {
+          } catch (SocketTimeoutException e) {
             // Nothing to do but loop around and hope for an answer later on
           } catch (Exception e) {
             // TODO Same as the other TODO above

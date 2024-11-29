@@ -29,19 +29,18 @@ public class RoundCommand extends GameCommand {
     args.add(puzzle);
   }
 
-  public String getPuzzle()
-  {
-    return (String)args.getFirst();
+  public String getPuzzle() {
+    return (String) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)
-    || args[0].isEmpty()) {
+    if (null == args
+        || args.length != 1
+        || Arrays.stream(args).anyMatch(Objects::isNull)
+        || args[0].isEmpty()) {
       throw new InvalidPropertiesFormatException("Command did not receive the new puzzle");
     }
-    
+
     return new RoundCommand(args[0]);
   }
 }

@@ -31,29 +31,26 @@ public class LastCommand extends GameCommand {
     args.add(category);
   }
 
-  public int getTimeout()
-  {
-    return (int)args.getFirst();
+  public int getTimeout() {
+    return (int) args.getFirst();
   }
 
-  public String getPuzzle()
-  {
-    return (String)args.get(1);
+  public String getPuzzle() {
+    return (String) args.get(1);
   }
 
-  public String getCategory()
-  {
-    return (String)args.get(2);
+  public String getCategory() {
+    return (String) args.get(2);
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length != 3
-    || Arrays.stream(args).anyMatch(Objects::isNull)
-    || args[0].length() != 1) {
+    if (null == args
+        || args.length != 3
+        || Arrays.stream(args).anyMatch(Objects::isNull)
+        || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive the right parameters");
     }
-    
+
     return new LastCommand(args[0].charAt(0), args[1], args[2]);
   }
 }

@@ -31,30 +31,30 @@ public class TurnCommand extends GameCommand {
   }
 
   public int getTurnMoney() {
-    return (int)args.getFirst();
+    return (int) args.getFirst();
   }
 
   public int getTotalMoney() {
-    return (int)args.get(1);
+    return (int) args.get(1);
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(null == args
-    || args.length != 2
-    || Arrays.stream(args).anyMatch(Objects::isNull)
-    || args[0].length() != 2
-    || args[1].length() != 4) {
+    if (null == args
+        || args.length != 2
+        || Arrays.stream(args).anyMatch(Objects::isNull)
+        || args[0].length() != 2
+        || args[1].length() != 4) {
       throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
     }
 
     int turnMoney = 0;
-    for(int i = 0; i < args[0].length(); i++) {
+    for (int i = 0; i < args[0].length(); i++) {
       turnMoney <<= 8;
       turnMoney |= args[0].charAt(i);
     }
 
     int totalMoney = 0;
-    for(int i = 0; i < args[1].length(); i++) {
+    for (int i = 0; i < args[1].length(); i++) {
       totalMoney <<= 8;
       totalMoney |= args[1].charAt(i);
     }

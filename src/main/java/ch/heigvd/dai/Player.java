@@ -49,29 +49,23 @@ public class Player {
 
   public void incrementMoney(int money) {
     // Avoid overflow
-    if(Integer.MAX_VALUE - money < this.money)
-    {
+    if (Integer.MAX_VALUE - money < this.money) {
       this.money = Integer.MAX_VALUE;
-    }
-    else {
+    } else {
       this.money += money;
     }
   }
 
   public void decrementMoney(int money) {
     // Avoid negative amounts
-    if(this.money - money < 0)
-    {
+    if (this.money - money < 0) {
       this.money = 0;
-    }
-    else
-    {
+    } else {
       this.money += money;
     }
   }
 
-  public void goBankrupt()
-  {
+  public void goBankrupt() {
     this.money = 0;
   }
 

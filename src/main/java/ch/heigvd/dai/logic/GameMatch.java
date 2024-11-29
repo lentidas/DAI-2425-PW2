@@ -36,12 +36,11 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-
 public class GameMatch {
 
-  public final static int VowelCost = 250;
-  public final static int NormalRoundsBeforeLastRound = 4;
-  public final static int MaxPlayers = 4;
+  public static final int VowelCost = 250;
+  public static final int NormalRoundsBeforeLastRound = 4;
+  public static final int MaxPlayers = 4;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
   private final ConcurrentHashMap<Player, ArrayList<GameCommand>> pendingCommands;
   private GamePhase currentPhase;
@@ -62,10 +61,9 @@ public class GameMatch {
   public StatusCode addPlayer(String username) {
     StatusCode joinResult = StatusCode.OK;
 
-    if(currentPhase == GamePhase.WAITING_FOR_PLAYERS && connectedPlayers.size() < MaxPlayers)
-    {
-      for(Player p : connectedPlayers) {
-        if(p.getUsername().equals(username)) {
+    if (currentPhase == GamePhase.WAITING_FOR_PLAYERS && connectedPlayers.size() < MaxPlayers) {
+      for (Player p : connectedPlayers) {
+        if (p.getUsername().equals(username)) {
           joinResult = StatusCode.DUPLICATE_NAME;
           break;
         }
@@ -78,31 +76,27 @@ public class GameMatch {
       // Let the other players know someone joined
       queueOthersGlobalCommand(newPlayer, new StatusCommand(StatusCode.PLAYER_JOINED));
       queueOthersGlobalCommand(newPlayer, new LobbyCommand(getPlayers()));
-    }
-    else
-    {
+    } else {
       joinResult = StatusCode.FULL;
     }
 
     return joinResult;
   }
 
-  public String[] getPlayers()
-  {
+  public String[] getPlayers() {
     int i = 0;
     String[] players = new String[connectedPlayers.size()];
-    for(Player p : connectedPlayers) {
+    for (Player p : connectedPlayers) {
       players[i] = p.getUsername();
       i++;
     }
     return players;
   }
 
-  public Player getPlayer(String username)
-  {
+  public Player getPlayer(String username) {
     Player player = null;
-    for(Player p : connectedPlayers) {
-      if(p.getUsername().equals(username)) {
+    for (Player p : connectedPlayers) {
+      if (p.getUsername().equals(username)) {
         player = p;
         break;
       }
@@ -111,7 +105,7 @@ public class GameMatch {
   }
 
   public GameCommand[] getPendingCommands(Player player) {
-    if(pendingCommands.containsKey(player)) {
+    if (pendingCommands.containsKey(player)) {
       GameCommand[] commands = new GameCommand[pendingCommands.get(player).size()];
       pendingCommands.get(player).toArray(commands);
       pendingCommands.get(player).clear();
@@ -121,8 +115,7 @@ public class GameMatch {
     }
   }
 
-  public boolean isMyTurn(Player player)
-  {
+  public boolean isMyTurn(Player player) {
     return connectedPlayers.get(currPlayerIndex).getUsername().equals(player.getUsername());
   }
 
@@ -138,28 +131,24 @@ public class GameMatch {
     return false;
   }
 
-  public Wedge spinTheWheel()
-  {
-    if(currentPhase == GamePhase.NORMAL_TURN) {
+  public Wedge spinTheWheel() {
+    if (currentPhase == GamePhase.NORMAL_TURN) {
       return wheel.spinTheWheel();
     }
 
     return null;
   }
 
-
-  public String getCurrentPuzzle()
-  {
-    if(currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
+  public String getCurrentPuzzle() {
+    if (currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
       return roundPuzzle.getCurrentPuzzleState();
     }
 
     return null;
   }
 
-  public String getCurrentPuzzleCategory()
-  {
-    if(currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
+  public String getCurrentPuzzleCategory() {
+    if (currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
       String puzzleCatStr = roundPuzzle.getCategory().name();
       puzzleCatStr = puzzleCatStr.replace('_', ' ');
       puzzleCatStr = puzzleCatStr.toLowerCase();
@@ -169,9 +158,8 @@ public class GameMatch {
     return null;
   }
 
-  public char[] getGuessedLetters()
-  {
-    if(currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
+  public char[] getGuessedLetters() {
+    if (currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
       return roundPuzzle.getGuessedLetters();
     }
 
@@ -183,15 +171,15 @@ public class GameMatch {
     GameCommand response;
     Player player;
 
-    if(currentPhase == GamePhase.NORMAL_TURN &&
-        (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.CHILLING) {
+    if (currentPhase == GamePhase.NORMAL_TURN
+        && (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.CHILLING) {
 
       int repetitions = roundPuzzle.getLetterCount(command.getGuessedLetter());
 
       if (roundPuzzle.hasLetterBeenGuessed(command.getGuessedLetter())) {
         response = new StatusCommand(StatusCode.ALREADY_TRIED);
         System.out.println(player + " guessed a consonant that has already been guessed");
-      } else if(!roundPuzzle.tryGuessLetter(command.getGuessedLetter())) {
+      } else if (!roundPuzzle.tryGuessLetter(command.getGuessedLetter())) {
         response = new StatusCommand(StatusCode.LETTER_MISSING);
         System.out.println(player + " guessed a consonant that does not exist in the puzzle");
         player.setCurrentWedge(null);
@@ -201,7 +189,8 @@ public class GameMatch {
         player.incrementMoney(moneyWon);
         System.out.println(player + " got " + moneyWon + "$ for a correct guess");
         player.setCurrentWedge(null);
-        response = new InfoCommand(getCurrentPuzzle(), getCurrentPuzzleCategory(), getGuessedLetters());
+        response =
+            new InfoCommand(getCurrentPuzzle(), getCurrentPuzzleCategory(), getGuessedLetters());
         player.setState(PlayerState.SECOND_GUESS_PHASE);
       }
     } else {
@@ -217,13 +206,14 @@ public class GameMatch {
     GameCommand response;
     Player player;
 
-    if(currentPhase == GamePhase.NORMAL_TURN &&
-        (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.SECOND_GUESS_PHASE) {
+    if (currentPhase == GamePhase.NORMAL_TURN
+        && (player = connectedPlayers.get(currPlayerIndex)).getState()
+            == PlayerState.SECOND_GUESS_PHASE) {
 
       if (roundPuzzle.hasLetterBeenGuessed(command.getVowel())) {
         response = new StatusCommand(StatusCode.ALREADY_TRIED);
         System.out.println(player + " guessed a vowel that has already been guessed");
-      } else if(!roundPuzzle.tryGuessLetter(command.getVowel())) {
+      } else if (!roundPuzzle.tryGuessLetter(command.getVowel())) {
         response = new StatusCommand(StatusCode.LETTER_MISSING);
         System.out.println(player + " guessed a vowel that does not exist in the puzzle");
         endTurn = true;
@@ -233,8 +223,7 @@ public class GameMatch {
         endTurn = true;
       }
 
-      if(endTurn)
-      {
+      if (endTurn) {
         player.decrementMoney(roundPuzzle.getVowelCost());
         player.setCurrentWedge(null);
         advanceTurn();
@@ -247,14 +236,14 @@ public class GameMatch {
     return response;
   }
 
-  public GameCommand solvePuzzle(FillCommand command)
-  {
+  public GameCommand solvePuzzle(FillCommand command) {
 
     GameCommand response;
     Player player;
 
-    if(currentPhase == GamePhase.NORMAL_TURN &&
-        (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.SECOND_GUESS_PHASE) {
+    if (currentPhase == GamePhase.NORMAL_TURN
+        && (player = connectedPlayers.get(currPlayerIndex)).getState()
+            == PlayerState.SECOND_GUESS_PHASE) {
 
       if (roundPuzzle.guessPuzzle(command.getPuzzle())) {
         System.out.println(player + " successfully solved the puzzle");
@@ -275,35 +264,32 @@ public class GameMatch {
     return response;
   }
 
-  private void queueGlobalCommand(GameCommand command)
-  {
-    for(Player p : connectedPlayers) {
+  private void queueGlobalCommand(GameCommand command) {
+    for (Player p : connectedPlayers) {
       pendingCommands.get(p).add(command);
     }
   }
 
-  private void queueOthersGlobalCommand(Player unmatchingPlayer, GameCommand othersCommand)
-  {
-    for(Player p : connectedPlayers) {
-      if(!p.getUsername().equals(unmatchingPlayer.getUsername())) {
+  private void queueOthersGlobalCommand(Player unmatchingPlayer, GameCommand othersCommand) {
+    for (Player p : connectedPlayers) {
+      if (!p.getUsername().equals(unmatchingPlayer.getUsername())) {
         pendingCommands.get(p).add(othersCommand);
       }
     }
   }
 
-  private void queueSpecificGlobalCommand(Player matchingPlayer, GameCommand theirCommand)
-  {
-    for(Player p : connectedPlayers) {
-      if(p.getUsername().equals(matchingPlayer.getUsername())) {
+  private void queueSpecificGlobalCommand(Player matchingPlayer, GameCommand theirCommand) {
+    for (Player p : connectedPlayers) {
+      if (p.getUsername().equals(matchingPlayer.getUsername())) {
         pendingCommands.get(p).add(theirCommand);
       }
     }
   }
 
-  private void queueDifferentGlobalCommand(Player matchingPlayer, GameCommand othersCommand, GameCommand theirCommand)
-  {
-    for(Player p : connectedPlayers) {
-      if(p.getUsername().equals(matchingPlayer.getUsername())) {
+  private void queueDifferentGlobalCommand(
+      Player matchingPlayer, GameCommand othersCommand, GameCommand theirCommand) {
+    for (Player p : connectedPlayers) {
+      if (p.getUsername().equals(matchingPlayer.getUsername())) {
         pendingCommands.get(p).add(theirCommand);
       } else {
         pendingCommands.get(p).add(othersCommand);
@@ -311,24 +297,21 @@ public class GameMatch {
     }
   }
 
-  private void advanceRound()
-  {
+  private void advanceRound() {
     currentRound++;
-    if(currentRound > NormalRoundsBeforeLastRound) {
+    if (currentRound > NormalRoundsBeforeLastRound) {
       // TODO: announce winner
       currentPhase = GamePhase.LAST_TURN;
-    }
-    else
-    {
+    } else {
       roundPuzzle = Puzzle.createNewPuzzle("", VowelCost);
-      queueGlobalCommand(new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
+      queueGlobalCommand(
+          new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
       System.out.println("New game started. Full puzzle: " + roundPuzzle.getFullPuzzle());
       advanceTurn();
     }
   }
 
-  public void advanceTurn()
-  {
+  public void advanceTurn() {
     currPlayerIndex = (currPlayerIndex + 1) % connectedPlayers.size();
     Player currentPlayer = connectedPlayers.get(currPlayerIndex);
     Wedge turnWedge = spinTheWheel();
@@ -338,25 +321,19 @@ public class GameMatch {
 
     System.out.println("It is " + currentPlayer + "'s turn. Spin is " + turnWedge);
 
-    if(turnWedge.bankruptsPlayer())
-    {
+    if (turnWedge.bankruptsPlayer()) {
       currentPlayer.goBankrupt();
       playerResponse = new StatusCommand(StatusCode.BANKRUPT);
-    }
-    else if(turnWedge.skipsATurn())
-    {
+    } else if (turnWedge.skipsATurn()) {
       playerResponse = new StatusCommand(StatusCode.LOST_A_TURN);
-    }
-    else
-    {
+    } else {
       playerResponse = new TurnCommand(turnWedge.getMoneyWon(), currentPlayer.getMoney());
       currentPlayer.setCurrentWedge(turnWedge);
     }
 
     queueSpecificGlobalCommand(currentPlayer, playerResponse);
 
-    if(endsTurn)
-    {
+    if (endsTurn) {
       advanceTurn();
     }
   }

@@ -29,9 +29,9 @@ public class Puzzle {
   private final int vowelCost;
   private String currentPuzzleState;
 
-
   /**
    * Constructs a new puzzle based on the provided record and initial uncovered letter set
+   *
    * @param record Puzzle record
    * @param initialLetters Letters to be uncovered from the beginning
    */
@@ -41,20 +41,15 @@ public class Puzzle {
     this.record = record;
     this.vowelCost = vowelCost;
 
-    for(char letter : upperInitialLetters.toCharArray())
-    {
+    for (char letter : upperInitialLetters.toCharArray()) {
       lettersGuessed.add(letter);
     }
 
     StringBuilder sb = new StringBuilder();
-    for(char letter : record.puzzle().toCharArray())
-    {
-      if(Character.isLetter(letter) && !upperInitialLetters.contains(Character.toString(letter)))
-      {
+    for (char letter : record.puzzle().toCharArray()) {
+      if (Character.isLetter(letter) && !upperInitialLetters.contains(Character.toString(letter))) {
         sb.append('*');
-      }
-      else
-      {
+      } else {
         sb.append(letter);
       }
     }
@@ -62,9 +57,9 @@ public class Puzzle {
     currentPuzzleState = sb.toString();
   }
 
-
   /**
    * Checks whether the provided letter has previously been guessed
+   *
    * @param letter Letter to check
    * @return True if previously checked, false if not
    */
@@ -72,9 +67,9 @@ public class Puzzle {
     return lettersGuessed.contains(letter);
   }
 
-
   /**
    * Tries to place a letter in the puzzle
+   *
    * @param letter Letter guessed
    * @return True if letter exists in puzzle, false if not
    */
@@ -82,18 +77,13 @@ public class Puzzle {
     String upperLetter = Character.toString(letter).toUpperCase();
     char upperLetterChar = upperLetter.charAt(0);
 
-    if(!hasLetterBeenGuessed(upperLetterChar) && record.puzzle().contains(upperLetter))
-    {
+    if (!hasLetterBeenGuessed(upperLetterChar) && record.puzzle().contains(upperLetter)) {
       StringBuilder sb = new StringBuilder();
       String fullPuzzle = record.puzzle();
-      for(int i = 0; i < currentPuzzleState.length(); i++)
-      {
-        if(fullPuzzle.charAt(i) == upperLetterChar)
-        {
+      for (int i = 0; i < currentPuzzleState.length(); i++) {
+        if (fullPuzzle.charAt(i) == upperLetterChar) {
           sb.append(upperLetter);
-        }
-        else
-        {
+        } else {
           sb.append(currentPuzzleState.charAt(i));
         }
       }
@@ -106,16 +96,14 @@ public class Puzzle {
     return false;
   }
 
-
   /**
    * Tries to guess the full puzzle
+   *
    * @param fullPuzzle Full puzzle guess
    * @return True if guess is right, false if not
    */
-  public boolean guessPuzzle(String fullPuzzle)
-  {
-    if(record.puzzle().contentEquals(fullPuzzle.toUpperCase()))
-    {
+  public boolean guessPuzzle(String fullPuzzle) {
+    if (record.puzzle().contentEquals(fullPuzzle.toUpperCase())) {
       currentPuzzleState = fullPuzzle;
       return true;
     }
@@ -123,73 +111,62 @@ public class Puzzle {
     return false;
   }
 
-
   /**
    * Gets the number of times the provided letter appears in the full puzzle
+   *
    * @implNote If you need to check whether a letter has been guessed yet, use hasLetterBeenGuessed
    * @param letter Letter to search
    * @return Number of times it appears. 0 means it doesn't appear, or hasn't been guessed
    */
-  public int getLetterCount(char letter)
-  {
+  public int getLetterCount(char letter) {
     int count = 0;
     String upperLetter = Character.toString(letter).toUpperCase();
-    for(int i = 0; i < record.puzzle().length(); i++)
-    {
-      if(record.puzzle().charAt(i) == upperLetter.charAt(0))
-      {
+    for (int i = 0; i < record.puzzle().length(); i++) {
+      if (record.puzzle().charAt(i) == upperLetter.charAt(0)) {
         ++count;
       }
     }
     return count;
   }
 
-
   /**
-   * Returns the current state of the puzzle, with * in place of the letters that haven't been
-   * found yet
+   * Returns the current state of the puzzle, with * in place of the letters that haven't been found
+   * yet
+   *
    * @return The current state of the puzzle
    */
-  public String getCurrentPuzzleState()
-  {
+  public String getCurrentPuzzleState() {
     return currentPuzzleState;
   }
 
-
   /**
    * Returns the current puzzle's category
+   *
    * @return The category
    */
-  public PuzzleCategory getCategory()
-  {
+  public PuzzleCategory getCategory() {
     return record.category();
   }
 
-
-  public char[] getGuessedLetters()
-  {
+  public char[] getGuessedLetters() {
     char[] charGuessed = new char[lettersGuessed.size()];
 
-    for(int i = 0; i < lettersGuessed.size(); i++)
-    {
+    for (int i = 0; i < lettersGuessed.size(); i++) {
       charGuessed[i] = lettersGuessed.get(i);
     }
 
     return charGuessed;
   }
 
-  public String getFullPuzzle()
-  {
+  public String getFullPuzzle() {
     return record.puzzle();
   }
 
-  public int getVowelCost()
-  {
+  public int getVowelCost() {
     return vowelCost;
   }
 
-  public static Puzzle createNewPuzzle(String initialLetters, int vowelCost)
-  {
+  public static Puzzle createNewPuzzle(String initialLetters, int vowelCost) {
     return new Puzzle(new PuzzleRecord("Test", PuzzleCategory.FOOD), initialLetters, vowelCost);
   }
 }

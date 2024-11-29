@@ -27,8 +27,7 @@ public class Wheel {
   private final List<Wedge> wedges;
   private final Random rand;
 
-  public Wheel()
-  {
+  public Wheel() {
     rand = new Random();
     wedges = new ArrayList<>();
 
@@ -70,8 +69,7 @@ public class Wheel {
     wedges.add(new Wedge(WedgeType.MONEY, rand.nextInt(10) * 100));
   }
 
-  public Wedge spinTheWheel()
-  {
+  public Wedge spinTheWheel() {
     return wedges.get(rand.nextInt(wedges.size()));
   }
 }
