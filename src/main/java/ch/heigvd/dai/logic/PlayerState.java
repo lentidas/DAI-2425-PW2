@@ -16,23 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.commands;
+package ch.heigvd.dai.logic;
 
-public enum GameCommandType {
-  END, /* 0 */
-  FILL,
-  GUESS,
-  INFO,
-  LAST,
-  LOBBY,
-  JOIN,
-  QUIT,
-  ROUND,
-  START,
-  STATUS, /* 10 */
-  TURN,
-  VOWEL,
-  WINNER,
-  GO,
-  SKIP /* 15 */
+public enum PlayerState {
+  CHILLING,
+  SECOND_GUESS_PHASE
 }

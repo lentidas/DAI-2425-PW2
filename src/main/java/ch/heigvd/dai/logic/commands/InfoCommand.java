@@ -28,7 +28,7 @@ public class InfoCommand extends GameCommand {
     super(GameCommandType.INFO);
     args.add(puzzle);
     args.add(category);
-    args.add(usedLetters);
+    args.add(new String(usedLetters));
   }
 
   public String getPuzzle()

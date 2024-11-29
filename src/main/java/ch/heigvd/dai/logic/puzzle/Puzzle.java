@@ -23,10 +23,11 @@ import java.util.List;
 
 public class Puzzle {
 
-  public static final String FINAL_ROUND_INITIAL_LETTERS = "RSTNLE";
+  public static final String FinalRoundInitialLetters = "RSTNLE";
   private final PuzzleRecord record;
-  private String currentPuzzleState;
   private final List<Character> lettersGuessed;
+  private final int vowelCost;
+  private String currentPuzzleState;
 
 
   /**
@@ -34,10 +35,11 @@ public class Puzzle {
    * @param record Puzzle record
    * @param initialLetters Letters to be uncovered from the beginning
    */
-  public Puzzle(PuzzleRecord record, String initialLetters) {
+  public Puzzle(PuzzleRecord record, String initialLetters, int vowelCost) {
     String upperInitialLetters = initialLetters.toUpperCase();
     lettersGuessed = new ArrayList<>();
     this.record = record;
+    this.vowelCost = vowelCost;
 
     for(char letter : upperInitialLetters.toCharArray())
     {
@@ -92,7 +94,7 @@ public class Puzzle {
         }
         else
         {
-          sb.append(fullPuzzle.charAt(i));
+          sb.append(currentPuzzleState.charAt(i));
         }
       }
 
@@ -123,7 +125,7 @@ public class Puzzle {
 
 
   /**
-   * Gets the number of times the provided letter appears in the current state of the puzzle
+   * Gets the number of times the provided letter appears in the full puzzle
    * @implNote If you need to check whether a letter has been guessed yet, use hasLetterBeenGuessed
    * @param letter Letter to search
    * @return Number of times it appears. 0 means it doesn't appear, or hasn't been guessed
@@ -132,9 +134,9 @@ public class Puzzle {
   {
     int count = 0;
     String upperLetter = Character.toString(letter).toUpperCase();
-    for(int i = 0; i < currentPuzzleState.length(); i++)
+    for(int i = 0; i < record.puzzle().length(); i++)
     {
-      if(currentPuzzleState.charAt(i) == upperLetter.charAt(0))
+      if(record.puzzle().charAt(i) == upperLetter.charAt(0))
       {
         ++count;
       }
@@ -164,8 +166,30 @@ public class Puzzle {
   }
 
 
-  public static Puzzle createNewPuzzle(String initialLetters)
+  public char[] getGuessedLetters()
   {
-    return new Puzzle(new PuzzleRecord("Test", PuzzleCategory.FOOD), initialLetters);
+    char[] charGuessed = new char[lettersGuessed.size()];
+
+    for(int i = 0; i < lettersGuessed.size(); i++)
+    {
+      charGuessed[i] = lettersGuessed.get(i);
+    }
+
+    return charGuessed;
+  }
+
+  public String getFullPuzzle()
+  {
+    return record.puzzle();
+  }
+
+  public int getVowelCost()
+  {
+    return vowelCost;
+  }
+
+  public static Puzzle createNewPuzzle(String initialLetters, int vowelCost)
+  {
+    return new Puzzle(new PuzzleRecord("Test", PuzzleCategory.FOOD), initialLetters, vowelCost);
   }
 }

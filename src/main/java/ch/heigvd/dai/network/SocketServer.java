@@ -21,12 +21,14 @@ package ch.heigvd.dai.network;
 import ch.heigvd.dai.Player;
 import ch.heigvd.dai.logic.GameMatch;
 import ch.heigvd.dai.logic.StatusCode;
+import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.JoinCommand;
 import ch.heigvd.dai.logic.commands.LobbyCommand;
 import ch.heigvd.dai.logic.commands.StartCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
+import ch.heigvd.dai.logic.commands.VowelCommand;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
@@ -208,8 +210,44 @@ public class SocketServer extends SocketAbstract {
                 if(!match.isMyTurn(player))
                 {
                   System.out.println(player + " tried to guess a consonant, but it's not their turn");
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   response = match.guessConsonant((GuessCommand) command).toTcpBody();
+                }
+              }
+
+              case FILL ->
+              {
+                if(!match.isMyTurn(player))
+                {
+                  System.out.println(player + " tried to fill in the puzzle, but it's not their turn");
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
+                } else {
+                  response = match.solvePuzzle((FillCommand) command).toTcpBody();
+                }
+              }
+
+              case SKIP ->
+              {
+                if(!match.isMyTurn(player))
+                {
+                  System.out.println(player + " tried to skip their turn, but it's not their turn");
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
+                } else {
+                  System.out.println(player + " skipped their turn");
+                  match.advanceTurn();
+                }
+              }
+
+              case VOWEL ->
+              {
+                if(!match.isMyTurn(player))
+                {
+                  System.out.println(player + " tried to buy a vowel, but it's not their turn");
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
+                } else {
+                  System.out.println(player + " bought a vowel");
+                  response = match.guessVowel((VowelCommand)command).toTcpBody();
                 }
               }
 

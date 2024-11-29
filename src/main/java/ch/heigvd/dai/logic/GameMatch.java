@@ -19,26 +19,29 @@
 package ch.heigvd.dai.logic;
 
 import ch.heigvd.dai.Player;
+import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
+import ch.heigvd.dai.logic.commands.InfoCommand;
 import ch.heigvd.dai.logic.commands.LobbyCommand;
 import ch.heigvd.dai.logic.commands.RoundCommand;
 import ch.heigvd.dai.logic.commands.StartCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
 import ch.heigvd.dai.logic.commands.TurnCommand;
+import ch.heigvd.dai.logic.commands.VowelCommand;
 import ch.heigvd.dai.logic.puzzle.Puzzle;
 import ch.heigvd.dai.logic.wheel.Wedge;
 import ch.heigvd.dai.logic.wheel.Wheel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class GameMatch {
 
-  public static int NormalRoundsBeforeLastRound = 4;
-  public static int MaxPlayers = 4;
+  public final static int VowelCost = 250;
+  public final static int NormalRoundsBeforeLastRound = 4;
+  public final static int MaxPlayers = 4;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
   private final ConcurrentHashMap<Player, ArrayList<GameCommand>> pendingCommands;
   private GamePhase currentPhase;
@@ -126,15 +129,9 @@ public class GameMatch {
   public boolean startGame() {
     if (currentPhase == GamePhase.WAITING_FOR_PLAYERS || currentPhase == GamePhase.START_NEW_TURN) {
       currentPhase = GamePhase.NORMAL_TURN;
-      System.out.println("A");
-      roundPuzzle = Puzzle.createNewPuzzle("");
-      System.out.println("B");
-      currPlayerIndex = -1; // Will change when calling advanceTurn()
-      currentRound = 0; // Will change when calling advanceTurn()
-      queueGlobalCommand(new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
-      System.out.println("C");
-      advanceTurn();
-      System.out.println("D");
+      currPlayerIndex = -1; // Will change when calling advanceRound()
+      currentRound = 0; // Will change when calling advanceRound()
+      advanceRound();
       return true;
     }
 
@@ -172,22 +169,109 @@ public class GameMatch {
     return null;
   }
 
-  public GameCommand guessConsonant(GuessCommand command) {
-    int repetitions = roundPuzzle.getLetterCount(command.getGuessedLetter());
-    Player player = connectedPlayers.get(currPlayerIndex);
-    GameCommand response = null;
-
-    if (0 == repetitions) {
-      response = new StatusCommand(StatusCode.LETTER_MISSING);
-      System.out.println(player + " guessed a consonant that does not exist in the puzzle");
-      advanceTurn();
-    } else {
-      int moneyWon = player.getCurrentWedge().getMoneyWon() * repetitions;
-      player.incrementMoney(moneyWon);
-      System.out.println(player + " got " + moneyWon + "$ for a correct guess");
+  public char[] getGuessedLetters()
+  {
+    if(currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
+      return roundPuzzle.getGuessedLetters();
     }
 
-    player.setCurrentWedge(null);
+    return null;
+  }
+
+  public GameCommand guessConsonant(GuessCommand command) {
+
+    GameCommand response;
+    Player player;
+
+    if(currentPhase == GamePhase.NORMAL_TURN &&
+        (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.CHILLING) {
+
+      int repetitions = roundPuzzle.getLetterCount(command.getGuessedLetter());
+
+      if (roundPuzzle.hasLetterBeenGuessed(command.getGuessedLetter())) {
+        response = new StatusCommand(StatusCode.ALREADY_TRIED);
+        System.out.println(player + " guessed a consonant that has already been guessed");
+      } else if(!roundPuzzle.tryGuessLetter(command.getGuessedLetter())) {
+        response = new StatusCommand(StatusCode.LETTER_MISSING);
+        System.out.println(player + " guessed a consonant that does not exist in the puzzle");
+        player.setCurrentWedge(null);
+        advanceTurn();
+      } else {
+        int moneyWon = player.getCurrentWedge().getMoneyWon() * repetitions;
+        player.incrementMoney(moneyWon);
+        System.out.println(player + " got " + moneyWon + "$ for a correct guess");
+        player.setCurrentWedge(null);
+        response = new InfoCommand(getCurrentPuzzle(), getCurrentPuzzleCategory(), getGuessedLetters());
+        player.setState(PlayerState.SECOND_GUESS_PHASE);
+      }
+    } else {
+      response = new StatusCommand(StatusCode.KO);
+    }
+
+    return response;
+  }
+
+  public GameCommand guessVowel(VowelCommand command) {
+
+    boolean endTurn = false;
+    GameCommand response;
+    Player player;
+
+    if(currentPhase == GamePhase.NORMAL_TURN &&
+        (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.SECOND_GUESS_PHASE) {
+
+      if (roundPuzzle.hasLetterBeenGuessed(command.getVowel())) {
+        response = new StatusCommand(StatusCode.ALREADY_TRIED);
+        System.out.println(player + " guessed a vowel that has already been guessed");
+      } else if(!roundPuzzle.tryGuessLetter(command.getVowel())) {
+        response = new StatusCommand(StatusCode.LETTER_MISSING);
+        System.out.println(player + " guessed a vowel that does not exist in the puzzle");
+        endTurn = true;
+      } else {
+        response = new StatusCommand(StatusCode.LETTER_EXISTS);
+        System.out.println(player + " guessed the vowel " + command.getVowel());
+        endTurn = true;
+      }
+
+      if(endTurn)
+      {
+        player.decrementMoney(roundPuzzle.getVowelCost());
+        player.setCurrentWedge(null);
+        advanceTurn();
+        player.setState(PlayerState.CHILLING);
+      }
+    } else {
+      response = new StatusCommand(StatusCode.KO);
+    }
+
+    return response;
+  }
+
+  public GameCommand solvePuzzle(FillCommand command)
+  {
+
+    GameCommand response;
+    Player player;
+
+    if(currentPhase == GamePhase.NORMAL_TURN &&
+        (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.SECOND_GUESS_PHASE) {
+
+      if (roundPuzzle.guessPuzzle(command.getPuzzle())) {
+        System.out.println(player + " successfully solved the puzzle");
+        response = new StatusCommand(StatusCode.RIGHT_ANSWER);
+        queueGlobalCommand(new RoundCommand(getCurrentPuzzle()));
+        advanceRound();
+      } else {
+        System.out.println(player + " did not solve the puzzle");
+        response = new StatusCommand(StatusCode.WRONG_ANSWER);
+        advanceTurn();
+      }
+
+      player.setState(PlayerState.CHILLING);
+    } else {
+      response = new StatusCommand(StatusCode.KO);
+    }
+
     return response;
   }
 
@@ -231,21 +315,26 @@ public class GameMatch {
   {
     currentRound++;
     if(currentRound > NormalRoundsBeforeLastRound) {
+      // TODO: announce winner
       currentPhase = GamePhase.LAST_TURN;
     }
     else
     {
+      roundPuzzle = Puzzle.createNewPuzzle("", VowelCost);
+      queueGlobalCommand(new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
+      System.out.println("New game started. Full puzzle: " + roundPuzzle.getFullPuzzle());
       advanceTurn();
     }
   }
 
-  private void advanceTurn()
+  public void advanceTurn()
   {
     currPlayerIndex = (currPlayerIndex + 1) % connectedPlayers.size();
     Player currentPlayer = connectedPlayers.get(currPlayerIndex);
     Wedge turnWedge = spinTheWheel();
     System.out.println(currentPlayer + " got " + turnWedge);
     GameCommand playerResponse = null;
+    boolean endsTurn = turnWedge.skipsATurn() || turnWedge.bankruptsPlayer();
 
     System.out.println("It is " + currentPlayer + "'s turn. Spin is " + turnWedge);
 
@@ -265,5 +354,10 @@ public class GameMatch {
     }
 
     queueSpecificGlobalCommand(currentPlayer, playerResponse);
+
+    if(endsTurn)
+    {
+      advanceTurn();
+    }
   }
 }
