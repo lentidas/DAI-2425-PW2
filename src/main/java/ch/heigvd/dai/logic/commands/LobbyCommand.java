@@ -35,7 +35,8 @@ public class LobbyCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length == 0
+    if(null == args
+    || args.length == 0
     || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive any player usernames");
     }

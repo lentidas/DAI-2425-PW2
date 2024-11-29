@@ -36,7 +36,8 @@ public class StatusCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws IllegalArgumentException, InvalidPropertiesFormatException {
-    if(args.length != 1
+    if(null == args
+    || args.length != 1
     || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command does not take arguments");
     }

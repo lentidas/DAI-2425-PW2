@@ -47,7 +47,8 @@ public class InfoCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 3
+    if(null == args
+    || args.length != 3
     || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive correct parameters");
     }

@@ -47,7 +47,8 @@ public class StartCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 3
+    if(null == args
+    || args.length != 3
     || Arrays.stream(args).anyMatch(Objects::isNull)
     || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive the right parameters");

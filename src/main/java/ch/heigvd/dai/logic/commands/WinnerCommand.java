@@ -35,7 +35,8 @@ public class WinnerCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
+    if(null == args
+    || args.length != 1
     || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive a player username");
     }

@@ -27,7 +27,7 @@ public class GoCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length > 0) {
+    if(null != args && args.length > 0) {
       throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
     

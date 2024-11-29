@@ -39,7 +39,8 @@ public class TurnCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 2
+    if(null == args
+    || args.length != 2
     || Arrays.stream(args).anyMatch(Objects::isNull)
     || args[0].length() != 2
     || args[1].length() != 4) {

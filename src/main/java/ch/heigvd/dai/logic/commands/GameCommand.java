@@ -52,7 +52,7 @@ public abstract class GameCommand {
 
   public static GameCommand fromTcpBody(String body) throws InvalidPropertiesFormatException {
 
-    String[] commandNames = body.split("\\s+");
+    String[] commandNames = body.split(" ");
     if (commandNames.length == 0) {
       throw new InvalidPropertiesFormatException("Command name is missing");
     }
@@ -93,11 +93,6 @@ public abstract class GameCommand {
         commandArgs[i] = arg;
         i++;
       }
-    }
-
-    if(null == commandArgs)
-    {
-      throw new InvalidPropertiesFormatException("No arguments found");
     }
 
     return _factoryHandlers.get(commandType).apply(commandArgs);

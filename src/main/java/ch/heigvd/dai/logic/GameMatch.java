@@ -126,11 +126,15 @@ public class GameMatch {
   public boolean startGame() {
     if (currentPhase == GamePhase.WAITING_FOR_PLAYERS || currentPhase == GamePhase.START_NEW_TURN) {
       currentPhase = GamePhase.NORMAL_TURN;
+      System.out.println("A");
       roundPuzzle = Puzzle.createNewPuzzle("");
+      System.out.println("B");
       currPlayerIndex = -1; // Will change when calling advanceTurn()
       currentRound = 0; // Will change when calling advanceTurn()
       queueGlobalCommand(new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
+      System.out.println("C");
       advanceTurn();
+      System.out.println("D");
       return true;
     }
 
@@ -241,7 +245,6 @@ public class GameMatch {
     Player currentPlayer = connectedPlayers.get(currPlayerIndex);
     Wedge turnWedge = spinTheWheel();
     System.out.println(currentPlayer + " got " + turnWedge);
-    boolean endsTurn = turnWedge.bankruptsPlayer() || turnWedge.bankruptsPlayer();
     GameCommand playerResponse = null;
 
     System.out.println("It is " + currentPlayer + "'s turn. Spin is " + turnWedge);
