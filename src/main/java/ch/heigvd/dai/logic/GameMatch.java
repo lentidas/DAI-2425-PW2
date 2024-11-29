@@ -112,7 +112,6 @@ public class GameMatch {
       GameCommand[] commands = new GameCommand[pendingCommands.get(player).size()];
       pendingCommands.get(player).toArray(commands);
       pendingCommands.get(player).clear();
-      System.out.println(Arrays.toString(commands));
       return commands;
     } else {
       return null;
@@ -244,6 +243,8 @@ public class GameMatch {
     System.out.println(currentPlayer + " got " + turnWedge);
     boolean endsTurn = turnWedge.bankruptsPlayer() || turnWedge.bankruptsPlayer();
     GameCommand playerResponse = null;
+
+    System.out.println("It is " + currentPlayer + "'s turn. Spin is " + turnWedge);
 
     if(turnWedge.bankruptsPlayer())
     {

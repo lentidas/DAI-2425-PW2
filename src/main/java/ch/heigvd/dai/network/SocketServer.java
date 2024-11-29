@@ -83,19 +83,17 @@ public class SocketServer extends SocketAbstract {
   class ClientHandler implements Runnable {
     private final int readTimeoutMs = 250;
     private final Socket socket;
-    private int sentGlobalCommands;
     private Player player;
 
     ClientHandler(Socket socket) {
       this.socket = socket;
       player = null;
-      /*
+
       try {
         socket.setSoTimeout(readTimeoutMs);
       } catch (SocketException e) {
         throw new RuntimeException("Failed to set timeout for socket read");
       }
-       */
     }
 
 
@@ -111,6 +109,7 @@ public class SocketServer extends SocketAbstract {
         joinStatus = StatusCode.KO;
       } else if (StatusCode.OK == joinStatus) {
         player = match.getPlayer(joinCommand.getUsername());
+        System.out.println(player + " connected successfully");
       }
 
       return new StatusCommand(joinStatus);
@@ -150,12 +149,6 @@ public class SocketServer extends SocketAbstract {
               }
             }
 
-            if(null != player && match.isMyTurn(player))
-            {
-              // TODO: add wait
-              continue;
-            }
-
             // Read response from client, or wait for a timeout
             String clientRequest = in.readLine();
             System.out.println(clientRequest);
@@ -193,13 +186,20 @@ public class SocketServer extends SocketAbstract {
 
             // Handle the request and setup appropriate response.
             switch (command.getType()) {
-              case JOIN ->
-                response = parseJoin((JoinCommand) command).toTcpBody();
-
+              case JOIN -> {
+                if(null == player) {
+                  response = parseJoin((JoinCommand) command).toTcpBody();
+                } else {
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
+                  System.out.println(player + " tried to join again");
+                }
+              }
 
               case GO -> {
                 if(!match.startGame()) {
-                  System.out.println("Player tried to start the match, but it was already ongoing");
+                  System.out.println(player + " tried to start the match, but it was already ongoing");
+                } else {
+                  System.out.println(player + " started the match");
                 }
               }
 
@@ -227,8 +227,7 @@ public class SocketServer extends SocketAbstract {
             }
 
           } catch(SocketTimeoutException e) {
-            // Nothing to do but loop around and hope for an answer
-            System.out.println("4");
+            // Nothing to do but loop around and hope for an answer later on
           } catch (Exception e) {
             // TODO Same as the other TODO above
             System.err.println("[Server] Random exception: " + e);
