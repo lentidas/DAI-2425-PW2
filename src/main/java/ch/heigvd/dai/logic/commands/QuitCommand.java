@@ -18,18 +18,12 @@
 
 package ch.heigvd.dai.logic.commands;
 
-import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Objects;
 
 public class QuitCommand extends GameCommand {
 
   public QuitCommand() {
     super(GameCommandType.QUIT);
-  }
-
-  public String getPlayer() {
-    return (String) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {

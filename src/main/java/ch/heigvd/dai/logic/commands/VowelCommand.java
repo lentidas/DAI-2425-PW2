@@ -42,9 +42,9 @@ public class VowelCommand extends GameCommand {
     }
 
     char letter = args[0].charAt(0);
-    if(!Character.isLetter(letter)) {
+    if (!Character.isLetter(letter)) {
       throw new InvalidPropertiesFormatException("Character is not a letter");
-    } else if(!isCharAVowel(letter)) {
+    } else if (!isCharAVowel(letter)) {
       throw new InvalidPropertiesFormatException("Letter is a not a vowel");
     }
 

@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 public abstract class GameCommand {
 
-
   public static String Vowels = "AEIOU"; // The original game didn't consider Y to be a vowel
   protected final GameCommandType type;
   protected List<Object> args;
@@ -43,10 +42,6 @@ public abstract class GameCommand {
 
   public GameCommandType getType() {
     return type;
-  }
-
-  public int getArgCount() {
-    return args.size();
   }
 
   public static GameCommand fromTcpBody(String body) throws InvalidPropertiesFormatException {
@@ -159,10 +154,10 @@ public abstract class GameCommand {
     }
   }
 
-  static protected boolean isCharAVowel(char c) {
+  protected static boolean isCharAVowel(char c) {
     char lower = Character.toUpperCase(c);
-    for(char vowel : Vowels.toCharArray()) {
-      if(lower == vowel) {
+    for (char vowel : Vowels.toCharArray()) {
+      if (lower == vowel) {
         return true;
       }
     }

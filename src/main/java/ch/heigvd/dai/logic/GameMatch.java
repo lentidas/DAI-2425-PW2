@@ -26,7 +26,6 @@ import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.InfoCommand;
 import ch.heigvd.dai.logic.commands.LastCommand;
 import ch.heigvd.dai.logic.commands.LobbyCommand;
-import ch.heigvd.dai.logic.commands.QuitCommand;
 import ch.heigvd.dai.logic.commands.RoundCommand;
 import ch.heigvd.dai.logic.commands.StartCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
@@ -221,14 +220,13 @@ public class GameMatch {
         System.out.println(player + " got " + moneyWon + "$ for a correct guess");
         player.setCurrentWedge(null);
         response = new StatusCommand(StatusCode.LETTER_EXISTS);
-        
-        if(roundPuzzle.getFullPuzzle().equals(getCurrentPuzzle())) {
+
+        if (roundPuzzle.getFullPuzzle().equals(getCurrentPuzzle())) {
           System.out.println(player + " finished round");
           advanceRound();
         } else {
           player.setState(PlayerState.SECOND_GUESS_PHASE);
         }
-
       }
     } else {
       response = new StatusCommand(StatusCode.KO);
@@ -264,7 +262,7 @@ public class GameMatch {
         player.decrementMoney(roundPuzzle.getVowelCost());
         player.setCurrentWedge(null);
 
-        if(roundPuzzle.getFullPuzzle().equals(getCurrentPuzzle())) {
+        if (roundPuzzle.getFullPuzzle().equals(getCurrentPuzzle())) {
           System.out.println(player + " finished round");
           advanceRound();
         } else {
@@ -388,7 +386,9 @@ public class GameMatch {
       currentPlayer.setCurrentWedge(turnWedge);
     }
 
-    queueSpecificGlobalCommand(currentPlayer, new InfoCommand(getCurrentPuzzle(), getCurrentPuzzleCategory(), getGuessedLetters()));
+    queueSpecificGlobalCommand(
+        currentPlayer,
+        new InfoCommand(getCurrentPuzzle(), getCurrentPuzzleCategory(), getGuessedLetters()));
     queueSpecificGlobalCommand(currentPlayer, playerResponse);
 
     if (endsTurn) {
