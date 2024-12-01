@@ -24,27 +24,24 @@ import java.util.Objects;
 
 public class JoinCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.JOIN, JoinCommand::fromTcpBody);
-  }
-
   public JoinCommand(String username) {
     super(GameCommandType.JOIN);
     args.add(username);
   }
 
-  public String getUsername()
-  {
-    return (String)args.getFirst();
+  public String getUsername() {
+    return (String) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+    if (null == args || args.length != 1 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive a player username");
     }
-    
+
+    if (args[0].equals("-")) {
+      throw new InvalidPropertiesFormatException("Invalid player username");
+    }
+
     return new JoinCommand(args[0]);
   }
 }

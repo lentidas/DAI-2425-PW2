@@ -25,33 +25,25 @@ import java.util.Objects;
 
 public class StatusCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.STATUS, StatusCommand::fromTcpBody);
-  }
-
   public StatusCommand(StatusCode status) {
     super(GameCommandType.STATUS);
     args.add(status);
   }
 
-  public StatusCode getStatus()
-  {
-    return (StatusCode)args.getFirst();
+  public StatusCode getStatus() {
+    return (StatusCode) args.getFirst();
   }
 
-  public static GameCommand fromTcpBody(String[] args) throws IllegalArgumentException, InvalidPropertiesFormatException {
-    if(args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+  public static GameCommand fromTcpBody(String[] args)
+      throws IllegalArgumentException, InvalidPropertiesFormatException {
+    if (null == args || args.length != 1 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
 
     StatusCode status;
-    try
-    {
+    try {
       status = StatusCode.valueOf(args[0]);
-    } catch(IllegalArgumentException e)
-    {
+    } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Unknown status code");
     }
 

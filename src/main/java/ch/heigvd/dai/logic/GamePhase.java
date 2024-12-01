@@ -21,5 +21,7 @@ package ch.heigvd.dai.logic;
 public enum GamePhase {
   WAITING_FOR_PLAYERS,
   NORMAL_TURN,
+  START_NEW_TURN,
+  START_LAST_TURN,
   LAST_TURN
 }

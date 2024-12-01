@@ -18,21 +18,19 @@
 
 package ch.heigvd.dai.logic.commands;
 
-public enum GameCommandType {
-  END, /* 0 */
-  FILL,
-  GUESS,
-  INFO,
-  LAST,
-  LOBBY,
-  JOIN,
-  QUIT,
-  ROUND,
-  START,
-  STATUS, /* 10 */
-  TURN,
-  VOWEL,
-  WINNER,
-  GO,
-  SKIP /* 15 */
+import java.util.InvalidPropertiesFormatException;
+
+public class SkipCommand extends GameCommand {
+
+  public SkipCommand() {
+    super(GameCommandType.SKIP);
+  }
+
+  public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
+    if (null != args && args.length > 0) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
+    }
+
+    return new SkipCommand();
+  }
 }

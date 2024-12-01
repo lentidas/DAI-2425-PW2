@@ -24,27 +24,20 @@ import java.util.Objects;
 
 public class LobbyCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.LOBBY, LobbyCommand::fromTcpBody);
-  }
-
   public LobbyCommand(String[] players) {
     super(GameCommandType.LOBBY);
     args.add(players);
   }
 
-  public String[] getPlayers()
-  {
-    return ((String[])args.getFirst()).clone();
+  public String[] getPlayers() {
+    return ((String[]) args.getFirst()).clone();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length == 0
-    || Arrays.stream(args).anyMatch(Objects::isNull)) {
+    if (null == args || args.length == 0 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive any player usernames");
     }
-    
+
     return new LobbyCommand(args);
   }
 }

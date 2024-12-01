@@ -23,24 +23,37 @@ public class Wedge {
   private final WedgeType type;
   private final int moneyWon;
 
-  public Wedge(WedgeType type, int moneyWon)
-  {
+  public Wedge(WedgeType type, int moneyWon) {
     this.type = type;
     this.moneyWon = moneyWon;
   }
 
-  public boolean skipsATurn()
-  {
+  public boolean skipsATurn() {
     return type == WedgeType.LOSE_A_TURN;
   }
 
-  public boolean bankruptsPlayer()
-  {
+  public boolean bankruptsPlayer() {
     return type == WedgeType.BANKRUPT;
   }
 
-  public int getMoneyWon()
-  {
+  public int getMoneyWon() {
     return moneyWon;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    switch (type) {
+      case MONEY -> sb.append("Money wedge for ").append(moneyWon);
+
+      case BANKRUPT -> sb.append("Bankrupt wedge");
+
+      case LOSE_A_TURN -> sb.append("Lose a turn wedge");
+
+      default -> sb.append("Unknown wedge");
+    }
+
+    return sb.toString();
   }
 }

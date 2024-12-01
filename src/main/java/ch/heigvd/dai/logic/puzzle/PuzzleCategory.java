@@ -19,5 +19,11 @@
 package ch.heigvd.dai.logic.puzzle;
 
 public enum PuzzleCategory {
-  FOOD
+  FOOD,
+  FUN_AND_GAMES,
+  PLACES,
+  LANDMARKS,
+  SONGS,
+  WHAT_ARE_YOU_DOING,
+  AROUND_THE_HOUSE
 }

@@ -22,28 +22,20 @@ import java.util.InvalidPropertiesFormatException;
 
 public class FillCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
-  }
-
   public FillCommand(String puzzle) {
     super(GameCommandType.FILL);
     args.add(puzzle);
   }
 
-  public String getPuzzle()
-  {
-    return (String)args.getFirst();
+  public String getPuzzle() {
+    return (String) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || args[0] == null
-    || args[0].isEmpty()) {
+    if (null == args || args.length != 1 || args[0] == null || args[0].isEmpty()) {
       throw new InvalidPropertiesFormatException("Command did not receive the completed puzzle");
     }
-    
+
     return new FillCommand(args[0]);
   }
 }

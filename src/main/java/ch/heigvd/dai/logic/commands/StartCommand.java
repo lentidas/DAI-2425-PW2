@@ -24,11 +24,6 @@ import java.util.Objects;
 
 public class StartCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.START, StartCommand::fromTcpBody);
-  }
-
   public StartCommand(int roundNumber, String puzzle, String category) {
     super(GameCommandType.START);
     args.add(roundNumber);
@@ -36,28 +31,26 @@ public class StartCommand extends GameCommand {
     args.add(category);
   }
 
-  public int getRoundNumber()
-  {
-    return (int)args.getFirst();
+  public int getRoundNumber() {
+    return (int) args.getFirst();
   }
 
-  public String getPuzzle()
-  {
-    return (String)args.get(1);
+  public String getPuzzle() {
+    return (String) args.get(1);
   }
 
-  public String getCategory()
-  {
-    return (String)args.get(2);
+  public String getCategory() {
+    return (String) args.get(2);
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 3
-    || Arrays.stream(args).anyMatch(Objects::isNull)
-    || args[0].length() != 1) {
+    if (null == args
+        || args.length != 3
+        || Arrays.stream(args).anyMatch(Objects::isNull)
+        || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive the right parameters");
     }
-    
+
     return new StartCommand(args[0].charAt(0), args[1], args[2]);
   }
 }

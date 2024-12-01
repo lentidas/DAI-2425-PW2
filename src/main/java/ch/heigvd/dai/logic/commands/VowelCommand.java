@@ -24,28 +24,30 @@ import java.util.Objects;
 
 public class VowelCommand extends GameCommand {
 
-  // Add handler
-  static {
-    GameCommand.addFactoryHandler(GameCommandType.VOWEL, VowelCommand::fromTcpBody);
-  }
-
   public VowelCommand(char vowel) {
     super(GameCommandType.VOWEL);
     args.add(vowel);
   }
 
-  public char getVowel()
-  {
-    return (char)args.getFirst();
+  public char getVowel() {
+    return (char) args.getFirst();
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if(args.length != 1
-    || Arrays.stream(args).anyMatch(Objects::isNull)
-    || args[0].length() != 1) {
+    if (null == args
+        || args.length != 1
+        || Arrays.stream(args).anyMatch(Objects::isNull)
+        || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
     }
-    
+
+    char letter = args[0].charAt(0);
+    if (!Character.isLetter(letter)) {
+      throw new InvalidPropertiesFormatException("Character is not a letter");
+    } else if (!isCharAVowel(letter)) {
+      throw new InvalidPropertiesFormatException("Letter is a not a vowel");
+    }
+
     return new VowelCommand(args[0].charAt(0));
   }
 }

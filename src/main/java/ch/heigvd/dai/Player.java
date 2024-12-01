@@ -18,18 +18,25 @@
 
 package ch.heigvd.dai;
 
+import ch.heigvd.dai.logic.PlayerState;
+import ch.heigvd.dai.logic.wheel.Wedge;
+
 public class Player {
 
   private final String username;
   private int turnOrder;
   private int money;
   private boolean isLastRoundPlayer;
+  private Wedge currentWedge;
+  private PlayerState state;
 
   public Player(String username) {
     this.username = username;
     this.turnOrder = -1;
     money = 0;
     isLastRoundPlayer = false;
+    currentWedge = null;
+    state = PlayerState.CHILLING;
   }
 
   public void setIsLastRoundPlayer(boolean lastRoundPlayer) {
@@ -41,11 +48,24 @@ public class Player {
   }
 
   public void incrementMoney(int money) {
-    this.money += money;
+    // Avoid overflow
+    if (Integer.MAX_VALUE - money < this.money) {
+      this.money = Integer.MAX_VALUE;
+    } else {
+      this.money += money;
+    }
   }
 
-  public void goBankrupt()
-  {
+  public void decrementMoney(int money) {
+    // Avoid negative amounts
+    if (this.money - money < 0) {
+      this.money = 0;
+    } else {
+      this.money += money;
+    }
+  }
+
+  public void goBankrupt() {
     this.money = 0;
   }
 
@@ -63,5 +83,26 @@ public class Player {
 
   public String getUsername() {
     return username;
+  }
+
+  public void setCurrentWedge(Wedge currentWedge) {
+    this.currentWedge = currentWedge;
+  }
+
+  public Wedge getCurrentWedge() {
+    return currentWedge;
+  }
+
+  public PlayerState getState() {
+    return state;
+  }
+
+  public void setState(PlayerState state) {
+    this.state = state;
+  }
+
+  @Override
+  public String toString() {
+    return "Player " + username;
   }
 }
