@@ -42,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GameMatch {
 
   public static final int VowelCost = 250;
-  public static final int NormalRoundsBeforeLastRound = 1;
+  public static final int NormalRoundsBeforeLastRound = 5;
   public static final int LastRoundTimeout = 15;
   public static final int MaxPlayers = 4;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
@@ -101,6 +101,12 @@ public class GameMatch {
       connectedPlayers.remove(playerIndex);
       queueGlobalCommand(new LobbyCommand(getPlayers()));
 
+      if (connectedPlayers.isEmpty()) {
+        currentPhase = GamePhase.WAITING_FOR_PLAYERS;
+        System.out.println("No more players. Restarting match");
+        return;
+      }
+
       // Player was playing
       if (currPlayerIndex == playerIndex) {
         if (currentPhase == GamePhase.NORMAL_TURN) {
@@ -150,7 +156,9 @@ public class GameMatch {
   }
 
   public boolean startGame() {
-    if (currentPhase == GamePhase.WAITING_FOR_PLAYERS || currentPhase == GamePhase.START_NEW_TURN) {
+    if (!connectedPlayers.isEmpty()
+        && (currentPhase == GamePhase.WAITING_FOR_PLAYERS
+            || currentPhase == GamePhase.START_NEW_TURN)) {
       currentPhase = GamePhase.NORMAL_TURN;
       currPlayerIndex = -1; // Will change when calling advanceRound()
       currentRound = 0; // Will change when calling advanceRound()
@@ -226,6 +234,9 @@ public class GameMatch {
           advanceRound();
         } else {
           player.setState(PlayerState.SECOND_GUESS_PHASE);
+          queueSpecificGlobalCommand(
+              player,
+              new InfoCommand(getCurrentPuzzle(), getCurrentPuzzleCategory(), getGuessedLetters()));
         }
       }
     } else {

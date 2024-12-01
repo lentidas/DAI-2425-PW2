@@ -78,7 +78,7 @@ public class SocketServer extends SocketAbstract {
   }
 
   class ClientHandler implements Runnable {
-    private final int readTimeoutMs = 250;
+
     private final Socket socket;
     private Player player;
 
@@ -87,6 +87,7 @@ public class SocketServer extends SocketAbstract {
       player = null;
 
       try {
+        int readTimeoutMs = 250;
         socket.setSoTimeout(readTimeoutMs);
       } catch (SocketException e) {
         throw new RuntimeException("Failed to set timeout for socket read");
@@ -144,7 +145,6 @@ public class SocketServer extends SocketAbstract {
 
             // Read response from client, or wait for a timeout
             String clientRequest = in.readLine();
-            System.out.println(clientRequest);
 
             // If clientRequest is null, the client has disconnected.
             // The server can close the connection and end the thread.
@@ -244,6 +244,7 @@ public class SocketServer extends SocketAbstract {
                 } else {
                   match.quitPlayer(player.getUsername());
                   System.out.println(player + " quit");
+                  player = null;
                 }
               }
 
@@ -278,7 +279,11 @@ public class SocketServer extends SocketAbstract {
         // TODO Same as the other TODO above
         System.err.println("[Server] IO exception: " + e);
       }
-      System.out.println("out");
+
+      // Disconnect player from match if that's not yet the case
+      if (null != player) {
+        match.quitPlayer(player.getUsername());
+      }
     }
   }
 }
