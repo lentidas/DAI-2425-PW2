@@ -41,6 +41,13 @@ public class VowelCommand extends GameCommand {
       throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
     }
 
+    char letter = args[0].charAt(0);
+    if(!Character.isLetter(letter)) {
+      throw new InvalidPropertiesFormatException("Character is not a letter");
+    } else if(!isCharAVowel(letter)) {
+      throw new InvalidPropertiesFormatException("Letter is a not a vowel");
+    }
+
     return new VowelCommand(args[0].charAt(0));
   }
 }

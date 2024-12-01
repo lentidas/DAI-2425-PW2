@@ -38,6 +38,10 @@ public class JoinCommand extends GameCommand {
       throw new InvalidPropertiesFormatException("Command did not receive a player username");
     }
 
+    if (args[0].equals("-")) {
+      throw new InvalidPropertiesFormatException("Invalid player username");
+    }
+
     return new JoinCommand(args[0]);
   }
 }

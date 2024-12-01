@@ -21,6 +21,7 @@ package ch.heigvd.dai.logic.commands;
 import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Objects;
+import javax.print.DocFlavor.CHAR_ARRAY;
 
 public class GuessCommand extends GameCommand {
 
@@ -41,6 +42,13 @@ public class GuessCommand extends GameCommand {
       throw new InvalidPropertiesFormatException("Command did not receive a single letter");
     }
 
-    return new GuessCommand(args[0].charAt(0));
+    char letter = args[0].charAt(0);
+    if(!Character.isLetter(letter)) {
+      throw new InvalidPropertiesFormatException("Character is not a letter");
+    } else if(isCharAVowel(letter)) {
+      throw new InvalidPropertiesFormatException("Letter is a vowel");
+    }
+    
+    return new GuessCommand(letter);
   }
 }

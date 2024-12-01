@@ -24,9 +24,8 @@ import java.util.Objects;
 
 public class QuitCommand extends GameCommand {
 
-  public QuitCommand(String player) {
+  public QuitCommand() {
     super(GameCommandType.QUIT);
-    args.add(player);
   }
 
   public String getPlayer() {
@@ -34,10 +33,10 @@ public class QuitCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if (null == args || args.length != 1 || Arrays.stream(args).anyMatch(Objects::isNull)) {
-      throw new InvalidPropertiesFormatException("Command did not receive any player usernames");
+    if (null != args && args.length > 0) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
 
-    return new QuitCommand(args[0]);
+    return new QuitCommand();
   }
 }

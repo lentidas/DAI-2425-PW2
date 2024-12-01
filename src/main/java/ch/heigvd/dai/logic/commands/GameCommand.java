@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 
 public abstract class GameCommand {
 
+
+  public static String Vowels = "AEIOU"; // The original game didn't consider Y to be a vowel
   protected final GameCommandType type;
   protected List<Object> args;
   private static final Map<GameCommandType, CommandFactoryFunction> _factoryHandlers =
@@ -119,17 +121,29 @@ public abstract class GameCommand {
     GameCommand.addFactoryHandler(GameCommandType.SKIP, SkipCommand::fromTcpBody);
   }
 
+  private String argToString(Object arg) {
+    StringBuilder sb = new StringBuilder();
+    if (arg instanceof String && ((String) arg).contains(" ")) {
+      sb.append('"').append(arg).append('"');
+    } else {
+      sb.append(arg);
+    }
+    return sb.toString();
+  }
+
   public String toTcpBody() {
     StringBuilder sb = new StringBuilder();
     sb.append(type.name());
 
     if (null != args) {
       for (Object arg : args) {
-        sb.append(' ');
-        if (arg instanceof String && ((String) arg).contains(" ")) {
-          sb.append('"').append(arg).append('"');
+        if (arg instanceof Object[]) {
+          for (int i = 0; i < ((Object[]) arg).length; i++) {
+            sb.append(' ').append(argToString(((Object[]) arg)[i]));
+          }
         } else {
-          sb.append(arg);
+          sb.append(' ');
+          sb.append(argToString(arg));
         }
       }
     }
@@ -143,5 +157,15 @@ public abstract class GameCommand {
     } else {
       return new LinkedList<>();
     }
+  }
+
+  static protected boolean isCharAVowel(char c) {
+    char lower = Character.toUpperCase(c);
+    for(char vowel : Vowels.toCharArray()) {
+      if(lower == vowel) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -22,15 +22,30 @@ import java.util.InvalidPropertiesFormatException;
 
 public class EndCommand extends GameCommand {
 
-  public EndCommand() {
+  public EndCommand(String winningPlayer, String[] players, int[] money) {
     super(GameCommandType.END);
+    args.add(winningPlayer);
+    for (int i = 0; i < players.length; i++) {
+      args.add(players[i]);
+      args.add(money[i]);
+    }
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if (null != args && args.length > 0) {
-      throw new InvalidPropertiesFormatException("Command does not take arguments");
+    if (null == args || args.length % 2 == 0) {
+      throw new InvalidPropertiesFormatException(
+          "Command did not receive enough, or a wrong number of arguments.");
     }
 
-    return new EndCommand();
+    int playerCount = (args.length - 1) / 2;
+    String[] winningPlayers = new String[playerCount];
+    int[] playerMoney = new int[playerCount];
+
+    for (int i = 0; i < playerCount; i++) {
+      winningPlayers[i] = args[i * 2 + 1];
+      playerMoney[i] = Integer.parseInt(args[i * 2 + 2]);
+    }
+
+    return new EndCommand(args[0], winningPlayers, playerMoney);
   }
 }

@@ -199,7 +199,7 @@ public class SocketServer extends SocketAbstract {
               }
 
               case GUESS -> {
-                if (!match.isMyTurn(player)) {
+                if (match.isNotMyTurn(player)) {
                   System.out.println(
                       player + " tried to guess a consonant, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
@@ -209,7 +209,7 @@ public class SocketServer extends SocketAbstract {
               }
 
               case FILL -> {
-                if (!match.isMyTurn(player)) {
+                if (match.isNotMyTurn(player)) {
                   System.out.println(
                       player + " tried to fill in the puzzle, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
@@ -219,7 +219,7 @@ public class SocketServer extends SocketAbstract {
               }
 
               case SKIP -> {
-                if (!match.isMyTurn(player)) {
+                if (match.isNotMyTurn(player)) {
                   System.out.println(player + " tried to skip their turn, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
@@ -229,12 +229,21 @@ public class SocketServer extends SocketAbstract {
               }
 
               case VOWEL -> {
-                if (!match.isMyTurn(player)) {
+                if (match.isNotMyTurn(player)) {
                   System.out.println(player + " tried to buy a vowel, but it's not their turn");
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   System.out.println(player + " bought a vowel");
                   response = match.guessVowel((VowelCommand) command).toTcpBody();
+                }
+              }
+
+              case QUIT -> {
+                if (null == player) {
+                  System.out.println("Peer tried to quit lobby before even logging it");
+                } else {
+                  match.quitPlayer(player.getUsername());
+                  System.out.println(player + " quit");
                 }
               }
 
