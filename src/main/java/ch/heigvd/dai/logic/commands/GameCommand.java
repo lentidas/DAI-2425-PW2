@@ -114,6 +114,7 @@ public abstract class GameCommand {
     GameCommand.addFactoryHandler(GameCommandType.VOWEL, VowelCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.WINNER, WinnerCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.SKIP, SkipCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.LETTERS, LettersCommand::fromTcpBody);
   }
 
   private String argToString(Object arg) {

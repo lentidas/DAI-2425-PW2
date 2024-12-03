@@ -24,11 +24,12 @@ import java.util.Objects;
 
 public class LastCommand extends GameCommand {
 
-  public LastCommand(int timeout, String puzzle, String category) {
+  public LastCommand(int timeout, String puzzle, String category, String initialLetters) {
     super(GameCommandType.LAST);
     args.add(timeout);
     args.add(puzzle);
     args.add(category);
+    args.add(initialLetters);
   }
 
   public int getTimeout() {
@@ -43,14 +44,18 @@ public class LastCommand extends GameCommand {
     return (String) args.get(2);
   }
 
+  public String getInitialLetters() {
+    return (String) args.get(3);
+  }
+
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null == args
-        || args.length != 3
+        || args.length != 4
         || Arrays.stream(args).anyMatch(Objects::isNull)
         || args[0].length() != 1) {
       throw new InvalidPropertiesFormatException("Command did not receive the right parameters");
     }
 
-    return new LastCommand(args[0].charAt(0), args[1], args[2]);
+    return new LastCommand(args[0].charAt(0), args[1], args[2], args[3]);
   }
 }
