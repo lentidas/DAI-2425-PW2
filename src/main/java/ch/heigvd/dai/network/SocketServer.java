@@ -224,7 +224,7 @@ public class SocketServer extends SocketAbstract {
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   System.out.println(player + " skipped their turn");
-                  match.advanceTurn();
+                  match.skipTurn(player);
                 }
               }
 

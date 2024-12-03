@@ -267,6 +267,9 @@ public class GameMatch {
         response = new StatusCommand(StatusCode.LETTER_EXISTS);
         System.out.println(player + " guessed the vowel " + command.getVowel());
         endTurn = true;
+
+        // Small hack so next turn is played by the same player
+        currPlayerIndex -= 1;
       }
 
       if (endTurn) {
@@ -373,6 +376,14 @@ public class GameMatch {
       queueGlobalCommand(
           new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
       System.out.println("New game started. Full puzzle: " + roundPuzzle.getFullPuzzle());
+      advanceTurn();
+    }
+  }
+
+  public void skipTurn(Player player) {
+    // Reset player state for next turns
+    if (!isNotMyTurn(player)) {
+      player.setState(PlayerState.CHILLING);
       advanceTurn();
     }
   }
