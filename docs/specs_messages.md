@@ -1,6 +1,98 @@
-# Overview du protocol
+# Overview du protocole
+
+Ce protocole permet d'implémenter les intéractions serveur $\leftrightarrow$ client pour permettre
+à plusieurs clients de jouer à ["Wheel of Fortune"](https://www.wheeloffortune.com/).
+
+## Description du jeu télévisé
+
+Dans le jeu télévisé, les joueurs se réunissent autour d'une roue divisée en plusieurs parties,
+appelées de *wedges*. Celles-ci peuvent soit contenir un prix, soit passer leur tour, soit leur
+enlever l'argent cumulé depuis le début de la partie. Les *wedges* contenant les prix peuvent
+contenir soit:
+
+- Une somme d'argent fixe à gagner
+- Une somme d'argent fixe, cachée à gagner
+- Un voyage offert
+- Le jackpot d'un million de dollars
+- Quelques prix supplémentaires selon les éditions du jeu
+
+Chaque manche commence avec l'affichage du puzzle à trouver, ainsi que sa catégorie. Lorsqu'un
+joueur tourne la roue et tombe sur une *wedge* prix, il devra deviner une consonne qui doit se
+trouver sur le puzzle de la manche. La consonne ne doit pas encore été utilisée. Si la consonne
+n'existe pas sur la puzzle, le tour fini, et le prochain joueur commence son tour. Si la consonne
+existe, le joueur a trois choix:
+
+- Acheter une voyelle, dont le prix augmente à chaque manche
+- Tenter de dire ce qui se cache derrière le puzzle
+- Passer son tour s'il n'est pas possible d'acheter une voyelle, et le joueur ne veut pas tenter
+  sa chance en remplissant le puzzle
+
+Dans le cas où le joueur achète une voyelle, et que celle-ci existe sur le puzzle, le joueur
+gagne le prix fois le nombre de fois que ladite voyelle apparaît sur le puzzle. Son tour recommence.
+Si la voyelle n'existe pas, le prochain joueur commence son tour. Si le joueur devinne correctement
+le puzzle, la manche se termine immédiatement, et le joueur remporte la manche.
+
+Après plusieurs manches, seul le joueur ayant la somme d'argent la plus haute participe au dernier
+puzzle. Le puzzle contient 5 lettres déjà dévoilées: R, S, T, E, L, et N. Celles-ci sont les lettres
+les plus probables de trouver dans un texte en anglais. Le joueur doit, ensuite, donner 5 lettres de
+son choix pour qu'elles soient dévoilées sur le puzzle aussi. Ensuite, il y a une quantité maximale
+de temps pour trouver le puzzle au complet, sans pouvoir deviner d'autres lettres.
+
+Afin d'éviter un long temps d'attente de la réponse du joueur en train de jouer, le jeu télévisé
+utilise des temps de réponse maximales. Si le joueur dépasse ce temps de réponse lors d'une manche
+normale, il perd son tour. S'il dépasse ce temps lors de la dernière manche, il perd la partie.
+
+## Description du jeu numérique
+
+Lorsque les joueurs se connectent au serveur, ils se retrouvent dans une salle d'attente, en
+attendant qu'un joueur démarre la partie. Lorsque la partie est démarrée, un puzzle est choisi, et
+le premier joueur à se connecter au serveur reçoit une *wedge* aléatoirement choisie par le serveur.
+Selon son type, tout comme pour le jeu télévisé, il peut soit perdre son tour, soit faire faillite,
+soit tomber sur une *wedge* contenant un prix.
+
+Ce protocole n'a pas été pensé pour inclure les *wedges* spéciales, telles que celles contenant un
+montant caché, ou un voyage offert.
+
+Le joueur doit, alors, effectuer les mêmes étapes comme s'il se trouvait dans le jeu télévisé.
+
+Au contraire du jeu de TV, ce protocole prévoit du temps maximales dans certaines des commandes,
+mais celles-ci sont inutilisées dans la présente version. Ceci veut dire que les joueurs n'ont pas
+un temps maximale pour présenter leur réponse, et le serveur ne le vérifie pas non plus.
+
+Les restantes étapes du jeu se déroulent comme le jeu original. Toutefois, après la dernière manche,
+tous les joueurs se retrouvent à nouveau dans la salle d'attente, et peuvent reparticiper à une
+nouvelle partie.
+
 
 # Spécifications
+
+Les communications entre les différentes parties sont échangées en texte clair, encodé en UTF-8.
+
+Ces échanges sont faits utilisant le port **TCP** $1234$. Le délimiteur est le caractère `new-line`,
+aussi connu par `\n`.
+
+Les joueurs sont ceux qui doivent démarrer la communication.
+
+Les joueurs ne peuvent pas envoyer arbitrairement des commandes au serveur, car ils devront attendre
+que le serveur interagisse avec eux. Exception faite pour les commandes `JOIN` et `QUIT`.
+
+D'après les règles du jeu, la lettre 'Y' est une consonne, et ne peut, donc, pas être achetée avec
+la commande `VOWEL`.
+
+Plusieurs joueurs peuvent se connecter à partir de la même IP. Ceci permet à des joueurs se trouvant
+dans la même maison de se connecter au serveur, mais permet également au même joueur de se connecter
+plusieurs fois depuis un même appareil.
+
+Le protocole ne gère pas des permissions par joueur. Ceci fait que n'importe quel joueur peut
+démarrer la partie.
+
+Si un joueur quitte la partie lorsque celle-ci est en cours, il ne parviendra pas à se reconnecter.
+
+Les joueurs sont libres de choisir leur nom d'utilisateur, et peuvent être composés de plusieurs
+mots, délimités par des doubles guillements ("). Le seul nom d'utilisateur qui n'est pas acceptable
+est un simple trait (-), qui est réservépour la commande `END` dans le cas où aucun joueur n'a
+remporté la partie.
+
 
 # Messages
 
@@ -26,35 +118,13 @@
 : Liste de tous les messages qui peuvent être échangés
 
 
-## Notes d'implémentation
-
-Afin de simplifier ce laboratoire, nous avons pris les choix suivants:
-
-- Les commandes sont envoyées en clair
-
-- Le serveur ne vérifie pas que le joueur qui a envoyé la commande est celui qui doit répondre
-
-- Les joueurs ne peuvent pas envoyer arbitrairement des commandes au serveur, car ils devront
-  attendre que le serveur interagisse avec eux. Exception pour les commandes `JOIN` et `QUIT`
-
-- D'après les règles du jeu, la lettre 'Y' est une consonne, et ne peut, donc, pas être achetée
-  avec la commande `VOWEL`
-
-- L'implémentation initialle qu'on espérait réussir à implémenter utilisait des timeouts pour
-  les réponses des joueurs et pour le lancement de la partie. Avec l'avancement du laboratoire,
-  nous avons décidé de ne pas implémenter les timeouts, car cela demanderait sûrement trop de
-  travail pour tout synchroniser, et n'est pas indispensable pour ce laboratoire
-
-
 ## `END`
 
-### Description
 
 Cette commande annonce la fin du jeu à tous les joueurs dans le lobby. Cette command fourni les
 résultats finaux, permettant l'application Client de les afficher à l'écran pour que les joueurs
 puissent les lire.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -65,7 +135,6 @@ puissent les lire.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom      | Description                                                               |
 |:---------|:--------------------------------------------------------------------------|
@@ -77,11 +146,9 @@ puissent les lire.
 
 ## `FILL`
 
-### Description
 
 Cette commande est utilisée quand le joueur veut tenter sa chance en devinant le puzzle.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -93,7 +160,6 @@ Cette commande est utilisée quand le joueur veut tenter sa chance en devinant l
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 Le paramètre `puzzle` doit être envoyé entre guillemets. Les lettres sont case-insensitive, mais
 doivent être envoyées en majuscule.
@@ -106,11 +172,9 @@ doivent être envoyées en majuscule.
 
 ## `GO`
 
-### Description
 
 Cette commande démarre la partie.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -123,12 +187,10 @@ Cette commande démarre la partie.
 
 ## `GUESS`
 
-### Description
 
 Utilisée lors du début du tour, quand le joueur essaye de deviner une consonne qui peut se trouver
 dans le puzzle à résoudre.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -143,7 +205,6 @@ dans le puzzle à résoudre.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom    | Taille [B] | Description                                                               |
 |:-------|:----------:|:--------------------------------------------------------------------------|
@@ -153,12 +214,10 @@ dans le puzzle à résoudre.
 
 ## `INFO`
 
-### Description
 
 Fourni les toutes dernières informations de la manche à un joueur. L'envoi de cette commande
 démarre le timer d'attente de la réponse du joueur.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                            |
 |:----------------------------|--------------------------------------------------------|
@@ -169,7 +228,6 @@ démarre le timer d'attente de la réponse du joueur.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Les lettres sont
 case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
@@ -186,11 +244,9 @@ remplacées par `*`.
 
 ## `JOIN`
 
-### Description
 
 Demande au serveur l'authorisation de connection d'un joueur.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -204,10 +260,6 @@ Demande au serveur l'authorisation de connection d'un joueur.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
-
-Le nom de l'utilisateur ne doit contenir que les caractères `[a-zA-Z0-9_]`. Tout autre caractère
-doit forcer le serveur à envoyer `STATUS wrong_format`.
 
 | Nom      | Description       |
 |:---------|:------------------|
@@ -218,11 +270,9 @@ doit forcer le serveur à envoyer `STATUS wrong_format`.
 
 ## `LAST`
 
-### Description
 
 Informe un joueur que ça à son tour, et que c'est le dernier puzzle de la partie.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                          |
 |:----------------------------|--------------------------------------|
@@ -233,7 +283,6 @@ Informe un joueur que ça à son tour, et que c'est le dernier puzzle de la part
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Les lettres sont
 case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
@@ -250,22 +299,21 @@ remplacées par `*`.
 
 ## `LETTERS`
 
-### Description
 
 Le joueur fourni 5 lettres à réveler sur le puzzle de la dernière manche
 
-### Format, paramètres, réponses acceptées
 
-| Nom                         | Description                               |
-|:----------------------------|-------------------------------------------|
-| Format                      | `LETTERS <letters>`                       |
-| Server $\rightarrow$ Client |                                           |
-| Client $\rightarrow$ Server | $\checkmark$                              |
-| Réponses acceptées          | STATUS ko, STATUS already_tried, ou ROUND |
+| Nom                         | Description                                                    |
+|:----------------------------|----------------------------------------------------------------|
+| Format                      | `LETTERS <letters>`                                            |
+| Server $\rightarrow$ Client |                                                                |
+| Client $\rightarrow$ Server | $\checkmark$                                                   |
+| Réponses acceptées          | **STATUS ko** si le format est faux                            |
+|                             | **STATUS already_tried** si les lettres ont déjà été utilisées |
+|                             | **ROUND** si les lettres sont acceptées                        |
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom     | Taille [B] | Description       |
 |:--------|:----------:|:------------------|
@@ -276,11 +324,9 @@ Le joueur fourni 5 lettres à réveler sur le puzzle de la dernière manche
 
 ## `LOBBY`
 
-### Description
 
 Fourni la liste de tous les joueurs actuellement connectés dans la partie.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -291,7 +337,6 @@ Fourni la liste de tous les joueurs actuellement connectés dans la partie.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom      | Description                                                               |
 |:---------|:--------------------------------------------------------------------------|
@@ -301,11 +346,9 @@ Fourni la liste de tous les joueurs actuellement connectés dans la partie.
 
 ## `QUIT`
 
-### Description
 
 Informe le serveur de la déconnection d'un joueur.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -316,7 +359,6 @@ Informe le serveur de la déconnection d'un joueur.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 Le nom de l'utilisateur ne doit contenir que les caractères `[a-zA-Z0-9_]`. Tout autre caractère
 doit faire en sorte que le serveur réponde avec `STATUS wrong_format`.
@@ -329,11 +371,9 @@ doit faire en sorte que le serveur réponde avec `STATUS wrong_format`.
 
 ## `ROUND`
 
-### Description
 
 Informe tous les joueurs de la fin de la manche.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description      |
 |:----------------------------|------------------|
@@ -344,7 +384,6 @@ Informe tous les joueurs de la fin de la manche.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 Le paramètre `puzzle` doit être envoyé entre guillemets. Les lettres sont case-insensitive, mais
 doivent être envoyées en majuscule.
@@ -357,12 +396,10 @@ doivent être envoyées en majuscule.
 
 ## `SKIP`
 
-### Description
 
 Lorsque le joueur qui joue actuellement envoie cette commande, son tour est sauté. Il n'est
 possible de l'envoyer qu'après avoir deviné une consonne.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -375,11 +412,9 @@ possible de l'envoyer qu'après avoir deviné une consonne.
 
 ## `START`
 
-### Description
 
 Informe tous les joueurs du début de une nouvelle manche.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                |
 |:----------------------------|--------------------------------------------|
@@ -390,7 +425,6 @@ Informe tous les joueurs du début de une nouvelle manche.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Les lettres sont
 case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
@@ -406,7 +440,6 @@ remplacées par `*`.
 
 ## `STATUS`
 
-### Description
 
 Un des clients fournit une réponse à une information venant du serveur, ou le serveur fournit une
 réponse à une information venant du client. La liste des codes de réponse est connue par les deux
@@ -414,7 +447,6 @@ parties. Dans un projet plus conséquent, une vérification de version entre Ser
 $\leftrightarrow$ Client s'imposerait pour s'assurer que les deux ont des versions compatibles.
 Toutefois, pour un laboratoire de cette taille, nous avons jugé ce point dénecessaire.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -425,7 +457,6 @@ Toutefois, pour un laboratoire de cette taille, nous avons jugé ce point dénec
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom    | Description                                                               |
 |:-------|:--------------------------------------------------------------------------|
@@ -433,7 +464,6 @@ Toutefois, pour un laboratoire de cette taille, nous avons jugé ce point dénec
 
 : Paramètres de la commande
 
-### Valeurs acceptées
 
 Les valeurs marquées comme prioritaires doivent toujours exécuter le code lui appartenant, et
 ensuite revenir à l'état précédent, à l'exception de `CLOSING` qui oblige le joueur à revenir à
@@ -466,11 +496,9 @@ l'état "Idle".
 
 ## `TURN`
 
-### Description
 
 Informe un joueur que ça à son tour.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                  |
 |:----------------------------|------------------------------|
@@ -481,7 +509,6 @@ Informe un joueur que ça à son tour.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom          | Description                                                                                   |
 |:-------------|:----------------------------------------------------------------------------------------------|
@@ -494,7 +521,6 @@ Informe un joueur que ça à son tour.
 
 Le joueur demande l'achat d'une voyelle spécifique.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -507,7 +533,6 @@ Le joueur demande l'achat d'une voyelle spécifique.
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 La lettre est case-insensitive, mais doit être envoyée en majuscule.
 
@@ -521,7 +546,6 @@ La lettre est case-insensitive, mais doit être envoyée en majuscule.
 
 Déclare le gagnant des manches précédentes. Le gagnant participe au dernier round.
 
-### Format, paramètres, réponses acceptées
 
 | Nom                         | Description                                                       |
 |:----------------------------|-------------------------------------------------------------------|
@@ -532,7 +556,6 @@ Déclare le gagnant des manches précédentes. Le gagnant participe au dernier r
 
 : Tableau du format et réponse acceptées
 
-#### Paramètres
 
 | Nom          | Description                                                         |
 |:-------------|:--------------------------------------------------------------------|
