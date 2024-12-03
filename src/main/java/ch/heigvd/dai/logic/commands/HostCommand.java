@@ -18,23 +18,4 @@
 
 package ch.heigvd.dai.logic.commands;
 
-public enum GameCommandType {
-  END, /* 0 */
-  FILL,
-  GUESS,
-  INFO,
-  LAST,
-  LOBBY,
-  JOIN,
-  QUIT,
-  ROUND,
-  START,
-  STATUS, /* 10 */
-  TURN,
-  VOWEL,
-  WINNER,
-  GO,
-  SKIP, /* 15 */
-  HELP,
-  HOST
-}
+public class HostCommand {}
