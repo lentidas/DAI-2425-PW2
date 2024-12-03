@@ -4,23 +4,24 @@
 
 # Messages
 
-| Message  | Server $\rightarrow$ Client | Server $\leftarrow$ Client  | Description             |
-|:---------|:------------:|:------------:|:------------------------------------------------------|
-| `END`    | $\checkmark$ |              | Annonce de la fin du jeu, avec résultats              |
-| `FILL`   |              | $\checkmark$ | Le joueur essaye de compléter le puzzle               |
-| `GO`     |              | $\checkmark$ | Démarre la partie                                     |
-| `GUESS`  |              | $\checkmark$ | Le joueur essaye devine une consonne                  |
-| `INFO`   | $\checkmark$ |              | Envoit les toutes dernières informations de la manche |
-| `JOIN`   |              | $\checkmark$ | Demande au serveur d'authoriser un joueur à rejoindre |
-| `LAST`   | $\checkmark$ |              | Demande au gagnant de deviner le puzzle               |
-| `LOBBY`  | $\checkmark$ |              | Envoie la liste actuelle de joueurs dans la partie    |
-| `QUIT`   |              | $\checkmark$ | Demande la déconnection d'un joueur                   |
-| `ROUND`  | $\checkmark$ |              | Fin de tour: le puzzle a été résolu                   |
-| `SKIP`   |              | $\checkmark$ | Saute le tour après avoir deviné une consonne         |
-| `STATUS` | $\checkmark$ | $\checkmark$ | Renvoit un code de status à l'autre bout              |
-| `TURN`   | $\checkmark$ |              | Le serveur tourne la roue pour un joueur              |
-| `VOWEL`  |              | $\checkmark$ | Le joueur achète une voyelle                          |
-| `WINNER` | $\checkmark$ |              | Annonce le gagnant des manches. Début du dernier puzzle |
+| Message   | Server $\rightarrow$ Client | Server $\leftarrow$ Client | Description                                                  |
+|:----------|:---------------------------:|:--------------------------:|:-------------------------------------------------------------|
+| `END`     |        $\checkmark$         |                            | Annonce de la fin du jeu, avec résultats                     |
+| `FILL`    |                             |        $\checkmark$        | Le joueur essaye de compléter le puzzle                      |
+| `GO`      |                             |        $\checkmark$        | Démarre la partie                                            |
+| `GUESS`   |                             |        $\checkmark$        | Le joueur essaye devine une consonne                         |
+| `INFO`    |        $\checkmark$         |                            | Envoit les toutes dernières informations de la manche        |
+| `JOIN`    |                             |        $\checkmark$        | Demande au serveur d'authoriser un joueur à rejoindre        |
+| `LAST`    |        $\checkmark$         |                            | Demande au gagnant de deviner le puzzle                      |
+| `LETTERS` |                             |        $\checkmark$        | Le joueur fourni 5 lettres à révéler pour la dernière manche |
+| `LOBBY`   |        $\checkmark$         |                            | Envoie la liste actuelle de joueurs dans la partie           |
+| `QUIT`    |                             |        $\checkmark$        | Demande la déconnection d'un joueur                          |
+| `ROUND`   |        $\checkmark$         |                            | Fin de tour: le puzzle a été résolu                          |
+| `SKIP`    |                             |        $\checkmark$        | Saute le tour après avoir deviné une consonne                |
+| `STATUS`  |        $\checkmark$         |        $\checkmark$        | Renvoit un code de status à l'autre bout                     |
+| `TURN`    |        $\checkmark$         |                            | Le serveur tourne la roue pour un joueur                     |
+| `VOWEL`   |                             |        $\checkmark$        | Le joueur achète une voyelle                                 |
+| `WINNER`  |        $\checkmark$         |                            | Annonce le gagnant des manches. Début du dernier puzzle      |
 
 : Liste de tous les messages qui peuvent être échangés
 
@@ -245,6 +246,33 @@ remplacées par `*`.
 | category | Catégorie du puzzle                                     |
 
 : Paramètres de la commande
+
+
+## `LETTERS`
+
+### Description
+
+Le joueur fourni 5 lettres à réveler sur le puzzle de la dernière manche
+
+### Format, paramètres, réponses acceptées
+
+| Nom                         | Description                               |
+|:----------------------------|-------------------------------------------|
+| Format                      | `LETTERS <letters>`                       |
+| Server $\rightarrow$ Client |                                           |
+| Client $\rightarrow$ Server | $\checkmark$                              |
+| Réponses acceptées          | STATUS ko, STATUS already_tried, ou ROUND |
+
+: Tableau du format et réponse acceptées
+
+#### Paramètres
+
+| Nom     | Taille [B] | Description       |
+|:--------|:----------:|:------------------|
+| letters |     5      | Lettres demandées |
+
+: Paramètres de la commande
+
 
 ## `LOBBY`
 
