@@ -41,10 +41,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameMatch {
 
-  public static final int VowelCost = 250;
-  public static final int NormalRoundsBeforeLastRound = 5;
-  public static final int LastRoundTimeout = 15;
-  public static final int MaxPlayers = 4;
+  public static final int VOWEL_COST = 250;
+  public static final int NORMAL_ROUNDS_BEFORE_LAST_ROUND = 5;
+  public static final int LAST_ROUND_TIMEOUT = 15;
+  public static final int MAX_PLAYERS = 4;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
   private final ConcurrentHashMap<Player, ArrayList<GameCommand>> pendingCommands;
   private GamePhase currentPhase;
@@ -65,7 +65,7 @@ public class GameMatch {
   public StatusCode addPlayer(String username) {
     StatusCode joinResult = StatusCode.OK;
 
-    if (currentPhase == GamePhase.WAITING_FOR_PLAYERS && connectedPlayers.size() < MaxPlayers) {
+    if (currentPhase == GamePhase.WAITING_FOR_PLAYERS && connectedPlayers.size() < MAX_PLAYERS) {
       for (Player p : connectedPlayers) {
         if (p.getUsername().equals(username)) {
           joinResult = StatusCode.DUPLICATE_NAME;
@@ -365,11 +365,11 @@ public class GameMatch {
 
   private void advanceRound() {
     currentRound++;
-    if (currentRound > NormalRoundsBeforeLastRound) {
+    if (currentRound > NORMAL_ROUNDS_BEFORE_LAST_ROUND) {
       currentPhase = GamePhase.START_LAST_TURN;
       startLastRound();
     } else {
-      roundPuzzle = Puzzle.createNewPuzzle("", VowelCost);
+      roundPuzzle = Puzzle.createNewPuzzle("", VOWEL_COST);
       queueGlobalCommand(
           new StartCommand(currentRound, getCurrentPuzzle(), getCurrentPuzzleCategory()));
       System.out.println("New game started. Full puzzle: " + roundPuzzle.getFullPuzzle());
@@ -429,11 +429,11 @@ public class GameMatch {
 
     currPlayerIndex = winningPlayerIndex;
     System.out.println(winningPlayer + " is the winner, and goes to the last round");
-    roundPuzzle = Puzzle.createNewPuzzle(Puzzle.FinalRoundInitialLetters, VowelCost);
+    roundPuzzle = Puzzle.createNewPuzzle(Puzzle.FinalRoundInitialLetters, VOWEL_COST);
     currentPhase = GamePhase.LAST_TURN;
     queueGlobalCommand(new WinnerCommand(winningPlayer.getUsername()));
     queueSpecificGlobalCommand(
         winningPlayer,
-        new LastCommand(LastRoundTimeout, getCurrentPuzzle(), getCurrentPuzzleCategory()));
+        new LastCommand(LAST_ROUND_TIMEOUT, getCurrentPuzzle(), getCurrentPuzzleCategory()));
   }
 }
