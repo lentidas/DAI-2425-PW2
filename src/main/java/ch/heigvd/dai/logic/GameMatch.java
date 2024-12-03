@@ -43,7 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GameMatch {
 
   public static final int VowelCost = 250;
-  public static final int NormalRoundsBeforeLastRound = 1;
+  public static final int NormalRoundsBeforeLastRound = 5;
   public static final int LastRoundTimeout = 15;
   public static final int MaxPlayers = 4;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
