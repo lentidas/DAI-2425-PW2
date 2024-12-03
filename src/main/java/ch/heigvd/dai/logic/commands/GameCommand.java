@@ -46,6 +46,7 @@ public abstract class GameCommand {
 
   public static GameCommand fromTcpBody(String body) throws InvalidPropertiesFormatException {
 
+    // FIXME I do not think this works as intended, because an empty string skips this detection.
     String[] commandNames = body.split(" ");
     if (commandNames.length == 0) {
       throw new InvalidPropertiesFormatException("Command name is missing");

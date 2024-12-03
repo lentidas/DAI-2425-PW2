@@ -44,7 +44,6 @@ public class SocketClient extends SocketAbstract {
   @Override
   public void run() {
     System.out.println(
-        // TODO Check if the output includes brackets when connecting to IPv6
         "[Client] Connecting to server at " + getHost().getHostAddress() + ":" + getPort() + "...");
 
     try (Socket socket = new Socket(getHost(), getPort());
@@ -55,7 +54,6 @@ public class SocketClient extends SocketAbstract {
         Reader inputReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
         BufferedReader bir = new BufferedReader(inputReader)) {
       // Print message to acknowledge successful connection to the server.
-      // TODO Check if the output includes brackets when connecting to IPv6
       System.out.println(
           "[Client] Connected to server at " + getHost().getHostAddress() + ":" + getPort());
       System.out.println();

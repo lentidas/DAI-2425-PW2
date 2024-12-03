@@ -48,8 +48,6 @@ public class SocketServer extends SocketAbstract {
 
   @Override
   public void run() {
-    // TODO Test if the a way to limit the maximum amount of players/connections using the backlog
-    //  option of ServerSocket() in parallel with the number of cached threads works or not
     try (ServerSocket serverSocket =
             isHostAny()
                 ? new ServerSocket(getPort(), GameMatch.MAX_PLAYERS)
