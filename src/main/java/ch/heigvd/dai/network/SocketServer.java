@@ -37,8 +37,7 @@ import java.util.concurrent.Executors;
 
 public class SocketServer extends SocketAbstract {
 
-  // TODO Replace this static value with something coming from the game logic package
-  public static final int MAX_N_CONNECTIONS = 5;
+  /** Attribute containing the instance of the game match. */
   private final GameMatch match;
 
   public SocketServer(HostAndPort hostAndPort, GameMatch match)
@@ -49,13 +48,13 @@ public class SocketServer extends SocketAbstract {
 
   @Override
   public void run() {
-    // TODO Implement a way to limit the maximum amount of players/connections using the backlog
-    //  option of ServerSocket() in parallel with the number of cached threads
+    // TODO Test if the a way to limit the maximum amount of players/connections using the backlog
+    //  option of ServerSocket() in parallel with the number of cached threads works or not
     try (ServerSocket serverSocket =
             isHostAny()
-                ? new ServerSocket(getPort(), MAX_N_CONNECTIONS)
-                : new ServerSocket(getPort(), MAX_N_CONNECTIONS, getHost());
-        ExecutorService executor = Executors.newFixedThreadPool(MAX_N_CONNECTIONS)) {
+                ? new ServerSocket(getPort(), GameMatch.MAX_PLAYERS)
+                : new ServerSocket(getPort(), GameMatch.MAX_PLAYERS, getHost());
+        ExecutorService executor = Executors.newFixedThreadPool(GameMatch.MAX_PLAYERS)) {
 
       System.out.println("[Server] Starting server...");
       if (isHostAny()) {
