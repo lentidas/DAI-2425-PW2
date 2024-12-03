@@ -18,4 +18,21 @@
 
 package ch.heigvd.dai.logic.commands;
 
-public class HelpCommand {}
+import java.util.InvalidPropertiesFormatException;
+
+public class HelpCommand extends GameCommand {
+
+  public HelpCommand() {
+    super(GameCommandType.HELP);
+  }
+
+  // FIXME This function is identical between the JOIN, HELP, HOST and SKIP commands. Think about
+  //  refactoring this.
+  public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
+    if (null != args && args.length > 0) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
+    }
+
+    return new HelpCommand();
+  }
+}
