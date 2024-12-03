@@ -45,7 +45,7 @@ public class GameMatch {
   public static final int VowelCost = 250;
   public static final int NormalRoundsBeforeLastRound = 5;
   public static final int LastRoundTimeout = 15;
-  public static final int MaxPlayers = 4;
+  public static final int MaxPlayers = 5;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
   private final ConcurrentHashMap<Player, ArrayList<GameCommand>> pendingCommands;
   private GamePhase currentPhase;
