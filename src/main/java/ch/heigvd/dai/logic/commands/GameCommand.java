@@ -54,7 +54,7 @@ public abstract class GameCommand {
 
     GameCommandType commandType;
     try {
-      commandType = GameCommandType.valueOf(commandName);
+      commandType = GameCommandType.valueOf(commandName.toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new InvalidPropertiesFormatException("Invalid command name: " + commandName);
     }
