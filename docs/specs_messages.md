@@ -308,9 +308,9 @@ Le joueur fourni 5 lettres à réveler sur le puzzle de la dernière manche
 | Format                      | `LETTERS <letters>`                                            |
 | Server $\rightarrow$ Client |                                                                |
 | Client $\rightarrow$ Server | $\checkmark$                                                   |
-| Réponses acceptées          | **STATUS ko** si le format est faux                            |
-|                             | **STATUS already_tried** si les lettres ont déjà été utilisées |
-|                             | **ROUND** si les lettres sont acceptées                        |
+| Réponses acceptées          | `STATUS ko` si le format est faux                            |
+|                             | `STATUS already_tried` si les lettres ont déjà été utilisées |
+|                             | `ROUND` si les lettres sont acceptées                        |
 
 : Tableau du format et réponse acceptées
 
