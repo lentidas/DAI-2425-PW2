@@ -79,7 +79,7 @@ public class SocketServer extends SocketAbstract {
     private final Socket socket;
     private Player player;
 
-    ClientHandler(Socket socket) {
+    ClientHandler(Socket socket) throws RuntimeException {
       this.socket = socket;
       player = null;
 

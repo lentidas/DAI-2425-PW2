@@ -85,7 +85,7 @@ public abstract class GameCommand {
         if (arg.startsWith("\"") && arg.endsWith("\"")) {
           arg = arg.substring(1, arg.length() - 1);
         }
-        commandArgs[i] = arg;
+        commandArgs[i] = arg.trim(); // Use trim to remove any leading and trailing whitespace.
         i++;
       }
     }

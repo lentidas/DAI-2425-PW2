@@ -21,7 +21,7 @@ package ch.heigvd.dai.logic;
 public enum StatusCode {
   OK, /* 0 */
   KO,
-  WRONG_FORMAT,
+  WRONG_FORMAT, // TODO Remove because not used
   PLAYER_JOINED,
   PLAYER_QUIT,
   GAME_START,

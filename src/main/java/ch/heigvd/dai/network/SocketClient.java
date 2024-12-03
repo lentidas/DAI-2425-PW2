@@ -18,23 +18,21 @@
 
 package ch.heigvd.dai.network;
 
+import ch.heigvd.dai.logic.StatusCode;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.GoCommand;
+import ch.heigvd.dai.logic.commands.HostCommand;
+import ch.heigvd.dai.logic.commands.JoinCommand;
+import ch.heigvd.dai.logic.commands.StatusCommand;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Iterator;
+import java.util.List;
 
 public class SocketClient extends SocketAbstract {
-  public enum ClientCommand {
-    HELLO,
-    INVALID,
-    HELP,
-    QUIT
-  }
-
-  public enum ServerCommand {
-    HELLO_ACK,
-    INVALID
-  }
 
   public SocketClient(HostAndPort hostAndPort)
       throws NullPointerException, IllegalArgumentException, UnknownHostException {
@@ -66,28 +64,43 @@ public class SocketClient extends SocketAbstract {
         // Output prompt.
         System.out.print("> ");
 
+        // TODO Maybe implement a way to timeout and refresh, because the server could have sent a
+        //  command saying that the game has started in the meantime.
         // Read user input from console.
         String userInput = bir.readLine();
 
+        // Parse command from user.
+        GameCommand command;
         try {
-          // Split user input to parse command (first part of the message is the command, second
-          // part are the arguments).
-          String[] userInputParts = userInput.split(" ", 2);
-          ClientCommand command = ClientCommand.valueOf(userInputParts[0].toUpperCase());
+          command = GameCommand.fromTcpBody(userInput.trim());
+        } catch (InvalidPropertiesFormatException ignore) {
+          System.out.println("Unrecognized/Invalid command! Available commands:\n");
+          help();
+          continue;
+        }
 
+        try {
           // Prepare the request to send to the server.
           String request = null;
 
-          switch (command) {
-            case HELLO -> {
-              System.out.println("Sent HELLO command to server");
-              request = ClientCommand.HELLO.name();
+          switch (command.getType()) {
+            case JOIN ->
+                request = new JoinCommand((String) command.getArgs().getFirst()).toTcpBody();
+            case GO -> request = new GoCommand().toTcpBody();
+            case HOST -> {
+              System.out.println(((HostCommand) command).getHost());
+              continue;
+            }
+            case HELP -> {
+              help();
+              continue;
             }
             case QUIT -> {
               socket.close();
               continue;
             }
-            case HELP -> {
+            default -> {
+              System.out.println("Unrecognized command! Available commands:\n");
               help();
               continue;
             }
@@ -106,39 +119,64 @@ public class SocketClient extends SocketAbstract {
         // Read response from server and parse it.
         String serverResponse = in.readLine();
 
-        // If serverResponse is null, the server has disconnected
+        // If serverResponse is null, the server has disconnected.
         if (serverResponse == null) {
           socket.close();
           continue;
         }
 
-        // Split server response to parse command (first part of the message is the command, second
-        // part are the arguments).
-        String[] serverResponseParts = serverResponse.split(" ", 2);
-
-        ServerCommand message = null;
+        // Parse the response from the server.
+        // TODO Consider refactoring identical block above into a single private class function.
+        GameCommand response = null;
         try {
-          message = ServerCommand.valueOf(serverResponseParts[0]);
-        } catch (Exception ignore) {
-          // Ignore any exception, the null case will be handed in the switch block bellow.
+          response = GameCommand.fromTcpBody(serverResponse.trim());
+        } catch (InvalidPropertiesFormatException format) {
+          // Response is malformed (not a valid command).
+          System.out.println("Invalid/unknown command sent by server, ignore.");
+          continue;
         }
 
         // Handle the response from the server and perform the appropriate action.
-        switch (message) {
-          case HELLO_ACK -> {
-            System.out.println("Server responded HELLO_ACK");
-          }
-          case INVALID -> {
-            if (serverResponseParts.length < 2) {
-              System.out.println("Invalid message. Please try again.");
-              break;
+        // In most cases, there is, because the interpretation of the server response depends on
+        // the command the client sent before.
+        // switch (command.getType()) {
+        //   case JOIN -> {}
+        // }
+
+        switch (response.getType()) {
+
+          case STATUS -> {
+            StatusCode status = ((StatusCommand) response).getStatus();
+            switch (status) {
+              case OK -> System.out.println("OK!");
+              case KO -> System.out.println("Something is not OK!");
+              case FULL -> {
+                System.out.println("Party is full and there is no place to join.");
+                socket.close();
+              }
+              case DUPLICATE_NAME -> System.out.println("Username is already in use.");
             }
-            // Print invalid message from server if there is any.
-            String invalidMessage = serverResponseParts[1];
-            System.out.println(invalidMessage);
           }
-          case null, default ->
-              System.out.println("Invalid/unknown command sent by server, ignore.");
+
+          case END -> {
+            List<Object> args = response.getArgs();
+            Iterator<Object> iter = args.iterator();
+            System.out.println("Game ended!");
+            System.out.println("===");
+            System.out.println("WINNER: " + iter.next());
+            System.out.println("===");
+            System.out.println("Game results:");
+            for (int i = 0; iter.hasNext(); ++i) {
+              if (i % 2 == 0) { // If even, print username.
+                System.out.print(iter.next());
+              } else { // Else, print money with a new line.
+                System.out.println(" - " + iter.next());
+              }
+            }
+            System.out.println("Please use JOIN to play again or QUIT to go home.");
+          }
+
+          default -> System.out.println("Invalid/unknown command sent by server, ignore.");
         }
       } // end of while (!socket.isClosed())
 
