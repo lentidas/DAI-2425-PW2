@@ -34,5 +34,6 @@ public enum GameCommandType {
   VOWEL,
   WINNER,
   GO,
-  SKIP /* 15 */
+  SKIP,
+  LETTERS /* 16 */
 }

@@ -272,6 +272,7 @@ public class Puzzle {
    */
   public boolean tryGuessLetter(char letter) {
     String upperLetter = Character.toString(letter).toUpperCase();
+    boolean letterGuessed = false;
     char upperLetterChar = upperLetter.charAt(0);
 
     if (!hasLetterBeenGuessed(upperLetterChar) && record.puzzle().contains(upperLetter)) {
@@ -285,12 +286,15 @@ public class Puzzle {
         }
       }
 
-      lettersGuessed.add(upperLetterChar);
       currentPuzzleState = sb.toString();
-      return true;
+      letterGuessed = true;
     }
 
-    return false;
+    if (!lettersGuessed.contains(upperLetterChar)) {
+      lettersGuessed.add(upperLetterChar);
+    }
+
+    return letterGuessed;
   }
 
   /**

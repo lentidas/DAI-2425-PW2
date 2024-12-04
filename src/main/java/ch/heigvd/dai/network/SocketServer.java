@@ -25,6 +25,7 @@ import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.JoinCommand;
+import ch.heigvd.dai.logic.commands.LettersCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
 import ch.heigvd.dai.logic.commands.VowelCommand;
 import com.google.common.net.HostAndPort;
@@ -37,8 +38,6 @@ import java.util.concurrent.Executors;
 
 public class SocketServer extends SocketAbstract {
 
-  // TODO Replace this static value with something coming from the game logic package
-  public static final int MAX_N_CONNECTIONS = 5;
   private final GameMatch match;
 
   public SocketServer(HostAndPort hostAndPort, GameMatch match)
@@ -53,9 +52,9 @@ public class SocketServer extends SocketAbstract {
     //  option of ServerSocket() in parallel with the number of cached threads
     try (ServerSocket serverSocket =
             isHostAny()
-                ? new ServerSocket(getPort(), MAX_N_CONNECTIONS)
-                : new ServerSocket(getPort(), MAX_N_CONNECTIONS, getHost());
-        ExecutorService executor = Executors.newFixedThreadPool(MAX_N_CONNECTIONS)) {
+                ? new ServerSocket(getPort(), GameMatch.MaxPlayers)
+                : new ServerSocket(getPort(), GameMatch.MaxPlayers, getHost());
+        ExecutorService executor = Executors.newFixedThreadPool(GameMatch.MaxPlayers)) {
 
       System.out.println("[Server] Starting server...");
       if (isHostAny()) {
@@ -198,6 +197,16 @@ public class SocketServer extends SocketAbstract {
                 }
               }
 
+              case LETTERS -> {
+                if (match.isNotMyTurn(player)) {
+                  System.out.println(
+                      player + " tried to play the last round, but it's not their turn");
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
+                } else {
+                  response = match.guessLastRoundLetters((LettersCommand) command).toTcpBody();
+                }
+              }
+
               case GUESS -> {
                 if (match.isNotMyTurn(player)) {
                   System.out.println(
@@ -224,7 +233,7 @@ public class SocketServer extends SocketAbstract {
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   System.out.println(player + " skipped their turn");
-                  match.advanceTurn();
+                  match.skipTurn(player);
                 }
               }
 

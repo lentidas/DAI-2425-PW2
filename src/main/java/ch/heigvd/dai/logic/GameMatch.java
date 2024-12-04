@@ -25,6 +25,7 @@ import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.InfoCommand;
 import ch.heigvd.dai.logic.commands.LastCommand;
+import ch.heigvd.dai.logic.commands.LettersCommand;
 import ch.heigvd.dai.logic.commands.LobbyCommand;
 import ch.heigvd.dai.logic.commands.RoundCommand;
 import ch.heigvd.dai.logic.commands.StartCommand;
@@ -44,7 +45,7 @@ public class GameMatch {
   public static final int VowelCost = 250;
   public static final int NormalRoundsBeforeLastRound = 5;
   public static final int LastRoundTimeout = 15;
-  public static final int MaxPlayers = 4;
+  public static final int MaxPlayers = 5;
   private final CopyOnWriteArrayList<Player> connectedPlayers;
   private final ConcurrentHashMap<Player, ArrayList<GameCommand>> pendingCommands;
   private GamePhase currentPhase;
@@ -267,6 +268,9 @@ public class GameMatch {
         response = new StatusCommand(StatusCode.LETTER_EXISTS);
         System.out.println(player + " guessed the vowel " + command.getVowel());
         endTurn = true;
+
+        // Small hack so next turn is played by the same player
+        currPlayerIndex -= 1;
       }
 
       if (endTurn) {
@@ -293,36 +297,40 @@ public class GameMatch {
     GameCommand response;
     Player player;
 
-    if (currentPhase == GamePhase.NORMAL_TURN
-        && (player = connectedPlayers.get(currPlayerIndex)) != null) {
+    if ((player = connectedPlayers.get(currPlayerIndex)) != null) {
 
-      if (roundPuzzle.guessPuzzle(command.getPuzzle())) {
-        System.out.println(player + " successfully solved the puzzle");
-        response = new StatusCommand(StatusCode.RIGHT_ANSWER);
-        queueGlobalCommand(new RoundCommand(getCurrentPuzzle()));
-        advanceRound();
+      if (currentPhase == GamePhase.NORMAL_TURN) {
+
+        if (roundPuzzle.guessPuzzle(command.getPuzzle())) {
+          System.out.println(player + " successfully solved the puzzle");
+          response = new StatusCommand(StatusCode.RIGHT_ANSWER);
+          queueGlobalCommand(new RoundCommand(getCurrentPuzzle()));
+          advanceRound();
+        } else {
+          System.out.println(player + " did not solve the puzzle");
+          response = new StatusCommand(StatusCode.WRONG_ANSWER);
+          advanceTurn();
+        }
+
+        player.setState(PlayerState.CHILLING);
+      } else if (currentPhase == GamePhase.LAST_TURN
+          && player.getState() == PlayerState.SECOND_GUESS_PHASE) {
+
+        boolean playerWon = false;
+
+        if (roundPuzzle.guessPuzzle(command.getPuzzle())) {
+          System.out.println(player + " successfully solved the puzzle");
+          response = new StatusCommand(StatusCode.RIGHT_ANSWER);
+          playerWon = true;
+        } else {
+          System.out.println(player + " did not solve the puzzle");
+          response = new StatusCommand(StatusCode.WRONG_ANSWER);
+        }
+
+        announceResults(playerWon ? player.getUsername() : "-");
       } else {
-        System.out.println(player + " did not solve the puzzle");
-        response = new StatusCommand(StatusCode.WRONG_ANSWER);
-        advanceTurn();
+        response = new StatusCommand(StatusCode.KO);
       }
-
-      player.setState(PlayerState.CHILLING);
-    } else if (currentPhase == GamePhase.LAST_TURN
-        && (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.CHILLING) {
-
-      boolean playerWon = false;
-
-      if (roundPuzzle.guessPuzzle(command.getPuzzle())) {
-        System.out.println(player + " successfully solved the puzzle");
-        response = new StatusCommand(StatusCode.RIGHT_ANSWER);
-        playerWon = true;
-      } else {
-        System.out.println(player + " did not solve the puzzle");
-        response = new StatusCommand(StatusCode.WRONG_ANSWER);
-      }
-
-      announceResults(playerWon ? player.getUsername() : "-");
     } else {
       response = new StatusCommand(StatusCode.KO);
     }
@@ -377,6 +385,14 @@ public class GameMatch {
     }
   }
 
+  public void skipTurn(Player player) {
+    // Reset player state for next turns
+    if (!isNotMyTurn(player)) {
+      player.setState(PlayerState.CHILLING);
+      advanceTurn();
+    }
+  }
+
   public void advanceTurn() {
     currPlayerIndex = (currPlayerIndex + 1) % connectedPlayers.size();
     Player currentPlayer = connectedPlayers.get(currPlayerIndex);
@@ -407,6 +423,35 @@ public class GameMatch {
     }
   }
 
+  public GameCommand guessLastRoundLetters(LettersCommand command) {
+    GameCommand response;
+    Player player;
+
+    if (this.currentPhase == GamePhase.LAST_TURN
+        && (player = connectedPlayers.get(currPlayerIndex)).getState() == PlayerState.CHILLING) {
+      if (command.hasRepeatedLetters() || command.hasAnyOf(Puzzle.FinalRoundInitialLetters)) {
+        System.out.println(player + " guessed letters that have already been guessed");
+        response = new StatusCommand(StatusCode.ALREADY_TRIED);
+      } else {
+        for (Character c : command.getGuessedLetters()) {
+          // Ignore the result as intended
+          roundPuzzle.tryGuessLetter(c);
+        }
+
+        player.setState(PlayerState.SECOND_GUESS_PHASE);
+        System.out.println(
+            player
+                + " is playing with guessed letters "
+                + new String(roundPuzzle.getGuessedLetters()));
+        response = new RoundCommand(roundPuzzle.getCurrentPuzzleState());
+      }
+    } else {
+      response = new StatusCommand(StatusCode.KO);
+    }
+
+    return response;
+  }
+
   private void startLastRound() {
     if (this.currentPhase != GamePhase.START_LAST_TURN) {
       return;
@@ -430,10 +475,15 @@ public class GameMatch {
     currPlayerIndex = winningPlayerIndex;
     System.out.println(winningPlayer + " is the winner, and goes to the last round");
     roundPuzzle = Puzzle.createNewPuzzle(Puzzle.FinalRoundInitialLetters, VowelCost);
+    System.out.println("Full puzzle: " + roundPuzzle.getFullPuzzle());
     currentPhase = GamePhase.LAST_TURN;
     queueGlobalCommand(new WinnerCommand(winningPlayer.getUsername()));
     queueSpecificGlobalCommand(
         winningPlayer,
-        new LastCommand(LastRoundTimeout, getCurrentPuzzle(), getCurrentPuzzleCategory()));
+        new LastCommand(
+            LastRoundTimeout,
+            getCurrentPuzzle(),
+            getCurrentPuzzleCategory(),
+            Puzzle.FinalRoundInitialLetters));
   }
 }
