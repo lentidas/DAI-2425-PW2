@@ -23,8 +23,8 @@ public enum StatusCode {
   KO,
   WRONG_FORMAT, // TODO Remove because not used
   PLAYER_JOINED,
-  PLAYER_QUIT,
-  GAME_START,
+  PLAYER_QUIT, // TODO Remove because not used
+  GAME_START, // TODO Remove because not used
   LETTER_EXISTS,
   LETTER_MISSING,
   TIMEOUT,
@@ -32,9 +32,8 @@ public enum StatusCode {
   WRONG_ANSWER, /* 10 */
   RIGHT_ANSWER,
   DUPLICATE_NAME,
-  CLOSING,
+  CLOSING, // TODO Remove because not used
   NO_FUNDS,
-  SKIP,
   FULL,
   LOST_A_TURN,
   BANKRUPT /* 18 */

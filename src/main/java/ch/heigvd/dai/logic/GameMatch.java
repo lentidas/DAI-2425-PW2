@@ -77,7 +77,7 @@ public class GameMatch {
       connectedPlayers.add(newPlayer);
       pendingCommands.put(newPlayer, new ArrayList<>());
 
-      // Let the other players know someone joined
+      // Let the other players know someone joined.
       queueOthersGlobalCommand(newPlayer, new StatusCommand(StatusCode.PLAYER_JOINED));
       queueOthersGlobalCommand(newPlayer, new LobbyCommand(getPlayers()));
     } else {
