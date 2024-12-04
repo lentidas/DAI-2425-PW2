@@ -22,6 +22,7 @@ import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
 import ch.heigvd.dai.logic.commands.HostCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
+import ch.heigvd.dai.utils.CallableInputReader;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
@@ -31,7 +32,12 @@ import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SocketClient extends SocketAbstract {
 
@@ -43,30 +49,6 @@ public class SocketClient extends SocketAbstract {
   public SocketClient(HostAndPort hostAndPort)
       throws NullPointerException, IllegalArgumentException, UnknownHostException {
     super(hostAndPort);
-  }
-
-  private class ConsoleInputReader implements Callable<String> {
-    public String call() throws IOException {
-      try (Reader inputReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
-          BufferedReader bir = new BufferedReader(inputReader)) {
-        String input;
-        do {
-          try {
-            // Pause the thread and wait until we have data to complete a readLine() (i.e. until we
-            // have a new line character).
-            while (!bir.ready()) {
-              Thread.sleep(200);
-            }
-            input = bir.readLine();
-          } catch (InterruptedException e) {
-            System.out.println("ConsoleInputReadTask() cancelled");
-            return null;
-          }
-        } while ("".equals(input));
-        System.out.println("Thank You for providing input!");
-        return input;
-      }
-    }
   }
 
   @Override
@@ -111,57 +93,62 @@ public class SocketClient extends SocketAbstract {
           // Output prompt.
           System.out.print("> ");
 
-          // TODO Maybe implement a way to timeout and refresh, because the server could have sent a
-          //  command saying that the game has started in the meantime.
           // Read user input from console.
           String userInput = bir.readLine();
 
-          // Parse command from user and throw an error if not supported.
-          GameCommand command;
-          try {
-            command = GameCommand.fromTcpBody(userInput.trim());
-            if (!availableCommands.contains(command.getType()))
-              throw new InvalidPropertiesFormatException("Invalid command in the current state.");
-          } catch (InvalidPropertiesFormatException ignore) {
-            System.out.println("Unrecognized/Invalid command! Please try again.");
-            help();
-            continue;
-          }
-
-          try {
-            // Prepare the request to send to the server.
-            String request = null;
-
-            switch (command.getType()) {
-              case JOIN, GO, FILL, GUESS, VOWEL -> request = command.toTcpBody();
-              case HOST -> {
-                System.out.println(((HostCommand) command).getHost());
-                continue;
+          // TODO Check if we keep this behaviour...
+          // If user simply uses ENTER, skip command parsing and go check for a server message.
+          // WARNING: this could be blocking if the user repeats this multiple times.
+          if (!"".equals(userInput)) {
+            // Parse command from user and throw an error if not supported.
+            GameCommand command;
+            try {
+              command = GameCommand.fromTcpBody(userInput.trim());
+              // TODO Do not forget to remove this if unnecessary in the end
+              if (!availableCommands.contains(command.getType())) {
+                throw new InvalidPropertiesFormatException("Invalid command in the current state.");
               }
-              case HELP -> {
-                help();
-                continue;
-              }
-              case QUIT -> {
-                socket.close();
-                continue;
-              }
-              default -> {
-                System.out.println("Unrecognized/Invalid command! Please try again.");
-                help();
-                continue;
-              }
+            } catch (InvalidPropertiesFormatException ignore) {
+              System.out.println("Unrecognized/Invalid command! Please try again.");
+              help();
+              continue;
             }
 
-            // Send request to server if it is non-null.
-            if (request != null) {
-              out.write(request + END_OF_LINE);
-              out.flush();
+            try {
+              // Prepare the request to send to the server.
+              String request = null;
+
+              switch (command.getType()) {
+                case JOIN, GO, FILL, GUESS, VOWEL -> request = command.toTcpBody();
+                case HOST -> {
+                  System.out.println(((HostCommand) command).getHost());
+                  continue;
+                }
+                case HELP -> {
+                  help();
+                  continue;
+                }
+                case QUIT -> {
+                  socket.close();
+                  continue;
+                }
+                default -> {
+                  System.out.println("Unrecognized/Invalid command! Please try again.");
+                  help();
+                  continue;
+                }
+              }
+
+              // Send request to server if it is non-null.
+              if (request != null) {
+                out.write(request + END_OF_LINE);
+                out.flush();
+              }
+            } catch (Exception e) {
+              // TODO Consider sending this exception upstream.
+              System.out.println("Invalid command. Please try again.");
+              continue;
             }
-          } catch (Exception e) {
-            // TODO Consider sending this exception upstream.
-            System.out.println("Invalid command. Please try again.");
-            continue;
           }
         }
 
@@ -175,23 +162,14 @@ public class SocketClient extends SocketAbstract {
         }
 
         // Parse the response from the server.
-        // TODO Consider refactoring identical block above into a single private class function.
         GameCommand response = null;
         try {
           response = GameCommand.fromTcpBody(serverResponse.trim());
         } catch (InvalidPropertiesFormatException format) {
           // Response is malformed (not a valid command).
-          System.out.println("Invalid/unknown command sent by server, ignore.");
+          System.out.println("Invalid command sent by server, ignore.");
           continue;
         }
-
-        // TODO Remove this commented code
-        // Handle the response from the server and perform the appropriate action.
-        // In most cases, there is, because the interpretation of the server response depends on
-        // the command the client sent before.
-        // switch (command.getType()) {
-        //   case JOIN -> {}
-        // }
 
         switch (response.getType()) {
           case STATUS -> {
@@ -208,6 +186,8 @@ public class SocketClient extends SocketAbstract {
                 System.out.println("Party is full and there is no place to join.");
                 socket.close();
               }
+              case PLAYER_JOINED -> System.out.println("Another player joined the game!");
+              case PLAYER_QUIT -> System.out.println("Another player quit the game...");
               case DUPLICATE_NAME -> System.out.println("Username is already in use.");
               case WRONG_ANSWER -> System.out.println("Your guess is WRONG!");
               case RIGHT_ANSWER -> System.out.println("CONGRATULATIONS! Your guess is RIGHT!");
@@ -269,17 +249,19 @@ public class SocketClient extends SocketAbstract {
 
           case LOBBY -> {
             System.out.println("=== LOBBY ===");
-            for (Object player : response.getArgs()) {
-              System.out.println((String) player);
-            }
+            // FIXME does not work yet
+            // for (Object player : response.getArgs()) {
+            //   System.out.println((String) player);
+            // }
           }
 
           case START -> {
             List<Object> args = response.getArgs();
             Iterator<Object> iter = args.iterator();
-            System.out.println("=== ROUND #" + iter.next() + " ===");
+            int round = Integer.parseInt((String) iter.next());
             String puzzle = (String) iter.next();
             String category = (String) iter.next();
+            System.out.println("=== ROUND #" + round + " ===");
             System.out.println("Category: " + category);
             System.out.println("Puzzle: " + puzzle);
             // Put the client waiting from a response from the server.
@@ -335,6 +317,32 @@ public class SocketClient extends SocketAbstract {
                   """);
       }
     }
+  }
+
+  // TODO Document that this class is inspired from this article:
+  //  https://www.javaspecialists.eu/archive/Issue153-Timeout-on-Console-Input.html
+  // TODO Do not forget to remove this if not used
+  private String readLine() throws InterruptedException {
+    String input = null;
+    try (ExecutorService ex = Executors.newSingleThreadExecutor()) {
+      try {
+        Future<String> result =
+            ex.submit(new CallableInputReader(System.in, StandardCharsets.UTF_8));
+        try {
+          // TODO Create static attributes for these parameters maybe
+          input = result.get(5, TimeUnit.SECONDS);
+        } catch (ExecutionException e) {
+          e.getCause().printStackTrace();
+        } catch (TimeoutException e) {
+          System.out.println("Cancelling reading task");
+          result.cancel(true);
+          System.out.println("\nThread cancelled. input is null");
+        }
+      } finally {
+        ex.shutdownNow();
+      }
+    }
+    return input;
   }
 
   // private void computeAvailableCommands(
