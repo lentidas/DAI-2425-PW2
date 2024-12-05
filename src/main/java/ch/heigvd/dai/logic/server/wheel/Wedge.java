@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.wheel;
+package ch.heigvd.dai.logic.server.wheel;
 
 /**
  * Represents a wedge on the Wheel of Fortune. *

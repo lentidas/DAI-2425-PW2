@@ -57,7 +57,8 @@ public class FillCommand extends GameCommand {
    */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null == args || args.length != 1 || args[0] == null || args[0].isEmpty()) {
-      throw new InvalidPropertiesFormatException("[FillCommand] Command did not receive the completed puzzle");
+      throw new InvalidPropertiesFormatException(
+          "[FillCommand] Command did not receive the completed puzzle");
     }
 
     return new FillCommand(args[0]);

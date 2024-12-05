@@ -16,11 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.wheel;
+package ch.heigvd.dai.logic.server.puzzle;
 
-/** Enumerates the possible types of wedges that can be present on the wheel. */
-public enum WedgeType {
-  MONEY,
-  BANKRUPT,
-  LOSE_A_TURN
+/** Enumerates the possible categories that a puzzle can belong to. */
+public enum PuzzleCategory {
+  FOOD,
+  FUN_AND_GAMES,
+  PLACES,
+  LANDMARKS,
+  SONGS,
+  WHAT_ARE_YOU_DOING,
+  AROUND_THE_HOUSE
 }

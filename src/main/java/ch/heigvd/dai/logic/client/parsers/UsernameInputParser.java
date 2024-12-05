@@ -16,15 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.puzzle;
+package ch.heigvd.dai.logic.client.parsers;
 
-/** Enumerates the possible categories that a puzzle can belong to. */
-public enum PuzzleCategory {
-  FOOD,
-  FUN_AND_GAMES,
-  PLACES,
-  LANDMARKS,
-  SONGS,
-  WHAT_ARE_YOU_DOING,
-  AROUND_THE_HOUSE
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.JoinCommand;
+import java.util.InvalidPropertiesFormatException;
+
+public class UsernameInputParser implements IInputParser {
+
+  @Override
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
+    GameCommand command = null;
+
+    try {
+      command = JoinCommand.fromTcpBody(new String[] {input});
+      interactiveConsole.setUsername(input);
+    } catch (InvalidPropertiesFormatException e) {
+      System.err.println("Invalid username!");
+    }
+
+    return command;
+  }
 }

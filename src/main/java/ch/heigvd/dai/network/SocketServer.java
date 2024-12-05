@@ -19,7 +19,6 @@
 package ch.heigvd.dai.network;
 
 import ch.heigvd.dai.Player;
-import ch.heigvd.dai.logic.GameMatch;
 import ch.heigvd.dai.logic.StatusCode;
 import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
@@ -28,6 +27,7 @@ import ch.heigvd.dai.logic.commands.JoinCommand;
 import ch.heigvd.dai.logic.commands.LettersCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
 import ch.heigvd.dai.logic.commands.VowelCommand;
+import ch.heigvd.dai.logic.server.GameMatch;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
@@ -281,7 +281,9 @@ public class SocketServer extends SocketAbstract {
           } catch (SocketTimeoutException e) {
             // Nothing to do but loop around and hope for an answer later on.
           } catch (Exception e) {
-            System.err.println("[Server] Exception: " + e);
+            System.err.println("[Server] Random exception: " + e);
+            socket.close();
+            break;
           }
         } // end of while (!socket.isClosed())
 

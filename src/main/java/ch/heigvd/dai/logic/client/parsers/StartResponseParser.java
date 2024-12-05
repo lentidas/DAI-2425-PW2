@@ -16,13 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
-/** Enumerates the possible game phases that can be reached during a game. */
-public enum GamePhase {
-  WAITING_FOR_PLAYERS,
-  NORMAL_TURN,
-  START_NEW_TURN,
-  START_LAST_TURN,
-  LAST_TURN
+import ch.heigvd.dai.logic.PlayerState;
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.GameCommandType;
+import ch.heigvd.dai.logic.commands.StartCommand;
+
+public class StartResponseParser implements IResponseParser {
+
+  @Override
+  public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
+    if (response.getType() == GameCommandType.START) {
+      StartCommand cmd = (StartCommand) response;
+      System.out.println("=== ROUND #" + cmd.getRoundNumber() + " ===");
+      interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_TURN);
+    }
+  }
 }

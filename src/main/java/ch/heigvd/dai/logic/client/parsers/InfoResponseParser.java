@@ -16,20 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
-/** Enumerates the possible states that a player can be in. */
-public enum PlayerState {
-  WAIT_FOR_USERNAME,
-  WAIT_IN_LOBBY,
-  WAIT_FOR_TURN,
-  WAIT_FOR_GUESS,
-  WAIT_FOR_VOWEL,
-  WAIT_FOR_FILL,
-  WAIT_FOR_ENDING,
-  WAIT_FOR_LAST_TURN,
-  SEND_LETTERS,
-  CHILLING,
-  SECOND_GUESS_PHASE,
-  DISCONNECTED
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.GameCommandType;
+import ch.heigvd.dai.logic.commands.InfoCommand;
+
+public class InfoResponseParser implements IResponseParser {
+
+  @Override
+  public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
+    if (response.getType() == GameCommandType.INFO) {
+      InfoCommand cmd = (InfoCommand) response;
+      System.out.println("=== CURRENT PUZZLE ===");
+      System.out.println("Category: " + cmd.getCategory());
+      System.out.println("Puzzle: " + cmd.getPuzzle());
+      System.out.println("Used letters: " + cmd.getUsedLetters());
+    }
+  }
 }

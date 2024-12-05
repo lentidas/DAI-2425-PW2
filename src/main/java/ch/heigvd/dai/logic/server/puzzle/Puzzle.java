@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.puzzle;
+package ch.heigvd.dai.logic.server.puzzle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -275,7 +275,8 @@ public class Puzzle {
    * @return {@code true} if the letter has been used, {@code false} otherwise
    */
   public boolean hasLetterBeenGuessed(char letter) {
-    return lettersGuessed.contains(letter);
+    Character upperLetter = Character.toUpperCase(letter);
+    return lettersGuessed.contains(upperLetter);
   }
 
   /**

@@ -19,7 +19,7 @@
 package ch.heigvd.dai;
 
 import ch.heigvd.dai.logic.PlayerState;
-import ch.heigvd.dai.logic.wheel.Wedge;
+import ch.heigvd.dai.logic.server.wheel.Wedge;
 
 /**
  * Implements a Wheel of Fortune with the required attributes to describe the state of the player in
@@ -71,9 +71,9 @@ public class Player {
   }
 
   /**
-   * TODO
+   * Gets the player's turn order
    *
-   * @return
+   * @return Turn order
    */
   public int getTurnOrder() {
     return turnOrder;
@@ -89,9 +89,9 @@ public class Player {
   }
 
   /**
-   * TODO
+   * Sets the player's turn order
    *
-   * @param turnOrder
+   * @param turnOrder New turn order
    */
   public void setTurnOrder(int turnOrder) {
     this.turnOrder = turnOrder;

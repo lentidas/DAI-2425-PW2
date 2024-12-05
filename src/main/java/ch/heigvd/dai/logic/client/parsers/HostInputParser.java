@@ -16,14 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.puzzle;
+package ch.heigvd.dai.logic.client.parsers;
 
-/**
- * Represents a puzzle record in the <i>database</i>, represented by a {@link String} with its
- * contents and the {@link PuzzleCategory} it belongs to.
- */
-public record PuzzleRecord(String puzzle, PuzzleCategory category) {
-  public PuzzleRecord {
-    puzzle = puzzle.toUpperCase();
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.HostCommand;
+
+public class HostInputParser implements IInputParser {
+
+  @Override
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
+    HostCommand hostCommand = new HostCommand();
+    System.out.println(hostCommand.getHost());
+    return null;
   }
 }
