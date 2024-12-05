@@ -38,8 +38,6 @@
 
 ## Usage
 
-// TODO: Finish usage instructions
-
 This program is a CLI-only server/client implementation of the television game show Wheel of Fortune. 
 
 The executable contains the code for both the server and the client. As such, it has two main commands: `server` and `client`. Each command sets up a server or a client, respectively.
