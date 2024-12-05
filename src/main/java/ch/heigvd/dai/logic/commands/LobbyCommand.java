@@ -28,7 +28,7 @@ import java.util.Objects;
  * <p>It is used to inform the players that are in the lobby and are waiting for the game to start.
  *
  * @author Pedro Alves da Silva
- * @auhtor Gonçalo Carvalheiro Heleno
+ * @author Gonçalo Carvalheiro Heleno
  */
 public class LobbyCommand extends GameCommand {
 

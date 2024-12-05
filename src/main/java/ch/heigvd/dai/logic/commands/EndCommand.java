@@ -24,7 +24,7 @@ import java.util.InvalidPropertiesFormatException;
  * Represents the command the server sends to announce the end of the game.
  *
  * @author Pedro Alves da Silva
- * @auhtor Gonçalo Carvalheiro Heleno
+ * @author Gonçalo Carvalheiro Heleno
  */
 public class EndCommand extends GameCommand {
 
@@ -54,7 +54,7 @@ public class EndCommand extends GameCommand {
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null == args || args.length % 2 == 0) {
       throw new InvalidPropertiesFormatException(
-          "[EndCommand] Command did not receive enough, or a wrong number of arguments.");
+          "Command did not receive enough, or a wrong number of arguments.");
     }
 
     int playerCount = (args.length - 1) / 2;
