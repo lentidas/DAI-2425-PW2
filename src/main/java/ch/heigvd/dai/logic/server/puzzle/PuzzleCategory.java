@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic.server.puzzle;
 
+/** Enumerates the possible categories that a puzzle can belong to. */
 public enum PuzzleCategory {
   FOOD,
   FUN_AND_GAMES,

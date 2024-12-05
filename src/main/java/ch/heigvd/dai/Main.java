@@ -31,6 +31,12 @@ import picocli.CommandLine;
  */
 public class Main {
 
+  /**
+   * Main function to start the program. It creates a {@link Root} class that is the point of entry
+   * for our <a href="https://picocli.info">picocli</a> program.
+   *
+   * @param args the execution arguments as space-separated strings
+   */
   public static void main(String[] args) {
     // Example from DAI classes -
     // https://github.com/heig-vd-dai-course/heig-vd-dai-course-java-ios-practical-content-template/blob/778e1934a64f338e93613afbb31dd9e92356d7c4/src/main/java/ch/heigvd/dai/Main.java#L10
@@ -39,15 +45,15 @@ public class Main {
         new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
             .getName();
 
-    // Register game command handlers
+    // Register game command handlers.
     GameCommand.registerHandlers();
 
-    // Create root command and CommandLine
+    // Create root command and CommandLine.
     CommandLine command = new CommandLine(new Root());
     command.setCommandName(jarFilename).setCaseInsensitiveEnumValuesAllowed(true);
     int exitCode = command.execute(args);
 
-    // Exit the program
+    // Exit the program.
     System.exit(exitCode);
   }
 }

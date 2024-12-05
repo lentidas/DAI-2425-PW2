@@ -22,12 +22,27 @@ import com.google.common.net.HostAndPort;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * Abstract class for socket connections.
+ *
+ * <p>It contains the host and port information for the connection and defines the {@link
+ * #END_OF_LINE} constant for the end of line character specified by the protocol.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 abstract class SocketAbstract implements Runnable {
 
+  /** The host and port information for the connection. */
   private final HostAndPort hostAndPort;
+
+  /** The IP information for the connection. */
   private final InetAddress host;
+
+  /** The port information for the connection. */
   private final int port;
 
+  /** The end of line character, as specified by the protocol. */
   public static final String END_OF_LINE = "\n";
 
   /**
@@ -51,18 +66,38 @@ abstract class SocketAbstract implements Runnable {
     this.port = hostAndPort.getPort();
   }
 
+  /**
+   * Getter for the host and port information stored in the object.
+   *
+   * @return a {@link HostAndPort} object with the IP and port information for creating a socket
+   */
   public HostAndPort getHostAndPort() {
     return hostAndPort;
   }
 
+  /**
+   * Getter for the host information stored in the object.
+   *
+   * @return an {@link InetAddress} object with the IP information for creating a socket
+   */
   public InetAddress getHost() {
     return host;
   }
 
+  /**
+   * Getter for the port information stored in the object.
+   *
+   * @return an {@link Integer} with the port information for creating a socket
+   */
   public int getPort() {
     return port;
   }
 
+  /**
+   * Checks if the host is set to any address.
+   *
+   * @return {@code true} if the host is set to any address, {@code false} otherwise
+   */
   public boolean isHostAny() {
     return hostAndPort.getHost().equals("0.0.0.0") || hostAndPort.getHost().equals("::");
   }

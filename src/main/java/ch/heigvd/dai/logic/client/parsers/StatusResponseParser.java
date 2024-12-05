@@ -139,7 +139,7 @@ public class StatusResponseParser implements IResponseParser {
       case KO ->
           System.out.println(
               "Invalid letters provided! You must provide "
-                  + LettersCommand.NumberOfLetters
+                  + LettersCommand.NUMBER_OF_LETTERS
                   + " letters in total, with no spaces in between");
     }
   }

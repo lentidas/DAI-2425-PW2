@@ -22,8 +22,22 @@ import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Objects;
 
+/**
+ * Represents the command that announces the puzzle and category of the current round to all the
+ * players.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class InfoCommand extends GameCommand {
 
+  /**
+   * Default constructor.
+   *
+   * @param puzzle a {@link String} with the puzzle that the players have to solve
+   * @param category a {@link String} with the category of the puzzle
+   * @param usedLetters a {@link String} with the letters that have already been used
+   */
   public InfoCommand(String puzzle, String category, char[] usedLetters) {
     super(GameCommandType.INFO);
     args.add(puzzle);
@@ -31,29 +45,55 @@ public class InfoCommand extends GameCommand {
     args.add(new String(usedLetters));
   }
 
+  /**
+   * Gets the puzzle that the players have to solve.
+   *
+   * @return a {@link String} with the puzzle that the players have to solve (obtained from the
+   *     arguments of the command)
+   */
   public String getPuzzle() {
     return (String) args.getFirst();
   }
 
+  /**
+   * Gets the category of the puzzle.
+   *
+   * @return a {@link String} with the category of the puzzle (obtained from the arguments of the
+   *     command)
+   */
   public String getCategory() {
     return (String) args.get(1);
   }
 
+  /**
+   * Gets the letters that have already been used.
+   *
+   * @return a {@link String} with the letters that have already been used (obtained from the
+   *     arguments of the command)
+   */
   public String getUsedLetters() {
     return ((String) args.get(2));
   }
 
+  /**
+   * Parses the arguments of the command from a TCP message.
+   *
+   * @param args a {@link String} array with the arguments of the command
+   * @return a {@link InfoCommand} with the parsed arguments
+   * @throws InvalidPropertiesFormatException if the arguments are invalid for this command
+   */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null == args
         || args.length < 2
         || args.length > 3
         || Arrays.stream(args).anyMatch(Objects::isNull)) {
-      throw new InvalidPropertiesFormatException("Command did not receive correct parameters");
+      throw new InvalidPropertiesFormatException(
+          "[InfoCommand] Command did not receive correct parameters");
     }
 
     char[] usedLetters = new char[0];
 
-    // If we received the letters that have already been used
+    // If we received the letters that have already been used.
     if (args.length == 3) {
       usedLetters = args[2].toCharArray();
     } // if

@@ -109,7 +109,9 @@ public class InteractiveConsole {
           new PlayerStatePrompt(
               PlayerState.SEND_LETTERS,
               new String[] {
-                "Type " + LettersCommand.NumberOfLetters + " letters to complete the last puzzle: "
+                "Type "
+                    + LettersCommand.NUMBER_OF_LETTERS
+                    + " letters to complete the last puzzle: "
               }),
           new PlayerStatePrompt(
               PlayerState.WAIT_IN_LOBBY,

@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic.server;
 
+/** Enumerates the possible game phases that can be reached during a game. */
 public enum GamePhase {
   WAITING_FOR_PLAYERS,
   NORMAL_TURN,

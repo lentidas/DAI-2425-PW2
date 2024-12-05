@@ -24,13 +24,19 @@ import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 
+/**
+ * Implements the {@code client} subcommand for executing the program on a CLI.
+ *
+ * <p>This class defines the parameters and options that are only specific for this subcommand. For
+ * checking the usage of the subcommand, use the {@code --help} option.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 @CommandLine.Command(
     name = "client",
     description = "Start the client and connect to a given server.")
 public class Client implements Callable<Integer> {
-
-  // TODO Remove this reference to the Root class if we do not use any root parameters/options.
-  @CommandLine.ParentCommand private Root parent;
 
   @CommandLine.Option(
       names = {"-h", "--host"},
@@ -58,6 +64,14 @@ public class Client implements Callable<Integer> {
       defaultValue = Root.DEFAULT_PORT)
   private int serverPort;
 
+  /**
+   * Call function that contains the logic of the subcommand.
+   *
+   * <p>This function performs the multiple input validation checks and outputs an exit code
+   * accordingly. An error message is displayed to explain why the command failed.
+   *
+   * @return exit code 1 if there was an error, 0 otherwise
+   */
   @Override
   public Integer call() {
     HostAndPort hostAndPort =
@@ -67,7 +81,6 @@ public class Client implements Callable<Integer> {
     try {
       client = new SocketClient(hostAndPort);
     } catch (UnknownHostException | NullPointerException | IllegalArgumentException e) {
-      // TODO Maybe handle each exception in a separate catch block
       System.err.println("[Client] Exception when creating SocketClient: " + e);
       return 1;
     }

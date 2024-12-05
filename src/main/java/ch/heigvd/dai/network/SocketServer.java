@@ -36,50 +36,52 @@ import java.util.InvalidPropertiesFormatException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Implements a network server for the Wheel of Fortune game.
+ *
+ * <p>It listens for incoming connections and creates a new thread for each client that connects.
+ * The number of clients is limited to the maximum number of players allowed in a game match, and
+ * this limit is enforced both through a maximum number of threads in the thread pool and a maximum
+ * number of connections on the server socket.
+ *
+ * <p>Each client thread reads commands from the client and sends responses back.
+ */
 public class SocketServer extends SocketAbstract {
 
   /** Attribute containing the instance of the game match. */
   private final GameMatch match;
 
+  /**
+   * Default constructor.
+   *
+   * @param hostAndPort a {@link HostAndPort} object containing the host and port information
+   * @param match a {@link GameMatch} object containing the instance of the game match
+   * @throws NullPointerException if {@code hostAndPort} or {@code match} is null
+   * @throws IllegalArgumentException if {@code hostAndPort} does not contain a port number
+   * @throws UnknownHostException if {@code hostAndPort} contains a hostname that is unresolvable to
+   *     a valid IP
+   */
   public SocketServer(HostAndPort hostAndPort, GameMatch match)
       throws NullPointerException, IllegalArgumentException, UnknownHostException {
     super(hostAndPort);
     this.match = match;
   }
 
-  @Override
-  public void run() {
-    try (ServerSocket serverSocket =
-            isHostAny()
-                ? new ServerSocket(getPort(), GameMatch.MAX_PLAYERS)
-                : new ServerSocket(getPort(), GameMatch.MAX_PLAYERS, getHost());
-        ExecutorService executor = Executors.newFixedThreadPool(GameMatch.MAX_PLAYERS)) {
-
-      System.out.println("[Server] Starting server...");
-      if (isHostAny()) {
-        System.out.println("[Server] Listening on all interfaces");
-      } else {
-        System.out.println(
-            "[Server] Listening on the interface with IP " + getHost().getHostAddress());
-      }
-      System.out.println("[Server] Listening on port " + getPort());
-
-      while (!serverSocket.isClosed()) {
-        Socket clientSocket = serverSocket.accept();
-        executor.submit(new ClientHandler(clientSocket));
-      }
-    } catch (IOException e) {
-      // TODO Maybe send this exception upwards on the Stack and manage this over there
-      //  else maybe manage the outputs to console here since we also output other things here.
-      System.out.println("[Server] IO exception: " + e);
-    }
-  }
-
+  /**
+   * Inner class that implements the client handler for each of the threads of the clients.
+   * Implements {@link Runnable} to be able to run in a separate thread.
+   */
   class ClientHandler implements Runnable {
     private static final int READ_TIMEOUT_MS = 250;
     private final Socket socket;
     private Player player;
 
+    /**
+     * Default constructor.
+     *
+     * @param socket a {@link Socket} object containing the socket connection to the client
+     * @throws RuntimeException if the timeout for the socket read cannot be set
+     */
     ClientHandler(Socket socket) throws RuntimeException {
       this.socket = socket;
       player = null;
@@ -87,14 +89,18 @@ public class SocketServer extends SocketAbstract {
       try {
         socket.setSoTimeout(READ_TIMEOUT_MS);
       } catch (SocketException e) {
-        throw new RuntimeException("Failed to set timeout for socket read");
+        throw new RuntimeException(
+            "[ClientHandler] SocketException: failed to set timeout for socket read");
       }
     }
 
     /**
-     * Command handlers
+     * Method to parse the JOIN command from the client and to add the player to the game match
+     * object.
      *
-     * <p>TODO Finish this documentation
+     * @param joinCommand a {@link JoinCommand} object containing the JOIN command from the client
+     * @return a {@link GameCommand} object with the {@link StatusCommand} response to the JOIN
+     *     command
      */
     GameCommand parseJoin(JoinCommand joinCommand) {
       StatusCode joinStatus = match.addPlayer(joinCommand.getUsername());
@@ -110,9 +116,15 @@ public class SocketServer extends SocketAbstract {
     }
 
     /**
-     * Socket reader / writer
+     * Run method (implements {@link Runnable}) for the client handler that reads commands from the
+     * client and sends responses back.
      *
-     * <p>TODO Finish this documentation
+     * <p>It reads commands from the client and sends responses back while the client socket is not
+     * closed.
+     *
+     * <p>NOTE: Use of try-with-resources automatically closes the resources when the try block
+     * ends. Most of the exceptions are caught and handled, only critical exceptions are sent
+     * upwards through the call stack.
      */
     @Override
     public void run() {
@@ -146,9 +158,6 @@ public class SocketServer extends SocketAbstract {
 
             // If clientRequest is null, the client has disconnected.
             // The server can close the connection and end the thread.
-            // TODO Verify if this is the better behavior or if we leave the thread running until
-            //  somebody reconnects.
-            // TODO Verify what to do to the other players. Should the game end or continue?
             if (clientRequest == null) {
               socket.close();
               break;
@@ -272,7 +281,6 @@ public class SocketServer extends SocketAbstract {
           } catch (SocketTimeoutException e) {
             // Nothing to do but loop around and hope for an answer later on.
           } catch (Exception e) {
-            // TODO Same as the other TODO above
             System.err.println("[Server] Random exception: " + e);
             socket.close();
             break;
@@ -286,14 +294,48 @@ public class SocketServer extends SocketAbstract {
                 + ":"
                 + socket.getPort());
       } catch (IOException e) {
-        // TODO Same as the other TODO above
-        System.err.println("[Server] IO exception: " + e);
+        System.err.println("[Server] IOException: " + e);
       }
 
       // Disconnect player from match if that's not yet the case.
       if (null != player) {
         match.quitPlayer(player.getUsername());
       }
+    }
+  }
+
+  /**
+   * Run method (implements {@link Runnable}) for the server that creates a new thread pool and a
+   * thread for each client that connects to the server.
+   *
+   * <p>It listens for incoming connections and creates a new thread for each client that connects
+   * while the server socket is not closed. The number of clients is limited to the maximum number
+   * of players allowed in a game match, and this limit is enforced both through a maximum number of
+   * threads in the thread pool and a maximum number of connections on the server socket.
+   */
+  @Override
+  public void run() {
+    try (ServerSocket serverSocket =
+            isHostAny()
+                ? new ServerSocket(getPort(), GameMatch.MAX_PLAYERS)
+                : new ServerSocket(getPort(), GameMatch.MAX_PLAYERS, getHost());
+        ExecutorService executor = Executors.newFixedThreadPool(GameMatch.MAX_PLAYERS)) {
+
+      System.out.println("[Server] Starting server...");
+      if (isHostAny()) {
+        System.out.println("[Server] Listening on all interfaces");
+      } else {
+        System.out.println(
+            "[Server] Listening on the interface with IP " + getHost().getHostAddress());
+      }
+      System.out.println("[Server] Listening on port " + getPort());
+
+      while (!serverSocket.isClosed()) {
+        Socket clientSocket = serverSocket.accept();
+        executor.submit(new ClientHandler(clientSocket));
+      }
+    } catch (IOException e) {
+      System.out.println("[Server] IOException: " + e);
     }
   }
 }

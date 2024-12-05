@@ -22,11 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Represents the wheel of the game, which contains wedges that can be spun by the players.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class Wheel {
 
   private final List<Wedge> wedges;
   private final Random rand;
 
+  /** Default constructor. Constructs a new wheel with the default wedges. */
   public Wheel() {
     rand = new Random();
     wedges = new ArrayList<>();
@@ -69,6 +76,11 @@ public class Wheel {
     wedges.add(new Wedge(WedgeType.MONEY, rand.nextInt(10) * 100));
   }
 
+  /**
+   * Simulates a spin of the wheel and returns the wedge that was randomly chosen.
+   *
+   * @return a {@link Wedge} representing the wedge that randomly chosen
+   */
   public Wedge spinTheWheel() {
     return wedges.get(rand.nextInt(wedges.size()));
   }

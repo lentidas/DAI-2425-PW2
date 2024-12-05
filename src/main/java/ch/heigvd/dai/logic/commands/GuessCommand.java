@@ -22,30 +22,55 @@ import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Objects;
 
+/**
+ * Represents the command the player uses to guess a consonant.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class GuessCommand extends GameCommand {
 
+  /**
+   * Default constructor.
+   *
+   * @param letter a {@link char} with the consonant the player is guessing
+   */
   public GuessCommand(char letter) {
     super(GameCommandType.GUESS);
     args.add(letter);
   }
 
+  /**
+   * Gets the consonant the player is guessing.
+   *
+   * @return a {@link char} with the consonant the player is guessing (obtained from the arguments
+   *     of the command)
+   */
   public char getGuessedLetter() {
     return (char) args.getFirst();
   }
 
+  /**
+   * Parses the arguments of the command from a TCP message.
+   *
+   * @param args a {@link String} array with the arguments of the command
+   * @return a {@link GuessCommand} with the parsed arguments
+   * @throws InvalidPropertiesFormatException if the arguments are invalid for this command
+   */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null == args
         || args.length != 1
         || Arrays.stream(args).anyMatch(Objects::isNull)
         || args[0].length() != 1) {
-      throw new InvalidPropertiesFormatException("Command did not receive a single letter");
+      throw new InvalidPropertiesFormatException(
+          "[GuessCommand] Command did not receive a single letter");
     }
 
     char letter = args[0].charAt(0);
     if (!Character.isLetter(letter)) {
-      throw new InvalidPropertiesFormatException("Character is not a letter");
+      throw new InvalidPropertiesFormatException("[GuessCommand] Character is not a letter");
     } else if (isCharAVowel(letter)) {
-      throw new InvalidPropertiesFormatException("Letter is a vowel");
+      throw new InvalidPropertiesFormatException("[GuessCommand] Letter is a vowel");
     }
 
     return new GuessCommand(letter);

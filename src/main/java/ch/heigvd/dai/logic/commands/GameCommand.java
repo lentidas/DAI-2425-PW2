@@ -27,26 +27,59 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Abstract class representing a command that can be sent to/from the server.
+ *
+ * <p>It provides a method to convert the command to a string that can be sent over the network.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public abstract class GameCommand {
 
-  public static String Vowels = "AEIOU"; // The original game didn't consider Y to be a vowel
+  /** String of vowels in the alphabet. */
+  public static final String VOWELS = "AEIOU"; // The original game didn't consider Y to be a vowel
+
+  /** The type of the command. */
   protected final GameCommandType type;
+
+  /** The arguments of the command. */
   protected List<Object> args;
+
+  /** The handler function for generating a command from a TCP message. */
   private static final Map<GameCommandType, CommandFactoryFunction> _factoryHandlers =
       new HashMap<>();
 
   // TODO Improve this debugging by using a proper Java logging framework.
+  /** Boolean to enable/disable debug messages. */
   private static final boolean DEBUG_MODE = false;
 
+  /**
+   * Default constructor.
+   *
+   * @param type the type of the command
+   */
   public GameCommand(GameCommandType type) {
     this.type = type;
     this.args = new LinkedList<>();
   }
 
+  /**
+   * Gets the type of the command.
+   *
+   * @return the {@link GameCommandType} of the command
+   */
   public GameCommandType getType() {
     return type;
   }
 
+  /**
+   * Parses the arguments of the command from a TCP message.
+   *
+   * @param body a {@link String} with the body of the TCP message
+   * @return a {@link GameCommand} with the parsed arguments
+   * @throws InvalidPropertiesFormatException if the arguments are invalid for this command
+   */
   public static GameCommand fromTcpBody(String body) throws InvalidPropertiesFormatException {
 
     String[] commandNames = body.split(" ");
@@ -95,6 +128,12 @@ public abstract class GameCommand {
     return _factoryHandlers.get(commandType).apply(commandArgs);
   }
 
+  /**
+   * Adds a handler for each command type.
+   *
+   * @param type the {@link GameCommandType} of the command
+   * @param handler the {@link CommandFactoryFunction} to handle the command
+   */
   protected static void addFactoryHandler(GameCommandType type, CommandFactoryFunction handler) {
     _factoryHandlers.put(type, handler);
     if (DEBUG_MODE) {
@@ -102,6 +141,7 @@ public abstract class GameCommand {
     }
   }
 
+  /** Registers all the handlers for the commands. */
   public static void registerHandlers() {
     GameCommand.addFactoryHandler(GameCommandType.END, EndCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.FILL, FillCommand::fromTcpBody);
@@ -124,6 +164,12 @@ public abstract class GameCommand {
     GameCommand.addFactoryHandler(GameCommandType.HOST, HostCommand::fromTcpBody);
   }
 
+  /**
+   * Converts an argument to a string.
+   *
+   * @param arg the argument to convert
+   * @return a {@link String} with the argument converted to a string
+   */
   private String argToString(Object arg) {
     StringBuilder sb = new StringBuilder();
     if (arg instanceof String && ((String) arg).contains(" ")) {
@@ -134,6 +180,11 @@ public abstract class GameCommand {
     return sb.toString();
   }
 
+  /**
+   * Converts the command to a string that can be sent over the network.
+   *
+   * @return a {@link String} with the command converted to a string
+   */
   public String toTcpBody() {
     StringBuilder sb = new StringBuilder();
     sb.append(type.name());
@@ -154,6 +205,11 @@ public abstract class GameCommand {
     return sb.toString();
   }
 
+  /**
+   * Gets the arguments of the command.
+   *
+   * @return a {@link List} with the arguments of the command
+   */
   public List<Object> getArgs() {
     if (null != args) {
       return List.copyOf(args);
@@ -162,9 +218,15 @@ public abstract class GameCommand {
     }
   }
 
+  /**
+   * Checks if a character is a vowel.
+   *
+   * @param c the character to check
+   * @return {@code true} if the character is a vowel, {@code false} otherwise
+   */
   protected static boolean isCharAVowel(char c) {
     char lower = Character.toUpperCase(c);
-    for (char vowel : Vowels.toCharArray()) {
+    for (char vowel : VOWELS.toCharArray()) {
       if (lower == vowel) {
         return true;
       }

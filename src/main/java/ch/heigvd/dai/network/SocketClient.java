@@ -32,6 +32,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Implements a network client for the Wheel of Fortune game.
+ *
+ * <p>This class is responsible for handling the connection from a client to a server. It is
+ * responsible for parsing the user input from the console and the server responses, displaying them
+ * in a human-readable format.
+ *
+ * <p>The socket is shared between the two threads, one that reads the user input and sends it to
+ * the server, and the other that reads the server responses and displays them to the user. This
+ * approach allows the client to receive server responses and to not be blocked waiting for user
+ * input.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class SocketClient extends SocketAbstract {
   // TODO Consider if this should be final or not.
   // TODO Comment that this is an attribute because the HELP is dynamic depending on the available
@@ -39,28 +54,62 @@ public class SocketClient extends SocketAbstract {
   // TODO Find a proper way to thread-safe this if we make it dynamic after all
   private final HashSet<GameCommandType> availableCommands = new HashSet<>();
 
+  /** Boolean to signal that the user input is blocked and the input thread should wait. */
   private final AtomicBoolean inputBlocked = new AtomicBoolean(false);
+
+  /** Boolean to signal that a quit was expected and the threads should finish cleanly. */
   private final AtomicBoolean expectedQuit = new AtomicBoolean(false);
+
+  /** Semaphore to block the parent thread until the children finish. */
   private final Semaphore quit = new Semaphore(0);
 
   // TODO Improve this debugging by using a proper Java logging framework.
+  /** Boolean to enable/disable debug messages. */
   private static final boolean DEBUG_MODE = true;
 
   protected final InteractiveConsole interactiveConsole;
 
+  /**
+   * Default constructor.
+   *
+   * @param hostAndPort a {@link HostAndPort} object with the IP and port information for creating a
+   *     socket
+   * @throws NullPointerException if {@code hostAndPort} is null
+   * @throws IllegalArgumentException if {@code hostAndPort} does not contain a port number
+   * @throws UnknownHostException if {@code hostAndPort} contains a hostname that is unresolvable to
+   *     a valid IP
+   */
   public SocketClient(HostAndPort hostAndPort)
       throws NullPointerException, IllegalArgumentException, UnknownHostException {
     super(hostAndPort);
     interactiveConsole = new InteractiveConsole();
   }
 
+  /**
+   * Inner class that implements a thread that reads the user input from the console and sends it to
+   * the server.
+   */
   class InputReaderHandler implements Runnable {
+    /** The socket object with the connection to the server. */
     private final Socket socket;
 
+    /**
+     * Default constructor.
+     *
+     * @param socket a {@link Socket} object with the connection to the server
+     */
     InputReaderHandler(Socket socket) {
       this.socket = socket;
     }
 
+    /**
+     * Run method (implements {@link Runnable}) that listens for user input from the console and
+     * sends it to the server.
+     *
+     * <p>NOTE: Use of try-with-resources automatically closes the resources when the try block
+     * ends. Most of the exceptions are caught and handled, only critical exceptions are sent
+     * upwards through the call stack.
+     */
     @Override
     public void run() {
       try (socket;
@@ -107,13 +156,30 @@ public class SocketClient extends SocketAbstract {
     }
   }
 
+  /**
+   * Inner class that implements a thread that listens for server responses and displays them to the
+   * user.
+   */
   class ServerResponseHandler implements Runnable {
     private final Socket socket;
 
+    /**
+     * Default constructor.
+     *
+     * @param socket a {@link Socket} object with the connection to the server
+     */
     ServerResponseHandler(Socket socket) {
       this.socket = socket;
     }
 
+    /**
+     * Run method (implements {@link Runnable}) that listens for server responses and displays them
+     * to the user.
+     *
+     * <p>NOTE: Use of try-with-resources automatically closes the resources when the try block
+     * ends. Most of the exceptions are caught and handled, only critical exceptions are sent
+     * upwards through the call stack.
+     */
     @Override
     public void run() {
       try (socket;
@@ -173,6 +239,18 @@ public class SocketClient extends SocketAbstract {
     }
   }
 
+  /**
+   * Run method (implements {@link Runnable}) that connects to the server and creates two child
+   * threads to handle the user input and the server responses separately. No other threads are
+   * created and no other logic is implemented in this method.
+   *
+   * <p>The parent thread waits for the two child threads to finish before quitting through the use
+   * of a {@link Semaphore}.
+   *
+   * <p>NOTE: Use of try-with-resources automatically closes the resources when the try block ends.
+   * Most of the exceptions are caught and handled, only critical exceptions are sent upwards
+   * through the call stack.
+   */
   @Override
   public void run() {
 

@@ -20,6 +20,17 @@ package ch.heigvd.dai.commands;
 
 import picocli.CommandLine;
 
+/**
+ * Implements the root command for executing the program on a CLI.
+ *
+ * <p>For checking the usage of the command, use the {@code --help} option. No specific parameters
+ * or arguments are saved on this class, the logic is implemented separately in the {@link Server}
+ * and {@link Client} classes. The default values for the host and port are saved here as static
+ * attributes.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 @CommandLine.Command(
     description =
         "Wheel Of Fortune - a Java server/client CLI implementation of the television game",

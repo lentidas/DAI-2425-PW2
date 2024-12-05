@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic;
 
+/** Enumerates the possible states that a player can be in. */
 public enum PlayerState {
   WAIT_FOR_USERNAME,
   WAIT_IN_LOBBY,
