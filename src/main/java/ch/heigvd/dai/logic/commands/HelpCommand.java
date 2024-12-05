@@ -20,17 +20,29 @@ package ch.heigvd.dai.logic.commands;
 
 import java.util.InvalidPropertiesFormatException;
 
+/**
+ * Represents the command the player uses to print the help message.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class HelpCommand extends GameCommand {
 
+  /** Default constructor. */
   public HelpCommand() {
     super(GameCommandType.HELP);
   }
 
-  // FIXME This function is identical between the JOIN, HELP, HOST and SKIP commands. Think about
-  //  refactoring this.
+  /**
+   * Parses the arguments of the command from a TCP message.
+   *
+   * @param args a {@link String} array with the arguments of the command
+   * @return a {@link HelpCommand} with the parsed arguments
+   * @throws InvalidPropertiesFormatException if the arguments are invalid for this command
+   */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null != args && args.length > 0) {
-      throw new InvalidPropertiesFormatException("Command does not take arguments");
+      throw new InvalidPropertiesFormatException("[HelpCommand] Command does not take arguments");
     }
 
     return new HelpCommand();

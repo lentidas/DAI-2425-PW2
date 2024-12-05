@@ -40,6 +40,13 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Core class that represents a game match, with all its players, the wheel, the current round, the
+ * current puzzle, and the current phase.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class GameMatch {
 
   public static final int VOWEL_COST = 250;
@@ -54,6 +61,10 @@ public class GameMatch {
   private Puzzle roundPuzzle;
   private int currentRound;
 
+  /**
+   * Default constructor for a game match. Initializes the attributes of the game match with default
+   * that are adequate for a new game.
+   */
   public GameMatch() {
     connectedPlayers = new CopyOnWriteArrayList<>();
     wheel = new Wheel();
@@ -63,6 +74,13 @@ public class GameMatch {
     currentRound = 0;
   }
 
+  /**
+   * Adds a player to the game match. If the player is successfully added, a message is sent to all
+   * other players to inform them of the new player.
+   *
+   * @param username the username of the player to be added
+   * @return the status code of the operation
+   */
   public StatusCode addPlayer(String username) {
     StatusCode joinResult = StatusCode.OK;
 
@@ -88,6 +106,13 @@ public class GameMatch {
     return joinResult;
   }
 
+  /**
+   * Removes a player from the game match. If the player is successfully removed, a message is sent
+   * to all other players with the new game lobby. If no more players are connected, the game match
+   * is restarted.
+   *
+   * @param username the username of the player to be removed from the game match
+   */
   public void quitPlayer(String username) {
     boolean playerFound = false;
     int playerIndex = 0;
@@ -104,14 +129,14 @@ public class GameMatch {
 
       if (connectedPlayers.isEmpty()) {
         currentPhase = GamePhase.WAITING_FOR_PLAYERS;
-        System.out.println("No more players. Restarting match");
+        System.out.println("No more players. Restarting match...");
         return;
       }
 
       // Player was playing
       if (currPlayerIndex == playerIndex) {
         if (currentPhase == GamePhase.NORMAL_TURN) {
-          --currPlayerIndex; // Will be readjusted when calling function below
+          --currPlayerIndex; // Will be readjusted when calling function below.
           advanceTurn();
         } else if (currentPhase == GamePhase.LAST_TURN) {
           announceResults("-");
@@ -120,6 +145,12 @@ public class GameMatch {
     }
   }
 
+  /**
+   * Returns the usernames of all the players connected to the game match.
+   *
+   * @return an array of {@link String} with the usernames of all the players connected to the game
+   *     match
+   */
   public String[] getPlayers() {
     int i = 0;
     String[] players = new String[connectedPlayers.size()];
@@ -130,6 +161,12 @@ public class GameMatch {
     return players;
   }
 
+  /**
+   * Returns the {@link Player} object associated with the given username.
+   *
+   * @param username the username of the player to be returned
+   * @return a {@link Player} object associated with the given username
+   */
   public Player getPlayer(String username) {
     Player player = null;
     for (Player p : connectedPlayers) {
@@ -141,6 +178,13 @@ public class GameMatch {
     return player;
   }
 
+  /**
+   * Gets the pending commands for a given player.
+   *
+   * @param player the player to get the pending commands for
+   * @return an array of {@link GameCommand} objects with the pending commands for the given player
+   *     or a {@code null} if there are no pending commands
+   */
   public GameCommand[] getPendingCommands(Player player) {
     if (pendingCommands.containsKey(player)) {
       GameCommand[] commands = new GameCommand[pendingCommands.get(player).size()];
@@ -152,10 +196,22 @@ public class GameMatch {
     }
   }
 
+  /**
+   * Checks if the given player has the turn to play.
+   *
+   * @param player the player to check if it is the current player
+   * @return {@code true} if the given player is the current player, {@code false} otherwise
+   */
   public boolean isNotMyTurn(Player player) {
     return !connectedPlayers.get(currPlayerIndex).getUsername().equals(player.getUsername());
   }
 
+  /**
+   * Starts the game. If there are no players connected or the game is not in the correct phase, the
+   * game is not started.
+   *
+   * @return {@code true} if the game was successfully started, {@code false} otherwise
+   */
   public boolean startGame() {
     if (!connectedPlayers.isEmpty()
         && (currentPhase == GamePhase.WAITING_FOR_PLAYERS
@@ -170,6 +226,12 @@ public class GameMatch {
     return false;
   }
 
+  /**
+   * Spins the wheel and returns the wedge that was spun. If the game is not in the correct phase,
+   * the wheel is not spun.
+   *
+   * @return the {@link Wedge} that was spun or {@code null} if the wheel was not spun
+   */
   public Wedge spinTheWheel() {
     if (currentPhase == GamePhase.NORMAL_TURN) {
       return wheel.spinTheWheel();
@@ -178,6 +240,12 @@ public class GameMatch {
     return null;
   }
 
+  /**
+   * Gets the current puzzle that is being played.
+   *
+   * @return a {@link String} with the current puzzle that is being played or {@code null} if it's
+   *     not a guessing phase
+   */
   public String getCurrentPuzzle() {
     if (currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
       return roundPuzzle.getCurrentPuzzleState();
@@ -186,6 +254,12 @@ public class GameMatch {
     return null;
   }
 
+  /**
+   * Gets the current puzzle category that is being played.
+   *
+   * @return a {@link String} with the current puzzle category that is being played or {@code null}
+   *     if it's not a guessing phase
+   */
   public String getCurrentPuzzleCategory() {
     if (currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
       String puzzleCatStr = roundPuzzle.getCategory().name();
@@ -197,6 +271,12 @@ public class GameMatch {
     return null;
   }
 
+  /**
+   * Gets the letters that have already been used for the current puzzle that is being played.
+   *
+   * @return an array of {@code char} with the guessed letters of the current puzzle that is being
+   *     played or {@code null} if it's not a guessing phase
+   */
   public char[] getGuessedLetters() {
     if (currentPhase == GamePhase.NORMAL_TURN || currentPhase == GamePhase.LAST_TURN) {
       return roundPuzzle.getGuessedLetters();
@@ -205,6 +285,16 @@ public class GameMatch {
     return null;
   }
 
+  /**
+   * Method that handles the guessing of a consonant by a player. If the player is not in the
+   * correct phase, a {@link StatusCommand} with the {@link StatusCode#KO} is returned. If the
+   * player is in the correct phase, the guessed letter is checked against the current puzzle. A
+   * response to give the player is then generated and returned, depending on the correctness of the
+   * guess.
+   *
+   * @param command the {@link GuessCommand} with the guessed consonant
+   * @return a {@link GameCommand} with the response send back to the player's client socket
+   */
   public GameCommand guessConsonant(GuessCommand command) {
 
     GameCommand response;
@@ -247,6 +337,18 @@ public class GameMatch {
     return response;
   }
 
+  /**
+   * Method that handles the guessing of a vowel by a player. If the player is not in the correct
+   * phase, a {@link StatusCommand} with the {@link StatusCode#KO} is returned. If the player is in
+   * the correct phase, the guessed letter is checked against the current puzzle. A response to give
+   * the player is then generated and returned, depending on the correctness of the guess.
+   *
+   * <p>Since the guessing of a vowel comes with a cost, the player's money is decremented by the
+   * cost. Also note that the guessing of vowels only comes on the first phase of the game.
+   *
+   * @param command the {@link VowelCommand} with the guessed vowel
+   * @return a {@link GameCommand} with the response send back to the player's client socket
+   */
   public GameCommand guessVowel(VowelCommand command) {
 
     boolean endTurn = false;
@@ -292,6 +394,15 @@ public class GameMatch {
     return response;
   }
 
+  /**
+   * Method that handles the allows the player to try to solve the puzzle.
+   *
+   * <p>If the player guesses correctly, the game advances to the next round and all players are
+   * notified.
+   *
+   * @param command the {@link FillCommand} with the guessed puzzle
+   * @return a {@link GameCommand} with the response send back to the player's client socket
+   */
   public GameCommand solvePuzzle(FillCommand command) {
 
     GameCommand response;
@@ -338,6 +449,12 @@ public class GameMatch {
     return response;
   }
 
+  /**
+   * Announces the results of a round to all players by queueing a {@link EndCommand} with the
+   * results to be sent to all players.
+   *
+   * @param winner the username of the player that won the round
+   */
   private void announceResults(String winner) {
     String[] playerUsernames = new String[connectedPlayers.size()];
     int[] playerMoney = new int[connectedPlayers.size()];
@@ -349,12 +466,23 @@ public class GameMatch {
     currentPhase = GamePhase.WAITING_FOR_PLAYERS;
   }
 
+  /**
+   * Queues a global command to be sent to all players.
+   *
+   * @param command the {@link GameCommand} to be sent to all players
+   */
   private void queueGlobalCommand(GameCommand command) {
     for (Player p : connectedPlayers) {
       pendingCommands.get(p).add(command);
     }
   }
 
+  /**
+   * Queues a global command to be sent to all players except the one specified.
+   *
+   * @param unmatchingPlayer the {@link Player} to not send the command to
+   * @param othersCommand the {@link GameCommand} to be sent to all other players
+   */
   private void queueOthersGlobalCommand(Player unmatchingPlayer, GameCommand othersCommand) {
     for (Player p : connectedPlayers) {
       if (!p.getUsername().equals(unmatchingPlayer.getUsername())) {
@@ -363,6 +491,12 @@ public class GameMatch {
     }
   }
 
+  /**
+   * Queues a specific global command to be sent to a specific player.
+   *
+   * @param matchingPlayer the {@link Player} to send the command to
+   * @param theirCommand the {@link GameCommand} to be sent to the specified player
+   */
   private void queueSpecificGlobalCommand(Player matchingPlayer, GameCommand theirCommand) {
     for (Player p : connectedPlayers) {
       if (p.getUsername().equals(matchingPlayer.getUsername())) {
@@ -371,6 +505,10 @@ public class GameMatch {
     }
   }
 
+  /**
+   * Advances the round to the next one. If the current round is the last one, the game is set to
+   * the last turn phase.
+   */
   private void advanceRound() {
     currentRound++;
     if (currentRound > NORMAL_ROUNDS_BEFORE_LAST_ROUND) {
@@ -385,14 +523,20 @@ public class GameMatch {
     }
   }
 
+  /**
+   * Skips the turn of a player. If it's not the player's turn, the turn is not skipped.
+   *
+   * @param player the {@link Player} to skip the turn
+   */
   public void skipTurn(Player player) {
-    // Reset player state for next turns
+    // Reset player state for next turns.
     if (!isNotMyTurn(player)) {
       player.setState(PlayerState.CHILLING);
       advanceTurn();
     }
   }
 
+  /** Advances the turn to the next player. */
   public void advanceTurn() {
     currPlayerIndex = (currPlayerIndex + 1) % connectedPlayers.size();
     Player currentPlayer = connectedPlayers.get(currPlayerIndex);
@@ -423,6 +567,16 @@ public class GameMatch {
     }
   }
 
+  /**
+   * Method that handles the guessing of the last round puzzle by a player. If the player is not in
+   * the correct phase, a {@link StatusCommand} with the {@link StatusCode#KO} is returned. If the
+   * player is in the correct phase, the guessed letters are checked against the current puzzle. A
+   * response to give the player is then generated and returned, depending on the correctness of the
+   * guess.
+   *
+   * @param command the {@link LettersCommand} with the guessed letters
+   * @return a {@link GameCommand} with the response send back to the player's client socket
+   */
   public GameCommand guessLastRoundLetters(LettersCommand command) {
     GameCommand response;
     Player player;
@@ -452,6 +606,10 @@ public class GameMatch {
     return response;
   }
 
+  /**
+   * Method that handles the startup of the last round. The player with the most money is selected
+   * as the winner and the last round puzzle is set.
+   */
   private void startLastRound() {
     if (this.currentPhase != GamePhase.START_LAST_TURN) {
       return;

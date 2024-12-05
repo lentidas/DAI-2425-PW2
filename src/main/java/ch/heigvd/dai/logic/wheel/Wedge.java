@@ -18,28 +18,62 @@
 
 package ch.heigvd.dai.logic.wheel;
 
+/**
+ * Represents a wedge on the Wheel of Fortune. *
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class Wedge {
 
   private final WedgeType type;
   private final int moneyWon;
 
+  /**
+   * Default constructor.
+   *
+   * @param type the type of the wedge
+   * @param moneyWon the amount of money that can be won with the wedge
+   */
   public Wedge(WedgeType type, int moneyWon) {
     this.type = type;
     this.moneyWon = moneyWon;
   }
 
+  /**
+   * Checks if wedge is of type {@link WedgeType#LOSE_A_TURN}.
+   *
+   * @return {@code true} if the wedge is of type {@link WedgeType#LOSE_A_TURN}, {@code false}
+   *     otherwise
+   */
   public boolean skipsATurn() {
     return type == WedgeType.LOSE_A_TURN;
   }
 
+  /**
+   * Checks wedge is of type {@link WedgeType#BANKRUPT}.
+   *
+   * @return {@code true} if the wedge is of type {@link WedgeType#BANKRUPT}, {@code false}
+   *     otherwise
+   */
   public boolean bankruptsPlayer() {
     return type == WedgeType.BANKRUPT;
   }
 
+  /**
+   * Gets the amount of money that can be won with the wedge.
+   *
+   * @return an integer representing the amount of money that can be won with the wedge
+   */
   public int getMoneyWon() {
     return moneyWon;
   }
 
+  /**
+   * Method to print the wedge type as a {@link String}.
+   *
+   * @return a {@link String} representing the wedge type
+   */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();

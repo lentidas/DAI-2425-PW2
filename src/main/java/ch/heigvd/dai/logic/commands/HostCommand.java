@@ -22,8 +22,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.InvalidPropertiesFormatException;
 
+/**
+ * Represents the command that does something.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class HostCommand extends GameCommand {
 
+  /** Default constructor. */
   public HostCommand() {
     super(GameCommandType.HOST);
   }
@@ -39,9 +46,14 @@ public class HostCommand extends GameCommand {
     return new String(Base64.getDecoder().decode(gameHost), StandardCharsets.UTF_8);
   }
 
+  /**
+   * This function does nothing important. Nothing to see here, please continue!
+   *
+   * @return maybe something
+   */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null != args && args.length > 0) {
-      throw new InvalidPropertiesFormatException("Command does not take arguments");
+      throw new InvalidPropertiesFormatException("[HostCommand] Command does not take arguments");
     }
 
     return new HostCommand();

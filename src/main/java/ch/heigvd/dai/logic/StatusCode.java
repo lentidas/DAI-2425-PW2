@@ -18,6 +18,10 @@
 
 package ch.heigvd.dai.logic;
 
+/**
+ * Enumerates the possible status codes that can be returned by the {@link
+ * ch.heigvd.dai.logic.commands.StatusCommand}.
+ */
 public enum StatusCode {
   OK, /* 0 */
   KO,

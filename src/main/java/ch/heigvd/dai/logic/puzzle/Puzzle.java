@@ -22,6 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Implements the logic for a Wheel of Fortune puzzle and contains all the possible puzzles that can
+ * be used in the game.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class Puzzle {
 
   public static final String FinalRoundInitialLetters = "RSTNLE";
@@ -30,8 +37,11 @@ public class Puzzle {
   private final int vowelCost;
   private String currentPuzzleState;
 
-  // Puzzles are based on some of the actual Wheel of Fortune puzzles
-  // Retrieved from https://wheeloffortuneanswer.com/
+  /**
+   * Attribute containing all the possible puzzles that can be used in the game. Puzzles are based
+   * on some of the actual Wheel of Fortune puzzles, retrieved from <a
+   * href="http://google.com">https://wheeloffortuneanswer.com/</a>.
+   */
   private static final PuzzleRecord[] PossiblePuzzles =
       new PuzzleRecord[] {
         new PuzzleRecord("A Bag Full Of Blue M&M's", PuzzleCategory.FOOD),
@@ -224,13 +234,17 @@ public class Puzzle {
         new PuzzleRecord("Yelling Timber!", PuzzleCategory.WHAT_ARE_YOU_DOING),
         new PuzzleRecord("Zooming Around", PuzzleCategory.WHAT_ARE_YOU_DOING),
       };
+
   private static final ArrayList<Integer> PlayedPuzzles = new ArrayList<>();
 
   /**
-   * Constructs a new puzzle based on the provided record and initial uncovered letter set
+   * Default constructor. Constructs a new puzzle based on the provided record and initial uncovered
+   * letter set.
    *
-   * @param record Puzzle record
-   * @param initialLetters Letters to be uncovered from the beginning
+   * @param record a {@link PuzzleRecord} with the puzzle record
+   * @param initialLetters a {@link String} with the initial letters to uncover (e.g., "RSTLNE" for
+   *     the final round)
+   * @param vowelCost an integer with the cost of guessing a vowel
    */
   public Puzzle(PuzzleRecord record, String initialLetters, int vowelCost) {
     String upperInitialLetters = initialLetters.toUpperCase();
@@ -255,20 +269,20 @@ public class Puzzle {
   }
 
   /**
-   * Checks whether the provided letter has previously been guessed
+   * Checks whether the provided letter has previously been guessed.
    *
-   * @param letter Letter to check
-   * @return True if previously checked, false if not
+   * @param letter a {@code char} with the letter to check
+   * @return {@code true} if the letter has been used, {@code false} otherwise
    */
   public boolean hasLetterBeenGuessed(char letter) {
     return lettersGuessed.contains(letter);
   }
 
   /**
-   * Tries to place a letter in the puzzle
+   * Tries to place a letter in the puzzle.
    *
-   * @param letter Letter guessed
-   * @return True if letter exists in puzzle, false if not
+   * @param letter a {@code char} with the letter to try
+   * @return {@code true} if the letter exists in the puzzle, {@code false} otherwise
    */
   public boolean tryGuessLetter(char letter) {
     String upperLetter = Character.toString(letter).toUpperCase();
@@ -298,10 +312,10 @@ public class Puzzle {
   }
 
   /**
-   * Tries to guess the full puzzle
+   * Tries to guess the full puzzle.
    *
-   * @param fullPuzzle Full puzzle guess
-   * @return True if guess is right, false if not
+   * @param fullPuzzle a {@link String} with the full guess
+   * @return {@code true} if the guess is correct, {@code false} otherwise
    */
   public boolean guessPuzzle(String fullPuzzle) {
     if (record.puzzle().contentEquals(fullPuzzle.toUpperCase())) {
@@ -313,11 +327,14 @@ public class Puzzle {
   }
 
   /**
-   * Gets the number of times the provided letter appears in the full puzzle
+   * Gets the number of times the provided letter appears in the full puzzle.
    *
-   * @implNote If you need to check whether a letter has been guessed yet, use hasLetterBeenGuessed
-   * @param letter Letter to search
-   * @return Number of times it appears. 0 means it doesn't appear, or hasn't been guessed
+   * <p>NOTE: If you need to check whether a letter has been guessed yet, use {@link
+   * Puzzle#hasLetterBeenGuessed(char)}.
+   *
+   * @param letter a {@code char} with the letter to search
+   * @return an integer with number of times the character appears (0 means it doesn't appear, or
+   *     hasn't been guessed yet)
    */
   public int getLetterCount(char letter) {
     int count = 0;
@@ -332,18 +349,18 @@ public class Puzzle {
 
   /**
    * Returns the current state of the puzzle, with * in place of the letters that haven't been found
-   * yet
+   * yet.
    *
-   * @return The current state of the puzzle
+   * @return a {@link String} representing the current puzzle state
    */
   public String getCurrentPuzzleState() {
     return currentPuzzleState;
   }
 
   /**
-   * Returns the current puzzle's category
+   * Returns the current puzzle's category.
    *
-   * @return The category
+   * @return a {@link PuzzleCategory} with the puzzle's category
    */
   public PuzzleCategory getCategory() {
     return record.category();
@@ -359,14 +376,31 @@ public class Puzzle {
     return charGuessed;
   }
 
+  /**
+   * Returns the full puzzle string.
+   *
+   * @return a {@link String} with the full puzzle
+   */
   public String getFullPuzzle() {
     return record.puzzle();
   }
 
+  /**
+   * Returns the cost of guessing a vowel.
+   *
+   * @return an integer with the cost of guessing a vowel
+   */
   public int getVowelCost() {
     return vowelCost;
   }
 
+  /**
+   * Creates a new puzzle with a random index from the list of possible puzzles.
+   *
+   * @param initialLetters a {@link String} with the initial letters to uncover
+   * @param vowelCost an integer with the cost of guessing a vowel
+   * @return a new {@link Puzzle} with the random puzzle
+   */
   public static Puzzle createNewPuzzle(String initialLetters, int vowelCost) {
     Random random = new Random();
     int nextIndex = 0;

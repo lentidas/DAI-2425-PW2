@@ -30,6 +30,8 @@
     - [Build Docker image](#build-docker-image)
     - [Print the help message](#print-the-help-message)
     - [Start the server](#start-the-server)
+    - [Start the client](#start-the-client)
+    - [Using the JAR](#using-the-jar)
   - [Documentation](#documentation)
   - [Contributing](#contributing)
     - [Clone and build the project](#clone-and-build-the-project)
@@ -102,29 +104,87 @@ To start the server, you can use the following commands:
 
 ```shell
 # Run the server with default settings.
-docker run ghcr.io/lentidas/dai-2425-pw2:latest server
+docker run ghcr.io/lentidas/dai-2425-pw2:latest server -b 0.0.0.0
+docker run ghcr.io/lentidas/dai-2425-pw2:latest server -b '[::]' # IPv6
 
 # Run the server with a different port.
-docker run --expose 10042 ghcr.io/lentidas/dai-2425-pw2:latest server --port 10042
-docker run --expose 10042 ghcr.io/lentidas/dai-2425-pw2:latest server -p 10042
+docker run --expose 10042 ghcr.io/lentidas/dai-2425-pw2:latest server --bind 0.0.0.0 --port 10042
+docker run --expose 10042 ghcr.io/lentidas/dai-2425-pw2:latest server -b 0.0.0.0 -p 10042
 
-# Listen only on localhost (the container won't get any communication from other containers).
-docker run ghcr.io/lentidas/dai-2425-pw2:latest server --bind 127.0.0.1
-docker run ghcr.io/lentidas/dai-2425-pw2:latest server -b '[::1]' # IPv6
-
-# Customize the listening address and port on the same parameter. Note that the listening address should be one in the 
-# internal Docker network.
-docker run --expose 10042 ghcr.io/lentidas/dai-2425-pw2:latest server --bind 10.0.0.1:10042
-
-# The above examples only allow connections between server and client containers. You can publish the port and map it
-# to your host to allow connections from outside the Docker network.
-docker run -p 1234:1234 ghcr.io/lentidas/dai-2425-pw2:latest server
+# The above examples allow connections between containers only. You can publish the port and map it to your host to
+# allow connections from outside the Docker network.
+docker run --publish 1234:1234 ghcr.io/lentidas/dai-2425-pw2:latest server -b 0.0.0.0
 # You can then connect to that container using the JAR from the same machine.
+java -jar target/wheel-of-fortune-1.0.0.jar client
+
+# For connecting to the server container from a client container, you need to specify the IP address of the server container to the client container.
+# Get the container name or ID of the server container.
+docker container ls
+# First obtain the IP address of the server container.
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <container-id>/<container-name>
+# Then run the client container with the IP address of the server container (note the interactive mode!).
+docker run -it ghcr.io/lentidas/dai-2425-pw2:latest client --host <container-ip>
+
+# If you did not use the `--rm` flag when running the containers, you can clean them up with the following command.
+docker container prune
 ```
 
 > [!NOTE]
 > The `Dockerfile` exposes the port `1234` by default. As you noted from the examples above, if you want to change the port of the program using the `-p` or `-b` flags, you must also expose the same port when running the container.
 
+> [!IMPORTANT]
+> Since we are using Docker, the server will not be accessible with the default listening address of `127.0.0.1`. You must ALWAYS override and use a *any* address like `0.0.0.0` or `::` to allow connections from outside the container.
+
+### Start the client
+
+To start the client, you can use the following commands:
+
+```shell
+# Print the the help message for the client start command.
+docker run ghcr.io/lentidas/dai-2425-pw2:latest client --help
+
+# Start the client with the default port.
+docker run -it ghcr.io/lentidas/dai-2425-pw2:latest client --host <server-ip>
+
+# Start the client with a different port and address.
+docker run -it ghcr.io/lentidas/dai-2425-pw2:latest client --host <server-ip> --port 10042
+
+# If the server container has its port published, you can connect to it simply by running the client container.
+docker run -it ghcr.io/lentidas/dai-2425-pw2:latest client
+
+# If you did not use the `--rm` flag when running the containers, you can clean them up with the following command.
+docker container prune
+```
+
+> [!IMPORTANT]
+> The client container must know the IP address of the server container to connect to it. You can obtain the IP address of the server container using the `docker inspect` command, as shown in the section [Start the server](#start-the-server).
+
+### Using the JAR
+
+Using the JAR directly is also possible. You can download the JAR from the [releases page](https://github.com/lentidas/DAI-2425-PW2/releases).
+
+Below are some commands to run the JAR directly:
+
+```shell
+# Print the help message for the server.
+java -jar wheel-of-fortune-1.0.0.jar server --help
+
+# Start the server with default settings.
+java -jar wheel-of-fortune-1.0.0.jar server
+
+# Start the server with a different port.
+java -jar wheel-of-fortune-1.0.0.jar server --port 10042
+
+# Print the help message for the client.
+java -jar wheel-of-fortune-1.0.0.jar client --help
+
+# Start the client with default settings.
+java -jar wheel-of-fortune-1.0.0.jar client
+
+# Start the client with a different port and address.
+java -jar wheel-of-fortune-1.0.0.jar client --host <server-ip> --port 10042
+java -jar wheel-of-fortune-1.0.0.jar client --host <server-ip>:10042
+```
 
 ## Documentation
 
