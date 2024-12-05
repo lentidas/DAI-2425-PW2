@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.1](https://github.com/lentidas/DAI-2425-PW2/compare/v0.1.0...v0.1.1) (2024-12-05)
+## [1.0.0](https://github.com/lentidas/DAI-2425-PW2/compare/v0.1.0...v1.0.0) (2024-12-05)
 
 
 ### Features
