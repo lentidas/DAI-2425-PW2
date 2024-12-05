@@ -51,6 +51,13 @@ public class StartCommand extends GameCommand {
       throw new InvalidPropertiesFormatException("Command did not receive the right parameters");
     }
 
-    return new StartCommand(args[0].charAt(0), args[1], args[2]);
+    int roundNumber;
+    try {
+      roundNumber = Integer.parseInt(args[0]);
+    } catch (NumberFormatException e) {
+      throw new InvalidPropertiesFormatException("Invalid round number");
+    }
+
+    return new StartCommand(roundNumber, args[1], args[2]);
   }
 }
