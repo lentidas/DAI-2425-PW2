@@ -46,7 +46,6 @@ public abstract class GameCommand {
 
   public static GameCommand fromTcpBody(String body) throws InvalidPropertiesFormatException {
 
-    // FIXME I do not think this works as intended, because an empty string skips this detection.
     String[] commandNames = body.split(" ");
     if (commandNames.length == 0) {
       throw new InvalidPropertiesFormatException("Command name is missing");
@@ -85,7 +84,7 @@ public abstract class GameCommand {
         if (arg.startsWith("\"") && arg.endsWith("\"")) {
           arg = arg.substring(1, arg.length() - 1);
         }
-        commandArgs[i] = arg.trim(); // Use trim to remove any leading and trailing whitespace.
+        commandArgs[i] = arg.trim(); // Trim any leading and trailing whitespaces.
         i++;
       }
     }
@@ -115,6 +114,7 @@ public abstract class GameCommand {
     GameCommand.addFactoryHandler(GameCommandType.VOWEL, VowelCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.WINNER, WinnerCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.SKIP, SkipCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.LETTERS, LettersCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.HELP, HelpCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.HOST, HostCommand::fromTcpBody);
   }

@@ -35,6 +35,7 @@ public enum GameCommandType {
   WINNER,
   GO,
   SKIP, /* 15 */
+  LETTERS,
   HELP,
   HOST
 }

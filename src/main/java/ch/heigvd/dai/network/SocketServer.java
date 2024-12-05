@@ -25,6 +25,7 @@ import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.JoinCommand;
+import ch.heigvd.dai.logic.commands.LettersCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
 import ch.heigvd.dai.logic.commands.VowelCommand;
 import com.google.common.net.HostAndPort;
@@ -196,6 +197,16 @@ public class SocketServer extends SocketAbstract {
                 }
               }
 
+              case LETTERS -> {
+                if (match.isNotMyTurn(player)) {
+                  System.out.println(
+                      player + " tried to play the last round, but it's not their turn");
+                  response = new StatusCommand(StatusCode.KO).toTcpBody();
+                } else {
+                  response = match.guessLastRoundLetters((LettersCommand) command).toTcpBody();
+                }
+              }
+
               case GUESS -> {
                 if (match.isNotMyTurn(player)) {
                   System.out.println(
@@ -222,7 +233,7 @@ public class SocketServer extends SocketAbstract {
                   response = new StatusCommand(StatusCode.KO).toTcpBody();
                 } else {
                   System.out.println(player + " skipped their turn");
-                  match.advanceTurn();
+                  match.skipTurn(player);
                 }
               }
 
