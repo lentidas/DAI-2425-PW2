@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/lentidas/DAI-2425-PW2/compare/v1.0.0...v1.0.1) (2024-12-05)
+
+
+### Continuous Integration
+
+* update release-please.yaml ([15fb6bd](https://github.com/lentidas/DAI-2425-PW2/commit/15fb6bdc150da7a940ee6d54bf0ab9c4ab3f2fa3))
+
 ## [1.0.0](https://github.com/lentidas/DAI-2425-PW2/compare/v0.1.0...v1.0.0) (2024-12-05)
 
 
