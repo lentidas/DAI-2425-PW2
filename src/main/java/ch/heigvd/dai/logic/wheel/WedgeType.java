@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic.wheel;
 
+/** Enumerates the possible types of wedges that can be present on the wheel. */
 public enum WedgeType {
   MONEY,
   BANKRUPT,
