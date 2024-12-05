@@ -5,9 +5,9 @@ RUN if [ -d "target" ]; then rm -rf target; fi; \
     ./mvnw dependency:go-offline clean compile package; \
     rm -rf target/original-*.jar # Remove original jar otherwise it will be copied to the final image.
 
-# TODO correct the application name
 FROM eclipse-temurin:21-jre
-COPY --from=build /project/target/*.jar /app/app.jar
+COPY --from=build /project/target/*.jar /app/wheel-of-fortune.jar
 WORKDIR /data
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+EXPOSE 1234
+ENTRYPOINT ["java", "-jar", "/app/wheel-of-fortune.jar"]
 CMD ["--help"]
