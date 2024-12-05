@@ -221,7 +221,7 @@ démarre le timer d'attente de la réponse du joueur.
 
 | Nom                         | Description                                            |
 |:----------------------------|--------------------------------------------------------|
-| Format                      | `INFO <puzzle> <category> <used_letters>`              |
+| Format                      | `INFO <puzzle> <category> [used_letters]`              |
 | Server $\rightarrow$ Client | $\checkmark$                                           |
 | Client $\rightarrow$ Server |                                                        |
 | Réponses acceptées          | `GUESS` quand le joueur essaie de deviner une consonne |
@@ -233,11 +233,11 @@ Le paramètre `puzzle` et `category` doivent être envoyés entre guillemets. Le
 case-insensitive, mais doivent être envoyées en majuscule. De plus, les cases à trouver sont
 remplacées par `*`.
 
-| Nom          | Description            |
-|:-------------|:-----------------------|
-| puzzle       | Puzzle à trouver       |
-| category     | Catégorie du puzzle    |
-| used_letters | Lettres déjà utilisées |
+| Nom          | Description                       |
+|:-------------|:----------------------------------|
+| puzzle       | Puzzle à trouver                  |
+| category     | Catégorie du puzzle               |
+| used_letters | Optionnel. Lettres déjà utilisées |
 
 : Paramètres de la commande
 
@@ -350,22 +350,15 @@ Fourni la liste de tous les joueurs actuellement connectés dans la partie.
 Informe le serveur de la déconnection d'un joueur.
 
 
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `QUIT <username>`                                                 |
-| Server $\rightarrow$ Client |                                                                   |
-| Client $\rightarrow$ Server | $\checkmark$                                                      |
-| Réponses acceptées          | Aucune                                                            |
+| Nom                         | Description  |
+|:----------------------------|--------------|
+| Format                      | `QUIT`       |
+| Server $\rightarrow$ Client |              |
+| Client $\rightarrow$ Server | $\checkmark$ |
+| Réponses acceptées          | Aucune       |
 
 : Tableau du format et réponse acceptées
 
-
-Le nom de l'utilisateur ne doit contenir que les caractères `[a-zA-Z0-9_]`. Tout autre caractère
-doit faire en sorte que le serveur réponde avec `STATUS wrong_format`.
-
-| Nom      | Description                                                               |
-|:---------|:--------------------------------------------------------------------------|
-| username | Username souhaité                                                         |
 
 : Paramètres de la commande
 
@@ -471,25 +464,21 @@ l'état "Idle".
 
 | Valeur | Nom              |    Prio.?    | Description                                                    |
 |:------:|:----------------:|:------------:|:---------------------------------------------------------------|
-| 0x00   | OK               |              | Réponse acceptée ou acceptable. Requête traitée correctement   |
-| 0x01   | KO               |              | Erreur, mais l'erreur ne peut pas être spécifiée               |
-| 0x02   | WRONG_FORMAT     |              | Le format de la commande reçue est faux ou incomplet           |
-| 0x03   | PLAYER_JOINED    | $\checkmark$ | Un joueur a rejoint la partie. La commande `LOBBY` sera envoyée aussi |
-| 0x04   | PLAYER_QUIT      | $\checkmark$ | Un joueur a quitté la partie. La commande `LOBBY` sera envoyée aussi |
-| 0x05   | GAME_START       |              | La partie commence. Aucune autre connection n'est possible     |
-| 0x06   | LETTER_EXISTS    |              | La lettre fournie existe. Le joueur peut continuer son tour    |
-| 0x07   | LETTER_MISSING   |              | La lettre fournie n'existe pas. Le tour du joueur est terminé  |
-| 0x08   | TIMEOUT          |              | Le temps est écoulé. Le tour du joueur est terminé             |
-| 0x09   | ALREADY_TRIED    |              | La lettre a déjà été utilisée dans le puzzle                   |
-| 0x0A   | WRONG_ANSWER     |              | La tentative de résolution du puzzle a échoué. Fin du tour     |
-| 0x0B   | RIGHT_ANSWER     |              | La tentative de résolution du puzzle a réussi. Fin de la manche |
-| 0x0C   | DUPLICATE_NAME   |              | Un autre joueur avec ce nom est déjà présent dans le lobby     |
-| 0x0D   | CLOSING          | $\checkmark$ | Le serveur est en train de fermer. Tous les joueurs quittent   |
-| 0x0E   | NO_FUNDS         |              | Le joueur n'a pas assez d'argent pour effectuer l'achat        |
-| 0x0F   | SKIP             |              | Le joueur termine son tour sans effectuer d'action             |
-| 0x10   | FULL             |              | La partie est au complet                                       |
-| 0x11   | LOST_A_TURN      |              | Le joueur a perdu son tour                                     |
-| 0x12   | BANKRUPT         |              | Le joueur a perdu tout son argent, et son tour est passé       |
+|  0x00  | OK               |              | Réponse acceptée ou acceptable. Requête traitée correctement   |
+|  0x01  | KO               |              | Erreur, mais l'erreur ne peut pas être spécifiée               |
+|  0x02  | PLAYER_JOINED    | $\checkmark$ | Un joueur a rejoint la partie. La commande `LOBBY` sera envoyée aussi |
+|  0x03  | PLAYER_QUIT      | $\checkmark$ | Un joueur a quitté la partie. La commande `LOBBY` sera envoyée aussi |
+|  0x04  | LETTER_EXISTS    |              | La lettre fournie existe. Le joueur peut continuer son tour    |
+|  0x05  | LETTER_MISSING   |              | La lettre fournie n'existe pas. Le tour du joueur est terminé  |
+|  0x06  | TIMEOUT          |              | Le temps est écoulé. Le tour du joueur est terminé             |
+|  0x07  | ALREADY_TRIED    |              | La lettre a déjà été utilisée dans le puzzle                   |
+|  0x08  | WRONG_ANSWER     |              | La tentative de résolution du puzzle a échoué. Fin du tour     |
+|  0x09  | RIGHT_ANSWER     |              | La tentative de résolution du puzzle a réussi. Fin de la manche |
+|  0x0A  | DUPLICATE_NAME   |              | Un autre joueur avec ce nom est déjà présent dans le lobby     |
+|  0x0B  | NO_FUNDS         |              | Le joueur n'a pas assez d'argent pour effectuer l'achat        |
+|  0x0C  | FULL             |              | La partie est au complet                                       |
+|  0x0D  | LOST_A_TURN      |              | Le joueur a perdu son tour                                     |
+|  0x0E  | BANKRUPT         |              | Le joueur a perdu tout son argent, et son tour est passé       |
 
 : Valeur acceptées pour la commande `STATUS`
 
@@ -676,7 +665,9 @@ Server->(1)Joueur 3: ROUND
 Server->(1)Joueur 1: WINNER
 Server->(1)Joueur 2: WINNER
 Server->(1)Joueur 3: WINNER
-Server->(1)Joueur 2: STATUS last_round
+Server->(1)Joueur 2: LAST
+Joueur 2->(1)Server: LETTERS <five_letters>
+Server->(1)Joueur 2: ROUND
 Joueur 2->(1)Server: FILL <puzzle>
 Server->(1)Joueur 2: STATUS right_answer
 Server->(1)Joueur 1: END
