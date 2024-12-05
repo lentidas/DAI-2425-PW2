@@ -22,25 +22,57 @@ import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Objects;
 
+/**
+ * Represents the command that announces to a player that it is their turn to play.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class TurnCommand extends GameCommand {
 
+  /**
+   * Default constructor.
+   *
+   * @param turnMoney an {@code int} representing the money the player can win in this turn
+   * @param totalMoney an {@code int} representing the total money the player has already earned
+   */
   public TurnCommand(int turnMoney, int totalMoney) {
     super(GameCommandType.TURN);
     args.add(turnMoney);
     args.add(totalMoney);
   }
 
+  /**
+   * Gets the money the player can win in this turn.
+   *
+   * @return an {@code int} with the money the player can win in this turn (obtained from the
+   *     arguments of the command)
+   */
   public int getTurnMoney() {
     return (int) args.getFirst();
   }
 
+  /**
+   * Gets the total money the player has.
+   *
+   * @return an {@code int} with the total money the player has (obtained from the arguments of the
+   *     command)
+   */
   public int getTotalMoney() {
     return (int) args.get(1);
   }
 
+  /**
+   * Parses the arguments of the command from a TCP message.
+   *
+   * @param args a {@link String} array with the arguments of the command
+   * @return a {@link TurnCommand} with the parsed arguments
+   * @throws InvalidPropertiesFormatException if the arguments are invalid for this command
+   */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null == args || args.length != 2 || Arrays.stream(args).anyMatch(Objects::isNull)) {
-      throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
+      throw new InvalidPropertiesFormatException(
+          "[TurnCommand] Command did not receive the correct parameters");
     }
 
     int turnMoney;
@@ -49,7 +81,7 @@ public class TurnCommand extends GameCommand {
       turnMoney = Integer.parseInt(args[0]);
       totalMoney = Integer.parseInt(args[1]);
     } catch (NumberFormatException e) {
-      throw new InvalidPropertiesFormatException("Invalid turn or total money");
+      throw new InvalidPropertiesFormatException("[TurnCommand] Invalid turn or total money");
     }
 
     return new TurnCommand(turnMoney, totalMoney);

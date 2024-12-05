@@ -20,15 +20,29 @@ package ch.heigvd.dai.logic.commands;
 
 import java.util.InvalidPropertiesFormatException;
 
+/**
+ * Represents the command that announces that a player has decided to quit the game.
+ *
+ * @author Pedro Alves da Silva
+ * @author Gonçalo Carvalheiro Heleno
+ */
 public class QuitCommand extends GameCommand {
 
+  /** Default constructor. */
   public QuitCommand() {
     super(GameCommandType.QUIT);
   }
 
+  /**
+   * Parses the arguments of the command from a TCP message.
+   *
+   * @param args a {@link String} array with the arguments of the command
+   * @return a {@link QuitCommand} with the parsed arguments
+   * @throws InvalidPropertiesFormatException if the arguments are invalid for this command
+   */
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
     if (null != args && args.length > 0) {
-      throw new InvalidPropertiesFormatException("Command does not take arguments");
+      throw new InvalidPropertiesFormatException("[QuitCommand] Command does not take arguments");
     }
 
     return new QuitCommand();

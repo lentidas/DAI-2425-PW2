@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic.commands;
 
+/** Enumerates the types of commands that can be sent to/from the server. */
 public enum GameCommandType {
   END, /* 0 */
   FILL,
