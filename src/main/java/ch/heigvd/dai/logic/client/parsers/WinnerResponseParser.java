@@ -16,11 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
+import ch.heigvd.dai.logic.PlayerState;
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
+import ch.heigvd.dai.logic.commands.TurnCommand;
+import ch.heigvd.dai.logic.commands.WinnerCommand;
 
-public interface IGameEndpoint {
+public class WinnerResponseParser implements IResponseParser {
 
-  boolean canRunCommand(GameCommandType commandType);
+  @Override
+  public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
+    if(response.getType() == GameCommandType.WINNER
+    && interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN)
+    {
+      System.out.println("Thank you to all the participants for playing!");
+      System.out.println(
+          "We've now reached the last round. And the player to play it is...");
+      System.out.println(((WinnerCommand) response).getUsername() + " !");
+    }
+  }
 }

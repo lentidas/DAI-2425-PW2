@@ -16,44 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.wheel;
+package ch.heigvd.dai.logic.client.parsers;
 
-public class Wedge {
+import ch.heigvd.dai.logic.PlayerState;
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.GameCommandType;
+import ch.heigvd.dai.logic.commands.InfoCommand;
+import ch.heigvd.dai.logic.commands.TurnCommand;
 
-  private final WedgeType type;
-  private final int moneyWon;
-
-  public Wedge(WedgeType type, int moneyWon) {
-    this.type = type;
-    this.moneyWon = moneyWon;
-  }
-
-  public boolean skipsATurn() {
-    return type == WedgeType.LOSE_A_TURN;
-  }
-
-  public boolean bankruptsPlayer() {
-    return type == WedgeType.BANKRUPT;
-  }
-
-  public int getMoneyWon() {
-    return moneyWon;
-  }
+public class InfoResponseParser implements IResponseParser {
 
   @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-
-    switch (type) {
-      case MONEY -> sb.append("Money wedge for ").append(moneyWon);
-
-      case BANKRUPT -> sb.append("Bankrupt wedge");
-
-      case LOSE_A_TURN -> sb.append("Lose a turn wedge");
-
-      default -> sb.append("Unknown wedge");
+  public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
+    if(response.getType() == GameCommandType.INFO)
+    {
+      InfoCommand cmd = (InfoCommand) response;
+      System.out.println("=== CURRENT PUZZLE ===");
+      System.out.println("Category: " + cmd.getCategory());
+      System.out.println("Puzzle: " + cmd.getPuzzle());
+      System.out.println("Used letters: " + cmd.getUsedLetters());
     }
-
-    return sb.toString();
   }
 }

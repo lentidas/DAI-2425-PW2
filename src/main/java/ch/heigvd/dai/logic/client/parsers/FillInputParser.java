@@ -16,10 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.puzzle;
+package ch.heigvd.dai.logic.client.parsers;
 
-public record PuzzleRecord(String puzzle, PuzzleCategory category) {
-  public PuzzleRecord {
-    puzzle = puzzle.toUpperCase();
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.FillCommand;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.VowelCommand;
+import java.util.InvalidPropertiesFormatException;
+
+public class FillInputParser implements IInputParser {
+
+  @Override
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
+
+    GameCommand command = null;
+
+    try{
+      command = FillCommand.fromTcpBody(input);
+    } catch(InvalidPropertiesFormatException e)
+    {
+      System.err.println("Invalid puzzle solution provided!");
+    }
+
+    return command;
   }
 }

@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.server;
 
 import ch.heigvd.dai.Player;
+import ch.heigvd.dai.logic.PlayerState;
+import ch.heigvd.dai.logic.StatusCode;
 import ch.heigvd.dai.logic.commands.EndCommand;
 import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
@@ -33,9 +35,9 @@ import ch.heigvd.dai.logic.commands.StatusCommand;
 import ch.heigvd.dai.logic.commands.TurnCommand;
 import ch.heigvd.dai.logic.commands.VowelCommand;
 import ch.heigvd.dai.logic.commands.WinnerCommand;
-import ch.heigvd.dai.logic.puzzle.Puzzle;
-import ch.heigvd.dai.logic.wheel.Wedge;
-import ch.heigvd.dai.logic.wheel.Wheel;
+import ch.heigvd.dai.logic.server.puzzle.Puzzle;
+import ch.heigvd.dai.logic.server.wheel.Wedge;
+import ch.heigvd.dai.logic.server.wheel.Wheel;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -16,14 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.puzzle;
+package ch.heigvd.dai.logic.client.parsers;
 
-public enum PuzzleCategory {
-  FOOD,
-  FUN_AND_GAMES,
-  PLACES,
-  LANDMARKS,
-  SONGS,
-  WHAT_ARE_YOU_DOING,
-  AROUND_THE_HOUSE
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+
+public interface IInputParser {
+
+  /**
+   * Makes an input parser parse the provided user input
+   * @param interactiveConsole Interactive console to manage
+   * @param input User input
+   * @return Game command to be sent to the server, or null if no command needs to be sent
+   */
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input);
 }

@@ -16,10 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.wheel;
+package ch.heigvd.dai.logic.client;
 
-public enum WedgeType {
-  MONEY,
-  BANKRUPT,
-  LOSE_A_TURN
+import ch.heigvd.dai.logic.PlayerState;
+
+public record PlayerStatePrompt(PlayerState validFor, String[] prompts) {
 }

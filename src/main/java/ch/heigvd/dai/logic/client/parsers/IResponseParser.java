@@ -16,18 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
-public enum PlayerState {
-  WAIT_FOR_USERNAME,
-  WAIT_IN_LOBBY,
-  WAIT_FOR_TURN,
-  WAIT_FOR_GUESS,
-  WAIT_FOR_VOWEL,
-  WAIT_FOR_FILL,
-  WAIT_FOR_ENDING,
-  WAIT_FOR_LAST_TURN,
-  SEND_LETTERS,
-  CHILLING,
-  SECOND_GUESS_PHASE
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+
+public interface IResponseParser {
+
+  /**
+   * Makes a response parser parse what the server just sent to the client
+   * @param interactiveConsole Interactive console to manage
+   * @param response Response received from the server
+   */
+  public void parse(InteractiveConsole interactiveConsole, GameCommand response);
 }

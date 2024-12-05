@@ -16,18 +16,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
-public enum PlayerState {
-  WAIT_FOR_USERNAME,
-  WAIT_IN_LOBBY,
-  WAIT_FOR_TURN,
-  WAIT_FOR_GUESS,
-  WAIT_FOR_VOWEL,
-  WAIT_FOR_FILL,
-  WAIT_FOR_ENDING,
-  WAIT_FOR_LAST_TURN,
-  SEND_LETTERS,
-  CHILLING,
-  SECOND_GUESS_PHASE
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.GoCommand;
+import ch.heigvd.dai.logic.commands.QuitCommand;
+
+public class LobbyInputParser implements IInputParser {
+
+  @Override
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
+    GameCommand command = null;
+
+    if(input.equalsIgnoreCase("go"))
+    {
+      System.out.println("Asking server to start game...");
+      command = new GoCommand();
+    }
+    else if(input.equalsIgnoreCase("quit"))
+    {
+      System.out.println("Saying goodbye the server...");
+      command = new QuitCommand();
+    }
+
+    return command;
+  }
 }

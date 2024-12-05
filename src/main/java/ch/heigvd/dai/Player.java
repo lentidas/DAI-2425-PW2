@@ -19,7 +19,7 @@
 package ch.heigvd.dai;
 
 import ch.heigvd.dai.logic.PlayerState;
-import ch.heigvd.dai.logic.wheel.Wedge;
+import ch.heigvd.dai.logic.server.wheel.Wedge;
 
 public class Player {
 

@@ -16,18 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
-public enum PlayerState {
-  WAIT_FOR_USERNAME,
-  WAIT_IN_LOBBY,
-  WAIT_FOR_TURN,
-  WAIT_FOR_GUESS,
-  WAIT_FOR_VOWEL,
-  WAIT_FOR_FILL,
-  WAIT_FOR_ENDING,
-  WAIT_FOR_LAST_TURN,
-  SEND_LETTERS,
-  CHILLING,
-  SECOND_GUESS_PHASE
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.FillCommand;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.LettersCommand;
+import java.util.InvalidPropertiesFormatException;
+
+public class LettersInputParser implements IInputParser {
+
+  @Override
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
+
+    GameCommand command = null;
+
+    try{
+      command = LettersCommand.fromTcpBody(input);
+    } catch(InvalidPropertiesFormatException e)
+    {
+      System.err.println("Invalid letters provided! You must provide " + LettersCommand.NumberOfLetters + " letters in total, with no spaces in between");
+    }
+
+    return command;
+  }
 }

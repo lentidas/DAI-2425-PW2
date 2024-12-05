@@ -16,12 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.client.parsers;
 
-public enum GamePhase {
-  WAITING_FOR_PLAYERS,
-  NORMAL_TURN,
-  START_NEW_TURN,
-  START_LAST_TURN,
-  LAST_TURN
+import ch.heigvd.dai.logic.client.InteractiveConsole;
+import ch.heigvd.dai.logic.commands.GameCommand;
+import ch.heigvd.dai.logic.commands.JoinCommand;
+import java.util.InvalidPropertiesFormatException;
+
+public class UsernameInputParser implements IInputParser {
+
+  @Override
+  public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
+    GameCommand command = null;
+
+    try{
+      command = JoinCommand.fromTcpBody(new String[]{input});
+      interactiveConsole.setUsername(input);
+    } catch(InvalidPropertiesFormatException e)
+    {
+      System.err.println("Invalid username!");
+    }
+
+    return command;
+  }
 }

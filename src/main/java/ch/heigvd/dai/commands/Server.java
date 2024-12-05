@@ -18,7 +18,7 @@
 
 package ch.heigvd.dai.commands;
 
-import ch.heigvd.dai.logic.GameMatch;
+import ch.heigvd.dai.logic.server.GameMatch;
 import ch.heigvd.dai.network.SocketServer;
 import com.google.common.net.HostAndPort;
 import java.net.UnknownHostException;

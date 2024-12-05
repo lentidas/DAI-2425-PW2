@@ -16,18 +16,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic;
+package ch.heigvd.dai.logic.server.wheel;
 
-public enum PlayerState {
-  WAIT_FOR_USERNAME,
-  WAIT_IN_LOBBY,
-  WAIT_FOR_TURN,
-  WAIT_FOR_GUESS,
-  WAIT_FOR_VOWEL,
-  WAIT_FOR_FILL,
-  WAIT_FOR_ENDING,
-  WAIT_FOR_LAST_TURN,
-  SEND_LETTERS,
-  CHILLING,
-  SECOND_GUESS_PHASE
+public class Wedge {
+
+  private final WedgeType type;
+  private final int moneyWon;
+
+  public Wedge(WedgeType type, int moneyWon) {
+    this.type = type;
+    this.moneyWon = moneyWon;
+  }
+
+  public boolean skipsATurn() {
+    return type == WedgeType.LOSE_A_TURN;
+  }
+
+  public boolean bankruptsPlayer() {
+    return type == WedgeType.BANKRUPT;
+  }
+
+  public int getMoneyWon() {
+    return moneyWon;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    switch (type) {
+      case MONEY -> sb.append("Money wedge for ").append(moneyWon);
+
+      case BANKRUPT -> sb.append("Bankrupt wedge");
+
+      case LOSE_A_TURN -> sb.append("Lose a turn wedge");
+
+      default -> sb.append("Unknown wedge");
+    }
+
+    return sb.toString();
+  }
 }

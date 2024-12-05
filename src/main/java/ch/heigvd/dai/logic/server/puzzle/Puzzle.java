@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ch.heigvd.dai.logic.puzzle;
+package ch.heigvd.dai.logic.server.puzzle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -314,8 +314,8 @@ public class Puzzle {
 
   /**
    * Gets the number of times the provided letter appears in the full puzzle
+   * If you need to check whether a letter has been guessed yet, use hasLetterBeenGuessed
    *
-   * @implNote If you need to check whether a letter has been guessed yet, use hasLetterBeenGuessed
    * @param letter Letter to search
    * @return Number of times it appears. 0 means it doesn't appear, or hasn't been guessed
    */
