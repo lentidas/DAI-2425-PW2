@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
 
 public class SocketServer extends SocketAbstract {
 
+  /** Attribute containing the instance of the game match. */
   private final GameMatch match;
 
   public SocketServer(HostAndPort hostAndPort, GameMatch match)
@@ -48,13 +49,11 @@ public class SocketServer extends SocketAbstract {
 
   @Override
   public void run() {
-    // TODO Implement a way to limit the maximum amount of players/connections using the backlog
-    //  option of ServerSocket() in parallel with the number of cached threads
     try (ServerSocket serverSocket =
             isHostAny()
-                ? new ServerSocket(getPort(), GameMatch.MaxPlayers)
-                : new ServerSocket(getPort(), GameMatch.MaxPlayers, getHost());
-        ExecutorService executor = Executors.newFixedThreadPool(GameMatch.MaxPlayers)) {
+                ? new ServerSocket(getPort(), GameMatch.MAX_PLAYERS)
+                : new ServerSocket(getPort(), GameMatch.MAX_PLAYERS, getHost());
+        ExecutorService executor = Executors.newFixedThreadPool(GameMatch.MAX_PLAYERS)) {
 
       System.out.println("[Server] Starting server...");
       if (isHostAny()) {
@@ -77,26 +76,26 @@ public class SocketServer extends SocketAbstract {
   }
 
   class ClientHandler implements Runnable {
-
+    private static final int READ_TIMEOUT_MS = 250;
     private final Socket socket;
     private Player player;
 
-    ClientHandler(Socket socket) {
+    ClientHandler(Socket socket) throws RuntimeException {
       this.socket = socket;
       player = null;
 
       try {
-        int readTimeoutMs = 250;
-        socket.setSoTimeout(readTimeoutMs);
+        socket.setSoTimeout(READ_TIMEOUT_MS);
       } catch (SocketException e) {
         throw new RuntimeException("Failed to set timeout for socket read");
       }
     }
 
-    /*
+    /**
      * Command handlers
+     *
+     * <p>TODO Finish this documentation
      */
-
     GameCommand parseJoin(JoinCommand joinCommand) {
       StatusCode joinStatus = match.addPlayer(joinCommand.getUsername());
 
@@ -110,10 +109,11 @@ public class SocketServer extends SocketAbstract {
       return new StatusCommand(joinStatus);
     }
 
-    /*
+    /**
      * Socket reader / writer
+     *
+     * <p>TODO Finish this documentation
      */
-
     @Override
     public void run() {
       try (socket;
@@ -123,7 +123,6 @@ public class SocketServer extends SocketAbstract {
           BufferedWriter out = new BufferedWriter(writer)) {
 
         // Print message with client information.
-        // TODO Check if the output includes brackets when connection from IPv6
         System.out.println(
             "[Server] New client connection from "
                 + socket.getInetAddress().getHostAddress()
@@ -134,7 +133,7 @@ public class SocketServer extends SocketAbstract {
         while (!socket.isClosed()) {
 
           try {
-            // Send all remaining global commands
+            // Send all remaining global commands.
             if (null != player) {
               for (GameCommand pendingCommand : match.getPendingCommands(player)) {
                 out.write(pendingCommand.toTcpBody() + END_OF_LINE);
@@ -142,24 +141,25 @@ public class SocketServer extends SocketAbstract {
               }
             }
 
-            // Read response from client, or wait for a timeout
+            // Read response from client, or wait for a timeout.
             String clientRequest = in.readLine();
 
             // If clientRequest is null, the client has disconnected.
             // The server can close the connection and end the thread.
             // TODO Verify if this is the better behavior or if we leave the thread running until
             //  somebody reconnects.
+            // TODO Verify what to do to the other players. Should the game end or continue?
             if (clientRequest == null) {
               socket.close();
               break;
             }
 
-            // Parse the message we got from the player
+            // Parse the message we got from the player.
             GameCommand command;
             try {
               command = GameCommand.fromTcpBody(clientRequest.trim());
             } catch (InvalidPropertiesFormatException format) {
-              // Response is malformed (not a valid command)
+              // Response is malformed (not a valid command).
               out.write(new StatusCommand(StatusCode.KO).toTcpBody() + END_OF_LINE);
               out.flush();
               continue;
@@ -270,7 +270,7 @@ public class SocketServer extends SocketAbstract {
             }
 
           } catch (SocketTimeoutException e) {
-            // Nothing to do but loop around and hope for an answer later on
+            // Nothing to do but loop around and hope for an answer later on.
           } catch (Exception e) {
             // TODO Same as the other TODO above
             System.err.println("[Server] Random exception: " + e);
@@ -278,7 +278,6 @@ public class SocketServer extends SocketAbstract {
         } // end of while (!socket.isClosed())
 
         // Print message to say connection with client has closed.
-        // TODO Check if the output includes brackets when connection from IPv6
         System.out.println(
             "[Server] Closed connection with client "
                 + socket.getInetAddress().getHostAddress()
@@ -289,7 +288,7 @@ public class SocketServer extends SocketAbstract {
         System.err.println("[Server] IO exception: " + e);
       }
 
-      // Disconnect player from match if that's not yet the case
+      // Disconnect player from match if that's not yet the case.
       if (null != player) {
         match.quitPlayer(player.getUsername());
       }

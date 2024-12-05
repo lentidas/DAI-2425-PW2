@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>ch.heigvd.dai</groupId>
-  <artifactId>DAI-2425-PW2</artifactId>
+  <artifactId>wheel-of-fortune</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>

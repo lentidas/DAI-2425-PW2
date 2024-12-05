@@ -35,6 +35,9 @@ public abstract class GameCommand {
   private static final Map<GameCommandType, CommandFactoryFunction> _factoryHandlers =
       new HashMap<>();
 
+  // TODO Improve this debugging by using a proper Java logging framework.
+  private static final boolean DEBUG_MODE = false;
+
   public GameCommand(GameCommandType type) {
     this.type = type;
     this.args = new LinkedList<>();
@@ -54,7 +57,7 @@ public abstract class GameCommand {
 
     GameCommandType commandType;
     try {
-      commandType = GameCommandType.valueOf(commandName);
+      commandType = GameCommandType.valueOf(commandName.toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new InvalidPropertiesFormatException("Invalid command name: " + commandName);
     }
@@ -84,7 +87,7 @@ public abstract class GameCommand {
         if (arg.startsWith("\"") && arg.endsWith("\"")) {
           arg = arg.substring(1, arg.length() - 1);
         }
-        commandArgs[i] = arg;
+        commandArgs[i] = arg.trim(); // Trim any leading and trailing whitespaces.
         i++;
       }
     }
@@ -94,7 +97,9 @@ public abstract class GameCommand {
 
   protected static void addFactoryHandler(GameCommandType type, CommandFactoryFunction handler) {
     _factoryHandlers.put(type, handler);
-    System.out.println("Added handler for " + type);
+    if (DEBUG_MODE) {
+      System.out.println("[DEBUG] Added handler for " + type);
+    }
   }
 
   public static void registerHandlers() {
@@ -115,6 +120,8 @@ public abstract class GameCommand {
     GameCommand.addFactoryHandler(GameCommandType.WINNER, WinnerCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.SKIP, SkipCommand::fromTcpBody);
     GameCommand.addFactoryHandler(GameCommandType.LETTERS, LettersCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.HELP, HelpCommand::fromTcpBody);
+    GameCommand.addFactoryHandler(GameCommandType.HOST, HostCommand::fromTcpBody);
   }
 
   private String argToString(Object arg) {

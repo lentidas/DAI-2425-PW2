@@ -39,15 +39,25 @@ public class InfoCommand extends GameCommand {
     return (String) args.get(1);
   }
 
-  public String[] getUsedLetters() {
-    return ((String[]) args.get(2)).clone();
+  public String getUsedLetters() {
+    return ((String) args.get(2));
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if (null == args || args.length != 3 || Arrays.stream(args).anyMatch(Objects::isNull)) {
+    if (null == args
+        || args.length < 2
+        || args.length > 3
+        || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive correct parameters");
     }
 
-    return new InfoCommand(args[0], args[1], args[2].toCharArray());
+    char[] usedLetters = new char[0];
+
+    // If we received the letters that have already been used
+    if (args.length == 3) {
+      usedLetters = args[2].toCharArray();
+    } // if
+
+    return new InfoCommand(args[0], args[1], usedLetters);
   }
 }

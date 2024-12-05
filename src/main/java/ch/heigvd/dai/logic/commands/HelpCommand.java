@@ -18,40 +18,21 @@
 
 package ch.heigvd.dai.logic.commands;
 
-import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Objects;
 
-public class TurnCommand extends GameCommand {
+public class HelpCommand extends GameCommand {
 
-  public TurnCommand(int turnMoney, int totalMoney) {
-    super(GameCommandType.TURN);
-    args.add(turnMoney);
-    args.add(totalMoney);
+  public HelpCommand() {
+    super(GameCommandType.HELP);
   }
 
-  public int getTurnMoney() {
-    return (int) args.getFirst();
-  }
-
-  public int getTotalMoney() {
-    return (int) args.get(1);
-  }
-
+  // FIXME This function is identical between the JOIN, HELP, HOST and SKIP commands. Think about
+  //  refactoring this.
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if (null == args || args.length != 2 || Arrays.stream(args).anyMatch(Objects::isNull)) {
-      throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
+    if (null != args && args.length > 0) {
+      throw new InvalidPropertiesFormatException("Command does not take arguments");
     }
 
-    int turnMoney;
-    int totalMoney;
-    try {
-      turnMoney = Integer.parseInt(args[0]);
-      totalMoney = Integer.parseInt(args[1]);
-    } catch (NumberFormatException e) {
-      throw new InvalidPropertiesFormatException("Invalid turn or total money");
-    }
-
-    return new TurnCommand(turnMoney, totalMoney);
+    return new HelpCommand();
   }
 }
