@@ -18,6 +18,10 @@
 
 package ch.heigvd.dai.logic.puzzle;
 
+/**
+ * Represents a puzzle record in the <i>database</i>, represented by a {@link String} with its
+ * contents and the {@link PuzzleCategory} it belongs to.
+ */
 public record PuzzleRecord(String puzzle, PuzzleCategory category) {
   public PuzzleRecord {
     puzzle = puzzle.toUpperCase();
