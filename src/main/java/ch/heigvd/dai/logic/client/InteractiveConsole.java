@@ -29,6 +29,7 @@ import ch.heigvd.dai.logic.client.parsers.InfoResponseParser;
 import ch.heigvd.dai.logic.client.parsers.LastRoundResponseParser;
 import ch.heigvd.dai.logic.client.parsers.LettersInputParser;
 import ch.heigvd.dai.logic.client.parsers.LobbyInputParser;
+import ch.heigvd.dai.logic.client.parsers.LobbyResponseParser;
 import ch.heigvd.dai.logic.client.parsers.RoundResponseParser;
 import ch.heigvd.dai.logic.client.parsers.SecondPhaseInputParser;
 import ch.heigvd.dai.logic.client.parsers.StartResponseParser;
@@ -81,7 +82,8 @@ public class InteractiveConsole {
           GameCommandType.ROUND, new RoundResponseParser(),
           GameCommandType.END, new EndResponseParser(),
           GameCommandType.WINNER, new WinnerResponseParser(),
-          GameCommandType.LAST, new LastRoundResponseParser());
+          GameCommandType.LAST, new LastRoundResponseParser(),
+          GameCommandType.LOBBY, new LobbyResponseParser());
 
   /** Prompts for each one of the player states */
   private static final List<PlayerStatePrompt> STATE_PROMPTS =
