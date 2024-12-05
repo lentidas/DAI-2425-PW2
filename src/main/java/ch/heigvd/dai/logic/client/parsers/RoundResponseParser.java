@@ -23,23 +23,18 @@ import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
 import ch.heigvd.dai.logic.commands.RoundCommand;
-import ch.heigvd.dai.logic.commands.TurnCommand;
 
 public class RoundResponseParser implements IResponseParser {
 
   @Override
   public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
-    if(response.getType() == GameCommandType.TURN)
-    {
+    if (response.getType() == GameCommandType.TURN) {
       RoundCommand cmd = ((RoundCommand) response);
-      if(interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN)
-      {
+      if (interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN) {
+        System.out.println("Round over! The full puzzle was: " + cmd.getPuzzle());
+      } else if (interactiveConsole.getCurrentState() == PlayerState.SEND_LETTERS) {
         System.out.println(
-            "Round over! The full puzzle was: " + cmd.getPuzzle());
-      }
-      else if(interactiveConsole.getCurrentState() == PlayerState.SEND_LETTERS)
-      {
-        System.out.println("Here's the puzzle after revealing the requested letters: " + cmd.getPuzzle());
+            "Here's the puzzle after revealing the requested letters: " + cmd.getPuzzle());
         interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_LAST_TURN);
       }
     }

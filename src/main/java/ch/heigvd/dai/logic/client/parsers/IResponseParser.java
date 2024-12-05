@@ -25,6 +25,7 @@ public interface IResponseParser {
 
   /**
    * Makes a response parser parse what the server just sent to the client
+   *
    * @param interactiveConsole Interactive console to manage
    * @param response Response received from the server
    */

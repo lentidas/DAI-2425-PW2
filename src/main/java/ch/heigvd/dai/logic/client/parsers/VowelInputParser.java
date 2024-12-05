@@ -20,7 +20,6 @@ package ch.heigvd.dai.logic.client.parsers;
 
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
-import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.VowelCommand;
 import java.util.InvalidPropertiesFormatException;
 
@@ -31,10 +30,9 @@ public class VowelInputParser implements IInputParser {
 
     GameCommand command = null;
 
-    try{
+    try {
       command = VowelCommand.fromTcpBody(input);
-    } catch(InvalidPropertiesFormatException e)
-    {
+    } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid vowel!");
     }
 

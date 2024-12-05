@@ -21,7 +21,6 @@ package ch.heigvd.dai.logic.client.parsers;
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
-import ch.heigvd.dai.logic.commands.VowelCommand;
 import java.util.InvalidPropertiesFormatException;
 
 public class FillInputParser implements IInputParser {
@@ -31,10 +30,9 @@ public class FillInputParser implements IInputParser {
 
     GameCommand command = null;
 
-    try{
+    try {
       command = FillCommand.fromTcpBody(input);
-    } catch(InvalidPropertiesFormatException e)
-    {
+    } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid puzzle solution provided!");
     }
 

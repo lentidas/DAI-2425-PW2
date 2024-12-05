@@ -313,8 +313,8 @@ public class Puzzle {
   }
 
   /**
-   * Gets the number of times the provided letter appears in the full puzzle
-   * If you need to check whether a letter has been guessed yet, use hasLetterBeenGuessed
+   * Gets the number of times the provided letter appears in the full puzzle If you need to check
+   * whether a letter has been guessed yet, use hasLetterBeenGuessed
    *
    * @param letter Letter to search
    * @return Number of times it appears. 0 means it doesn't appear, or hasn't been guessed

@@ -28,10 +28,9 @@ public class TurnResponseParser implements IResponseParser {
 
   @Override
   public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
-    if(response.getType() == GameCommandType.TURN
-    && interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN)
-    {
-      TurnCommand cmd = (TurnCommand)response;
+    if (response.getType() == GameCommandType.TURN
+        && interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN) {
+      TurnCommand cmd = (TurnCommand) response;
       System.out.println("It's your turn!");
       System.out.println(
           "You're in luck! The wheel gave you " + cmd.getTurnMoney() + "$ for this round.");

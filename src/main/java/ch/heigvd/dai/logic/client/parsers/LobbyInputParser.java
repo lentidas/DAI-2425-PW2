@@ -29,13 +29,10 @@ public class LobbyInputParser implements IInputParser {
   public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
     GameCommand command = null;
 
-    if(input.equalsIgnoreCase("go"))
-    {
+    if (input.equalsIgnoreCase("go")) {
       System.out.println("Asking server to start game...");
       command = new GoCommand();
-    }
-    else if(input.equalsIgnoreCase("quit"))
-    {
+    } else if (input.equalsIgnoreCase("quit")) {
       System.out.println("Saying goodbye the server...");
       command = new QuitCommand();
     }

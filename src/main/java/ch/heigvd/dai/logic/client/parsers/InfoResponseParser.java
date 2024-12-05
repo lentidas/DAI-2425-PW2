@@ -18,19 +18,16 @@
 
 package ch.heigvd.dai.logic.client.parsers;
 
-import ch.heigvd.dai.logic.PlayerState;
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
 import ch.heigvd.dai.logic.commands.InfoCommand;
-import ch.heigvd.dai.logic.commands.TurnCommand;
 
 public class InfoResponseParser implements IResponseParser {
 
   @Override
   public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
-    if(response.getType() == GameCommandType.INFO)
-    {
+    if (response.getType() == GameCommandType.INFO) {
       InfoCommand cmd = (InfoCommand) response;
       System.out.println("=== CURRENT PUZZLE ===");
       System.out.println("Category: " + cmd.getCategory());

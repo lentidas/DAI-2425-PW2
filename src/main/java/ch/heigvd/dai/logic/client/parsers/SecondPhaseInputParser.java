@@ -21,9 +21,7 @@ package ch.heigvd.dai.logic.client.parsers;
 import ch.heigvd.dai.logic.PlayerState;
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
-import ch.heigvd.dai.logic.commands.GuessCommand;
 import ch.heigvd.dai.logic.commands.SkipCommand;
-import java.util.InvalidPropertiesFormatException;
 
 public class SecondPhaseInputParser implements IInputParser {
 
@@ -32,16 +30,15 @@ public class SecondPhaseInputParser implements IInputParser {
 
     GameCommand command = null;
 
-    try{
+    try {
       int choice = Integer.parseInt(input);
 
       // We only have three choices
-      if(choice <= 0 || choice > 3){
+      if (choice <= 0 || choice > 3) {
         throw new NumberFormatException();
       }
 
-      switch(choice)
-      {
+      switch (choice) {
         case 1 -> {
           System.out.println("You skipped your turn");
           interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_TURN);
@@ -51,8 +48,7 @@ public class SecondPhaseInputParser implements IInputParser {
         case 2 -> interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_VOWEL);
         case 3 -> interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_FILL);
       }
-    } catch(NumberFormatException e)
-    {
+    } catch (NumberFormatException e) {
       System.err.println("Invalid choice!");
     }
 

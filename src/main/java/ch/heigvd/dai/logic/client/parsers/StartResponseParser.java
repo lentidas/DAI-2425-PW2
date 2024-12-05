@@ -28,8 +28,7 @@ public class StartResponseParser implements IResponseParser {
 
   @Override
   public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
-    if(response.getType() == GameCommandType.START)
-    {
+    if (response.getType() == GameCommandType.START) {
       StartCommand cmd = (StartCommand) response;
       System.out.println("=== ROUND #" + cmd.getRoundNumber() + " ===");
       System.out.println("Category: " + cmd.getCategory());

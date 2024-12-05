@@ -30,10 +30,9 @@ public class GuessInputParser implements IInputParser {
 
     GameCommand command = null;
 
-    try{
+    try {
       command = GuessCommand.fromTcpBody(input);
-    } catch(InvalidPropertiesFormatException e)
-    {
+    } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid consonant!");
     }
 

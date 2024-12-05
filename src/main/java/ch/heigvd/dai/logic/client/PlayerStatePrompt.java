@@ -20,5 +20,4 @@ package ch.heigvd.dai.logic.client;
 
 import ch.heigvd.dai.logic.PlayerState;
 
-public record PlayerStatePrompt(PlayerState validFor, String[] prompts) {
-}
+public record PlayerStatePrompt(PlayerState validFor, String[] prompts) {}

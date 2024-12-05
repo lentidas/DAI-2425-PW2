@@ -22,7 +22,6 @@ import ch.heigvd.dai.logic.PlayerState;
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
-import ch.heigvd.dai.logic.commands.TurnCommand;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,9 +29,8 @@ public class EndResponseParser implements IResponseParser {
 
   @Override
   public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
-    if(response.getType() == GameCommandType.END
-    && interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN)
-    {
+    if (response.getType() == GameCommandType.END
+        && interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_TURN) {
       List<Object> args = response.getArgs();
       Iterator<Object> iter = args.iterator();
       System.out.println("Game ended!");

@@ -19,7 +19,6 @@
 package ch.heigvd.dai.logic.client.parsers;
 
 import ch.heigvd.dai.logic.client.InteractiveConsole;
-import ch.heigvd.dai.logic.commands.FillCommand;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.LettersCommand;
 import java.util.InvalidPropertiesFormatException;
@@ -31,11 +30,13 @@ public class LettersInputParser implements IInputParser {
 
     GameCommand command = null;
 
-    try{
+    try {
       command = LettersCommand.fromTcpBody(input);
-    } catch(InvalidPropertiesFormatException e)
-    {
-      System.err.println("Invalid letters provided! You must provide " + LettersCommand.NumberOfLetters + " letters in total, with no spaces in between");
+    } catch (InvalidPropertiesFormatException e) {
+      System.err.println(
+          "Invalid letters provided! You must provide "
+              + LettersCommand.NumberOfLetters
+              + " letters in total, with no spaces in between");
     }
 
     return command;

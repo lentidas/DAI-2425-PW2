@@ -29,11 +29,10 @@ public class UsernameInputParser implements IInputParser {
   public GameCommand parse(InteractiveConsole interactiveConsole, String input) {
     GameCommand command = null;
 
-    try{
-      command = JoinCommand.fromTcpBody(new String[]{input});
+    try {
+      command = JoinCommand.fromTcpBody(new String[] {input});
       interactiveConsole.setUsername(input);
-    } catch(InvalidPropertiesFormatException e)
-    {
+    } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid username!");
     }
 

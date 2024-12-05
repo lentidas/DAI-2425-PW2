@@ -30,60 +30,52 @@ public class StatusResponseParser implements IResponseParser {
 
   @Override
   public void parse(InteractiveConsole interactiveConsole, GameCommand response) {
-    if(response.getType() != GameCommandType.STATUS)
-    {
+    if (response.getType() != GameCommandType.STATUS) {
       System.err.println("Unexpected response " + response.getType() + " for this parser");
       return;
     }
 
-    StatusCommand cmd = (StatusCommand)response;
+    StatusCommand cmd = (StatusCommand) response;
 
     // Always run these first
-    if(cmd.getStatus() == StatusCode.PLAYER_JOINED
-    || cmd.getStatus() == StatusCode.PLAYER_QUIT)
-    {
+    if (cmd.getStatus() == StatusCode.PLAYER_JOINED || cmd.getStatus() == StatusCode.PLAYER_QUIT) {
       parseLobbyChange(interactiveConsole, cmd);
       return;
     }
 
-    switch(interactiveConsole.getCurrentState())
-    {
+    switch (interactiveConsole.getCurrentState()) {
       case WAIT_FOR_USERNAME -> parseJoinResponse(interactiveConsole, cmd);
-      case WAIT_FOR_GUESS, WAIT_FOR_VOWEL-> parseLetterGuessResponse(interactiveConsole, cmd);
+      case WAIT_FOR_GUESS, WAIT_FOR_VOWEL -> parseLetterGuessResponse(interactiveConsole, cmd);
       case WAIT_FOR_FILL, WAIT_FOR_LAST_TURN -> parseAnswerResponse(interactiveConsole, cmd);
       case SEND_LETTERS -> parseLettersResponse(interactiveConsole, cmd);
       case WAIT_FOR_TURN -> parseTurnWaitingResponse(interactiveConsole, cmd);
     }
   }
 
-  private void parseJoinResponse(InteractiveConsole interactiveConsole, StatusCommand response)
-  {
-    switch(response.getStatus())
-    {
+  private void parseJoinResponse(InteractiveConsole interactiveConsole, StatusCommand response) {
+    switch (response.getStatus()) {
       case OK -> {
         System.out.println("Welcome to the game!");
         interactiveConsole.setCurrentState(PlayerState.WAIT_IN_LOBBY);
       }
-      case DUPLICATE_NAME -> System.err.println("Someone else has already joined the game with that name!");
+      case DUPLICATE_NAME ->
+          System.err.println("Someone else has already joined the game with that name!");
       case FULL -> System.err.println("The lobby is full or game has already started!");
       case KO -> System.err.println("Invalid username!");
       default -> System.err.println("Unexpected server response!");
     }
   }
 
-  private void parseLetterGuessResponse(InteractiveConsole interactiveConsole, StatusCommand response)
-  {
-    switch(response.getStatus())
-    {
+  private void parseLetterGuessResponse(
+      InteractiveConsole interactiveConsole, StatusCommand response) {
+    switch (response.getStatus()) {
       case LETTER_EXISTS -> {
         System.out.println("You have guessed correctly!");
-        if(interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_GUESS)
-        {
+        if (interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_GUESS) {
           interactiveConsole.setCurrentState(PlayerState.SECOND_GUESS_PHASE);
-        } else if(interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_VOWEL)
-        {
+        } else if (interactiveConsole.getCurrentState() == PlayerState.WAIT_FOR_VOWEL) {
           interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_TURN);
-        }else {
+        } else {
           System.err.println("Invalid current state!");
         }
       }
@@ -104,15 +96,11 @@ public class StatusResponseParser implements IResponseParser {
     }
   }
 
-  private void parseAnswerResponse(InteractiveConsole interactiveConsole, StatusCommand response)
-  {
-    switch(response.getStatus())
-    {
-      case RIGHT_ANSWER ->
-        System.out.println("Congratulations, you have completed this puzzle!");
+  private void parseAnswerResponse(InteractiveConsole interactiveConsole, StatusCommand response) {
+    switch (response.getStatus()) {
+      case RIGHT_ANSWER -> System.out.println("Congratulations, you have completed this puzzle!");
 
-      case WRONG_ANSWER ->
-          System.out.println("Unfortunately, that was not the right answer");
+      case WRONG_ANSWER -> System.out.println("Unfortunately, that was not the right answer");
 
       default -> System.err.println("Unexpected server response!");
     }
@@ -120,30 +108,29 @@ public class StatusResponseParser implements IResponseParser {
     interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_TURN);
   }
 
-  private void parseLettersResponse(InteractiveConsole interactiveConsole, StatusCommand response)
-  {
-    switch(response.getStatus())
-    {
-      case ALREADY_TRIED -> System.out.println("One of more of the provided letters have already been used");
-      case KO -> System.out.println("Invalid letters provided! You must provide " + LettersCommand.NumberOfLetters + " letters in total, with no spaces in between");
+  private void parseLettersResponse(InteractiveConsole interactiveConsole, StatusCommand response) {
+    switch (response.getStatus()) {
+      case ALREADY_TRIED ->
+          System.out.println("One of more of the provided letters have already been used");
+      case KO ->
+          System.out.println(
+              "Invalid letters provided! You must provide "
+                  + LettersCommand.NumberOfLetters
+                  + " letters in total, with no spaces in between");
     }
   }
 
-  private void parseTurnWaitingResponse(InteractiveConsole interactiveConsole, StatusCommand response)
-  {
-    switch(response.getStatus())
-    {
+  private void parseTurnWaitingResponse(
+      InteractiveConsole interactiveConsole, StatusCommand response) {
+    switch (response.getStatus()) {
       case BANKRUPT ->
-          System.out.println( "Bad luck... The wheel says you're BANKRUPT! You lose the turn.");
-      case LOST_A_TURN ->
-          System.out.println("Bad luck... The wheel says you miss the next turn!");
+          System.out.println("Bad luck... The wheel says you're BANKRUPT! You lose the turn.");
+      case LOST_A_TURN -> System.out.println("Bad luck... The wheel says you miss the next turn!");
     }
   }
 
-  private void parseLobbyChange(InteractiveConsole interactiveConsole, StatusCommand response)
-  {
-    switch(response.getStatus())
-    {
+  private void parseLobbyChange(InteractiveConsole interactiveConsole, StatusCommand response) {
+    switch (response.getStatus()) {
       case PLAYER_JOINED -> System.out.println("Another player joined the game!");
       case PLAYER_QUIT -> System.out.println("Another player quit the game...");
     }

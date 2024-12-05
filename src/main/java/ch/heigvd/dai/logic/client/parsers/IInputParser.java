@@ -25,6 +25,7 @@ public interface IInputParser {
 
   /**
    * Makes an input parser parse the provided user input
+   *
    * @param interactiveConsole Interactive console to manage
    * @param input User input
    * @return Game command to be sent to the server, or null if no command needs to be sent
