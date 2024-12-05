@@ -31,6 +31,7 @@
     - [Print the help message](#print-the-help-message)
     - [Start the server](#start-the-server)
     - [Start the client](#start-the-client)
+    - [Using the JAR](#using-the-jar)
   - [Documentation](#documentation)
   - [Contributing](#contributing)
     - [Clone and build the project](#clone-and-build-the-project)
@@ -157,6 +158,33 @@ docker container prune
 
 > [!IMPORTANT]
 > The client container must know the IP address of the server container to connect to it. You can obtain the IP address of the server container using the `docker inspect` command, as shown in the section [Start the server](#start-the-server).
+
+### Using the JAR
+
+Using the JAR directly is also possible. You can download the JAR from the [releases page](https://github.com/lentidas/DAI-2425-PW2/releases).
+
+Below are some commands to run the JAR directly:
+
+```shell
+# Print the help message for the server.
+java -jar wheel-of-fortune-1.0.0.jar server --help
+
+# Start the server with default settings.
+java -jar wheel-of-fortune-1.0.0.jar server
+
+# Start the server with a different port.
+java -jar wheel-of-fortune-1.0.0.jar server --port 10042
+
+# Print the help message for the client.
+java -jar wheel-of-fortune-1.0.0.jar client --help
+
+# Start the client with default settings.
+java -jar wheel-of-fortune-1.0.0.jar client
+
+# Start the client with a different port and address.
+java -jar wheel-of-fortune-1.0.0.jar client --host <server-ip> --port 10042
+java -jar wheel-of-fortune-1.0.0.jar client --host <server-ip>:10042
+```
 
 ## Documentation
 
