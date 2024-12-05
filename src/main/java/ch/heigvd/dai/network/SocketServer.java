@@ -274,6 +274,8 @@ public class SocketServer extends SocketAbstract {
           } catch (Exception e) {
             // TODO Same as the other TODO above
             System.err.println("[Server] Random exception: " + e);
+            socket.close();
+            break;
           }
         } // end of while (!socket.isClosed())
 

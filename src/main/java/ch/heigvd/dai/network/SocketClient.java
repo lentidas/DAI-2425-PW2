@@ -125,7 +125,7 @@ public class SocketClient extends SocketAbstract {
 
           String prompt = interactiveConsole.getPrompt();
           if (null != prompt) {
-            System.out.print(prompt);
+            System.out.println(prompt);
           }
 
           // Read response from server and parse it.
