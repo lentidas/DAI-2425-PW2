@@ -21,7 +21,13 @@ package ch.heigvd.dai.network;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
 import ch.heigvd.dai.logic.commands.HostCommand;
+import ch.heigvd.dai.logic.commands.InfoCommand;
+import ch.heigvd.dai.logic.commands.LastCommand;
+import ch.heigvd.dai.logic.commands.RoundCommand;
+import ch.heigvd.dai.logic.commands.StartCommand;
 import ch.heigvd.dai.logic.commands.StatusCommand;
+import ch.heigvd.dai.logic.commands.TurnCommand;
+import ch.heigvd.dai.logic.commands.WinnerCommand;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
@@ -64,7 +70,8 @@ public class SocketClient extends SocketAbstract {
             GameCommandType.LETTERS,
             GameCommandType.HOST,
             GameCommandType.HELP,
-            GameCommandType.QUIT));
+            GameCommandType.QUIT,
+            GameCommandType.SKIP));
   }
 
   class InputReaderHandler implements Runnable {
@@ -125,7 +132,7 @@ public class SocketClient extends SocketAbstract {
 
             // Perform action appropriate to each command
             switch (command.getType()) {
-              case JOIN, GO, FILL, GUESS, VOWEL, LETTERS -> request = command.toTcpBody();
+              case JOIN, GO, FILL, GUESS, VOWEL, LETTERS, SKIP -> request = command.toTcpBody();
               case HOST -> {
                 System.out.println(((HostCommand) command).getHost());
                 continue;
@@ -153,8 +160,7 @@ public class SocketClient extends SocketAbstract {
             }
           } catch (Exception e) {
             // Send exception upwards on the call stack.
-            throw new RuntimeException(
-                "[InputReaderHandler] Exception: " + e);
+            throw new RuntimeException("[InputReaderHandler] Exception: " + e);
           }
         } // end of while (!socket.isClosed())
 
@@ -211,7 +217,7 @@ public class SocketClient extends SocketAbstract {
 
           System.out.println(); // Print an empty line to improve readability on the console.
           switch (response.getType()) {
-            // TODO Remove the commented cases that are not used.
+              // TODO Remove the commented cases that are not used.
             case STATUS -> {
               switch (((StatusCommand) response).getStatus()) {
                 case OK -> System.out.println("OK!");
@@ -264,28 +270,20 @@ public class SocketClient extends SocketAbstract {
             }
 
             case INFO -> {
+              InfoCommand cmd = (InfoCommand) response;
               System.out.println("=== CURRENT PUZZLE ===");
-              List<Object> args = response.getArgs();
-              Iterator<Object> iter = args.iterator();
-              String puzzle = (String) iter.next();
-              String category = (String) iter.next();
-              String usedLetters = (String) iter.next();
-              System.out.println("Category: " + category);
-              System.out.println("Puzzle: " + puzzle);
-              System.out.println("Used letters: " + usedLetters);
+              System.out.println("Category: " + cmd.getCategory());
+              System.out.println("Puzzle: " + cmd.getPuzzle());
+              System.out.println("Used letters: " + cmd.getUsedLetters());
             }
 
             case LAST -> {
+              LastCommand cmd = (LastCommand) response;
               System.out.println("CONGRATULATIONS! You go to the last round!");
               System.out.println("=== LAST PUZZLE ===");
-              List<Object> args = response.getArgs();
-              Iterator<Object> iter = args.iterator();
-              String timeout = (String) iter.next();
-              String puzzle = (String) iter.next();
-              String category = (String) iter.next();
-              System.out.println("Category: " + category);
-              System.out.println("Puzzle: " + puzzle);
-              System.out.println("Timeout: " + timeout + "seconds");
+              System.out.println("Category: " + cmd.getCategory());
+              System.out.println("Puzzle: " + cmd.getPuzzle());
+              System.out.println("Timeout: " + cmd.getTimeout() + " seconds");
               System.out.println("What letters do you want to add?");
             }
 
@@ -298,31 +296,35 @@ public class SocketClient extends SocketAbstract {
             }
 
             case START -> {
-              List<Object> args = response.getArgs();
-              Iterator<Object> iter = args.iterator();
-              String round = Character.toString((Integer) iter.next());
-              String puzzle = (String) iter.next();
-              String category = (String) iter.next();
-              System.out.println("=== ROUND #" + round + " ===");
-              System.out.println("Category: " + category);
-              System.out.println("Puzzle: " + puzzle);
+              StartCommand cmd = (StartCommand) response;
+              System.out.println("=== ROUND #" + cmd.getRoundNumber() + " ===");
+              System.out.println("Category: " + cmd.getCategory());
+              System.out.println("Puzzle: " + cmd.getPuzzle());
             }
 
             case TURN -> {
+              TurnCommand cmd = (TurnCommand) response;
               System.out.println("It's your turn!");
               System.out.println(
-                  "You're in luck! The wheel gave you "
-                      + response.getArgs().getFirst()
-                      + "$ for this round.");
-              System.out.println("Earned money overall: " + response.getArgs().getLast() + "$");
+                  "You're in luck! The wheel gave you " + cmd.getTurnMoney() + "$ for this round.");
+              System.out.println("Earned money overall: " + cmd.getTotalMoney() + "$");
             }
 
-              // FIXME This command is not really used by the server...
+            case ROUND ->
+                System.out.println(
+                    "Round over! The full puzzle was: " + ((RoundCommand) response).getPuzzle());
+
             case WINNER -> {
-              System.out.println("WINNER"); // TODO Remove debug line
+              System.out.println("Thank you to all the participants for playing!");
+              System.out.println(
+                  "We've now reached the last round. And the player to play it is...");
+              System.out.println(((WinnerCommand) response).getUsername() + " !");
             }
 
-            default -> System.out.println("Invalid/unknown command sent by server, ignore.");
+            default -> {
+              System.out.println("Invalid/unknown command sent by server, ignore.");
+              System.out.println(response.toTcpBody());
+            }
           }
         } // end of while (!socket.isClosed())
 
@@ -366,7 +368,7 @@ public class SocketClient extends SocketAbstract {
       // Print the quit message.
       System.out.println("[Client] Closing connection and quitting...");
     } catch (IOException e) {
-       System.out.println("[Client] IOException: " + e);
+      System.out.println("[Client] IOException: " + e);
     } catch (InterruptedException e) {
       System.out.println("[Client] InterruptedException: " + e);
     }

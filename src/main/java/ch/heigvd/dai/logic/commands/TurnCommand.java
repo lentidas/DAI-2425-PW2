@@ -39,24 +39,17 @@ public class TurnCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if (null == args
-        || args.length != 2
-        || Arrays.stream(args).anyMatch(Objects::isNull)
-        || args[0].length() != 2
-        || args[1].length() != 4) {
+    if (null == args || args.length != 2 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive the correct parameters");
     }
 
-    int turnMoney = 0;
-    for (int i = 0; i < args[0].length(); i++) {
-      turnMoney <<= 8;
-      turnMoney |= args[0].charAt(i);
-    }
-
-    int totalMoney = 0;
-    for (int i = 0; i < args[1].length(); i++) {
-      totalMoney <<= 8;
-      totalMoney |= args[1].charAt(i);
+    int turnMoney;
+    int totalMoney;
+    try {
+      turnMoney = Integer.parseInt(args[0]);
+      totalMoney = Integer.parseInt(args[1]);
+    } catch (NumberFormatException e) {
+      throw new InvalidPropertiesFormatException("Invalid turn or total money");
     }
 
     return new TurnCommand(turnMoney, totalMoney);

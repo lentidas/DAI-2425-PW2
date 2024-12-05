@@ -49,13 +49,17 @@ public class LastCommand extends GameCommand {
   }
 
   public static GameCommand fromTcpBody(String[] args) throws InvalidPropertiesFormatException {
-    if (null == args
-        || args.length != 4
-        || Arrays.stream(args).anyMatch(Objects::isNull)
-        || args[0].length() != 1) {
+    if (null == args || args.length != 4 || Arrays.stream(args).anyMatch(Objects::isNull)) {
       throw new InvalidPropertiesFormatException("Command did not receive the right parameters");
     }
 
-    return new LastCommand(args[0].charAt(0), args[1], args[2], args[3]);
+    int timeout;
+    try {
+      timeout = Integer.parseInt(args[0]);
+    } catch (NumberFormatException e) {
+      throw new InvalidPropertiesFormatException("Timeout is not a valid number");
+    }
+
+    return new LastCommand(timeout, args[1], args[2], args[3]);
   }
 }

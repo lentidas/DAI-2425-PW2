@@ -29,13 +29,13 @@ public class LettersCommand extends GameCommand {
 
   public static final int NumberOfLetters = 5;
 
-  public LettersCommand(char[] letters) {
+  public LettersCommand(String letters) {
     super(GameCommandType.LETTERS);
     args.add(letters);
   }
 
   public Character[] getGuessedLetters() {
-    char[] letters = ((char[]) args.getFirst());
+    char[] letters = ((String) args.getFirst()).toCharArray();
     Character[] argsCopy = new Character[letters.length];
 
     for (int i = 0; i < letters.length; ++i) {
@@ -75,6 +75,6 @@ public class LettersCommand extends GameCommand {
       letters[i] = args[0].charAt(i);
     }
 
-    return new LettersCommand(letters);
+    return new LettersCommand(new String(letters));
   }
 }
