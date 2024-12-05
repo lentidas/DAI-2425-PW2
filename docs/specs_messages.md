@@ -248,14 +248,14 @@ remplacées par `*`.
 Demande au serveur l'authorisation de connection d'un joueur.
 
 
-| Nom                         | Description                                                       |
-|:----------------------------|-------------------------------------------------------------------|
-| Format                      | `JOIN <username>`                                                 |
-| Server $\rightarrow$ Client |                                                                   |
-| Client $\rightarrow$ Server | $\checkmark$                                                      |
-| Réponses acceptées          | `STATUS ok` si le serveur a accepté la connection                 |
-|                             | `STATUS full` si la partie est déjà au complet                    |
-|                             | `STATUS wrong_format` si l'username n'est pas valable             |
+| Nom                         | Description                                                                         |
+|:----------------------------|-------------------------------------------------------------------------------------|
+| Format                      | `JOIN <username>`                                                                   |
+| Server $\rightarrow$ Client |                                                                                     |
+| Client $\rightarrow$ Server | $\checkmark$                                                                        |
+| Réponses acceptées          | `STATUS ok` si le serveur a accepté la connection                                   |
+|                             | `STATUS full` si la partie est déjà au complet                                      |
+|                             | `STATUS ko` si l'username n'est pas valable                                         |
 |                             | `STATUS duplicate_name` si un autre joueur avec ce username est déjà dans la partie |
 
 : Tableau du format et réponse acceptées
