@@ -40,7 +40,7 @@ public class SocketClient extends SocketAbstract {
   // TODO Consider if this should be final or not.
   // TODO Comment that this is an attribute because the HELP is dynamic depending on the available
   //  commands.
-  // TODO Find a proper way to thread-safe this
+  // TODO Find a proper way to thread-safe this if we make it dynamic after all
   private final HashSet<GameCommandType> availableCommands = new HashSet<>();
 
   private final AtomicBoolean inputBlocked = new AtomicBoolean(false);
@@ -84,7 +84,7 @@ public class SocketClient extends SocketAbstract {
 
         help();
 
-        // TODO Implement this wait through the availableCommands attribute.
+        // TODO Implement this wait through the availableCommands attribute if it is empty.
         // Listen for command line inputs while the socket is open.
         while (!socket.isClosed()) {
 
@@ -152,9 +152,9 @@ public class SocketClient extends SocketAbstract {
               out.flush();
             }
           } catch (Exception e) {
-            // TODO I think this block only sends an exception if there is some issue sending the
-            //  flux to the server.
-            System.out.println("Invalid command. Please try again.");
+            // Send exception upwards on the call stack.
+            throw new RuntimeException(
+                "[InputReaderHandler] Exception: " + e);
           }
         } // end of while (!socket.isClosed())
 
@@ -162,10 +162,10 @@ public class SocketClient extends SocketAbstract {
         quit.release();
 
       } catch (IOException e) {
-        // TODO Manage here the case where the socket is closed by the server handler in case the
-        //  server response is null
-        // TODO Maybe the exception upwards
-        System.err.println("[InputReaderHandler] IOException: " + e);
+        // Send 2 releases to make sure the parent thread is able to quit. Probably unnecessary
+        // since we send the exception upwards in the call stack.
+        quit.release(2);
+        throw new RuntimeException("[InputReaderHandler] IOException: " + e);
       }
     }
   }
@@ -204,13 +204,14 @@ public class SocketClient extends SocketAbstract {
             // Response is malformed (not a valid command).
             System.out.println();
             System.out.println("Invalid command sent by server, ignore...");
-            // TODO Disable this debug message someway
+            // TODO Disable this debug message conditionally
             System.out.println("[DEBUG] Command received: " + serverResponse);
             continue;
           }
 
           System.out.println(); // Print an empty line to improve readability on the console.
           switch (response.getType()) {
+            // TODO Remove the commented cases that are not used.
             case STATUS -> {
               switch (((StatusCommand) response).getStatus()) {
                 case OK -> System.out.println("OK!");
@@ -336,15 +337,12 @@ public class SocketClient extends SocketAbstract {
         }
         // Else this was a true IOException.
         else {
-          // TODO Maybe send this exception upwards on the Stack and manage this over there
-          //  else maybe manage the outputs to console here since we also output other things here.
           System.out.println("[ServerResponseHandler] IOException: " + e);
         }
       }
     }
   }
 
-  // TODO Implement a way to create the other threads.
   @Override
   public void run() {
 
@@ -361,7 +359,6 @@ public class SocketClient extends SocketAbstract {
       // responses.
       executor.submit(new ServerResponseHandler(socket));
       executor.submit(new InputReaderHandler(socket));
-      // TODO is there a need to join the threads?
 
       // Block the parent thread until released by one of the children.
       quit.acquire(2);
@@ -369,15 +366,12 @@ public class SocketClient extends SocketAbstract {
       // Print the quit message.
       System.out.println("[Client] Closing connection and quitting...");
     } catch (IOException e) {
-      // TODO Maybe send this exception upwards on the Stack and manage this over there
-      //  else maybe manage the outputs to console here since we also output other things here.
-      System.out.println("[Client] IOException: " + e);
+       System.out.println("[Client] IOException: " + e);
     } catch (InterruptedException e) {
       System.out.println("[Client] InterruptedException: " + e);
     }
   }
 
-  // TODO Complete these outputs
   private void help() {
     System.out.println();
     System.out.println("=== AVAILABLE COMMANDS ===");
@@ -435,32 +429,7 @@ public class SocketClient extends SocketAbstract {
     }
   }
 
-  // TODO Document that this class is inspired from this article:
-  //  https://www.javaspecialists.eu/archive/Issue153-Timeout-on-Console-Input.html
-  // TODO Do not forget to remove this if not used
-  // private String readLine() throws InterruptedException {
-  //   String input = null;
-  //   try (ExecutorService ex = Executors.newSingleThreadExecutor()) {
-  //     try {
-  //       Future<String> result =
-  //           ex.submit(new CallableInputReader(System.in, StandardCharsets.UTF_8));
-  //       try {
-  //         // TODO Create static attributes for these parameters maybe
-  //         input = result.get(5, TimeUnit.SECONDS);
-  //       } catch (ExecutionException e) {
-  //         e.getCause().printStackTrace();
-  //       } catch (TimeoutException e) {
-  //         System.out.println("Cancelling reading task");
-  //         result.cancel(true);
-  //         System.out.println("\nThread cancelled. input is null");
-  //       }
-  //     } finally {
-  //       ex.shutdownNow();
-  //     }
-  //   }
-  //   return input;
-  // }
-
+  // TODO Decide if we will still use this function
   // private void computeAvailableCommands(
   //     GameCommand previousRequest, GameCommand serverResponse) {
   //   availableCommands.clear();
@@ -490,7 +459,6 @@ public class SocketClient extends SocketAbstract {
   //         }
   //       }
   //     }
-  //
   //   }
   // }
 }
