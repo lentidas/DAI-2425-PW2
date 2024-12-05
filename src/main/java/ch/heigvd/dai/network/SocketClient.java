@@ -53,6 +53,9 @@ public class SocketClient extends SocketAbstract {
   private final AtomicBoolean expectedQuit = new AtomicBoolean(false);
   private final Semaphore quit = new Semaphore(0);
 
+  // TODO Improve this debugging by using a proper Java logging framework.
+  private static final boolean DEBUG_MODE = true;
+
   public SocketClient(HostAndPort hostAndPort)
       throws NullPointerException, IllegalArgumentException, UnknownHostException {
     super(hostAndPort);
@@ -121,7 +124,9 @@ public class SocketClient extends SocketAbstract {
           } catch (InvalidPropertiesFormatException ignore) {
             System.out.println();
             System.out.println("Unrecognized/Invalid command! Please try again.");
-            System.out.println("[DEBUG] Command: " + userInput);
+            if (DEBUG_MODE) {
+              System.out.println("[DEBUG] Command: " + userInput);
+            }
             help();
             continue;
           }
@@ -210,8 +215,9 @@ public class SocketClient extends SocketAbstract {
             // Response is malformed (not a valid command).
             System.out.println();
             System.out.println("Invalid command sent by server, ignore...");
-            // TODO Disable this debug message conditionally
-            System.out.println("[DEBUG] Command received: " + serverResponse);
+            if (DEBUG_MODE) {
+              System.out.println("[DEBUG] Command received: " + serverResponse);
+            }
             continue;
           }
 

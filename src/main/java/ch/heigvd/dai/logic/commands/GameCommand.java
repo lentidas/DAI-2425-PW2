@@ -35,6 +35,9 @@ public abstract class GameCommand {
   private static final Map<GameCommandType, CommandFactoryFunction> _factoryHandlers =
       new HashMap<>();
 
+  // TODO Improve this debugging by using a proper Java logging framework.
+  private static final boolean DEBUG_MODE = false;
+
   public GameCommand(GameCommandType type) {
     this.type = type;
     this.args = new LinkedList<>();
@@ -94,7 +97,9 @@ public abstract class GameCommand {
 
   protected static void addFactoryHandler(GameCommandType type, CommandFactoryFunction handler) {
     _factoryHandlers.put(type, handler);
-    System.out.println("Added handler for " + type);
+    if (DEBUG_MODE) {
+      System.out.println("[DEBUG] Added handler for " + type);
+    }
   }
 
   public static void registerHandlers() {
