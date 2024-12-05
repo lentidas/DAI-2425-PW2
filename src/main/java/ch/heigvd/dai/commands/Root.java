@@ -34,7 +34,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     description =
         "Wheel Of Fortune - a Java server/client CLI implementation of the television game",
-    version = "0.1.0", // x-release-please-version
+    version = "1.0.0", // x-release-please-version
     subcommands = {Server.class, Client.class},
     scope = CommandLine.ScopeType.INHERIT,
     mixinStandardHelpOptions = true)
