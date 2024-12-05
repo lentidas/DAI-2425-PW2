@@ -29,6 +29,6 @@ import picocli.CommandLine;
     mixinStandardHelpOptions = true)
 public class Root {
 
-  public static final String DEFAULT_PORT = "1234"; // TODO Define the port we want to use
+  public static final String DEFAULT_PORT = "1234";
   public static final String DEFAULT_HOST = "127.0.0.1";
 }
