@@ -19,12 +19,14 @@
 package ch.heigvd.dai.logic.client;
 
 import ch.heigvd.dai.logic.PlayerState;
+import ch.heigvd.dai.logic.client.parsers.DisconnectedInputParser;
 import ch.heigvd.dai.logic.client.parsers.EndResponseParser;
 import ch.heigvd.dai.logic.client.parsers.FillInputParser;
 import ch.heigvd.dai.logic.client.parsers.GuessInputParser;
 import ch.heigvd.dai.logic.client.parsers.IInputParser;
 import ch.heigvd.dai.logic.client.parsers.IResponseParser;
 import ch.heigvd.dai.logic.client.parsers.InfoResponseParser;
+import ch.heigvd.dai.logic.client.parsers.LastRoundResponseParser;
 import ch.heigvd.dai.logic.client.parsers.LettersInputParser;
 import ch.heigvd.dai.logic.client.parsers.LobbyInputParser;
 import ch.heigvd.dai.logic.client.parsers.RoundResponseParser;
@@ -45,6 +47,7 @@ import java.util.Map;
 public class InteractiveConsole {
   private String username;
   private PlayerState currentState;
+  private boolean promptAlreadyShown;
 
   /** Parsers for input when in a specific player state */
   private static final Map<PlayerState, IInputParser> STATE_INPUT_PARSERS =
@@ -64,7 +67,9 @@ public class InteractiveConsole {
           PlayerState.SEND_LETTERS,
           new LettersInputParser(),
           PlayerState.WAIT_FOR_LAST_TURN,
-          new FillInputParser());
+          new FillInputParser(),
+          PlayerState.DISCONNECTED,
+          new DisconnectedInputParser());
 
   /** Parsers for a server response when it is of a specific command type */
   private static final Map<GameCommandType, IResponseParser> COMMAND_RESPONSE_PARSERS =
@@ -75,7 +80,8 @@ public class InteractiveConsole {
           GameCommandType.INFO, new InfoResponseParser(),
           GameCommandType.ROUND, new RoundResponseParser(),
           GameCommandType.END, new EndResponseParser(),
-          GameCommandType.WINNER, new WinnerResponseParser());
+          GameCommandType.WINNER, new WinnerResponseParser(),
+          GameCommandType.LAST, new LastRoundResponseParser());
 
   /** Prompts for each one of the player states */
   private static final List<PlayerStatePrompt> STATE_PROMPTS =
@@ -84,37 +90,38 @@ public class InteractiveConsole {
               PlayerState.SECOND_GUESS_PHASE,
               new String[] {"Skip turn", "Buy a vowel", "Complete the puzzle"}),
           new PlayerStatePrompt(
-              PlayerState.WAIT_FOR_USERNAME, new String[] {"Welcome! Please enter your username:"}),
+              PlayerState.WAIT_FOR_USERNAME,
+              new String[] {"Welcome! Please enter your username: "}),
           new PlayerStatePrompt(
               PlayerState.WAIT_FOR_FILL,
-              new String[] {"Here's your chance to complete the puzzle. What is it?"}),
+              new String[] {"Here's your chance to complete the puzzle. What is it?\n"}),
           new PlayerStatePrompt(
               PlayerState.WAIT_FOR_GUESS,
-              new String[] {"Type a consonant to see if it is in the puzzle:"}),
+              new String[] {
+                "Type a consonant to see if it is in the puzzle, or try your luck at completing the puzzle: "
+              }),
           new PlayerStatePrompt(
-              PlayerState.WAIT_FOR_VOWEL, new String[] {"Type the vowel to buy:"}),
+              PlayerState.WAIT_FOR_VOWEL, new String[] {"Type the vowel to buy: "}),
           new PlayerStatePrompt(
-              PlayerState.WAIT_FOR_LAST_TURN, new String[] {"Type the full puzzle:"}),
+              PlayerState.WAIT_FOR_LAST_TURN, new String[] {"Type the full puzzle: "}),
           new PlayerStatePrompt(
               PlayerState.SEND_LETTERS,
               new String[] {
-                "Type " + LettersCommand.NumberOfLetters + " letters to complete the last puzzle:"
+                "Type " + LettersCommand.NumberOfLetters + " letters to complete the last puzzle: "
               }),
           new PlayerStatePrompt(
               PlayerState.WAIT_IN_LOBBY,
               new String[] {
-                "Wait for someone to start the game, or type 'Go' to start it yourself"
+                "Wait for someone to start the game, or type 'Go' to start it yourself\n"
               }));
 
   /**
    * Creates a new interactive console instance to make it easier for players to take part in the
    * game
-   *
-   * @param username Player's username
    */
-  public InteractiveConsole(String username) {
-    this.username = username;
+  public InteractiveConsole() {
     currentState = PlayerState.WAIT_FOR_USERNAME;
+    promptAlreadyShown = false;
   }
 
   /**
@@ -135,7 +142,7 @@ public class InteractiveConsole {
         return true;
       }
 
-      case CHILLING, WAIT_FOR_ENDING, WAIT_FOR_TURN -> {
+      case CHILLING, WAIT_FOR_ENDING, WAIT_FOR_TURN, DISCONNECTED -> {
         return false;
       }
 
@@ -149,26 +156,39 @@ public class InteractiveConsole {
   /**
    * Gets the console prompt for the current player state
    *
-   * @return The prompt to show on the console
+   * @return The prompt to show on the console, or null if no prompt is to be shown
    */
   public String getPrompt() {
-    String prompt = "Invalid state detected";
+    String prompt = null;
 
-    for (PlayerStatePrompt p : STATE_PROMPTS) {
-      if (p.validFor() == currentState) {
-        StringBuilder sb = new StringBuilder();
+    if (!promptAlreadyShown) {
+      for (PlayerStatePrompt p : STATE_PROMPTS) {
+        if (p.validFor() == currentState) {
+          StringBuilder sb = new StringBuilder();
 
-        for (String state_prompt : p.prompts()) {
           if (p.prompts().length > 1) {
-            sb.append("- ");
+            sb.append("Choose one of the following:\n");
           }
 
-          sb.append(state_prompt);
-        }
+          for (int i = 0; i < p.prompts().length; i++) {
+            String state_prompt = p.prompts()[i];
+            if (p.prompts().length > 1) {
+              sb.append(i + 1).append(" - ");
+            }
 
-        prompt = sb.toString();
-        break;
+            sb.append(state_prompt);
+
+            if (p.prompts().length > 1) {
+              sb.append('\n');
+            }
+          }
+
+          prompt = sb.toString();
+          break;
+        }
       }
+
+      promptAlreadyShown = true;
     }
 
     return prompt;
@@ -209,6 +229,7 @@ public class InteractiveConsole {
    */
   public void setCurrentState(PlayerState state) {
     currentState = state;
+    promptAlreadyShown = false;
   }
 
   /**

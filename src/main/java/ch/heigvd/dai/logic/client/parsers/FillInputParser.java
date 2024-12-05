@@ -31,7 +31,7 @@ public class FillInputParser implements IInputParser {
     GameCommand command = null;
 
     try {
-      command = FillCommand.fromTcpBody(input);
+      command = FillCommand.fromTcpBody(new String[] {input});
     } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid puzzle solution provided!");
     }

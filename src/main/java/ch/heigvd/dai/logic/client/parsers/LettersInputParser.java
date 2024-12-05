@@ -31,7 +31,7 @@ public class LettersInputParser implements IInputParser {
     GameCommand command = null;
 
     try {
-      command = LettersCommand.fromTcpBody(input);
+      command = LettersCommand.fromTcpBody(new String[] {input});
     } catch (InvalidPropertiesFormatException e) {
       System.err.println(
           "Invalid letters provided! You must provide "

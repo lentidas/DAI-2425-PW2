@@ -87,6 +87,11 @@ public class GameMatch {
       joinResult = StatusCode.FULL;
     }
 
+    // Force start game if lobby is full
+    if (connectedPlayers.size() == MAX_PLAYERS) {
+      startGame();
+    }
+
     return joinResult;
   }
 

@@ -261,7 +261,8 @@ public class Puzzle {
    * @return True if previously checked, false if not
    */
   public boolean hasLetterBeenGuessed(char letter) {
-    return lettersGuessed.contains(letter);
+    Character upperLetter = Character.toUpperCase(letter);
+    return lettersGuessed.contains(upperLetter);
   }
 
   /**

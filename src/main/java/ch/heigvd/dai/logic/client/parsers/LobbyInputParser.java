@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic.client.parsers;
 
+import ch.heigvd.dai.logic.PlayerState;
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GoCommand;
@@ -35,6 +36,9 @@ public class LobbyInputParser implements IInputParser {
     } else if (input.equalsIgnoreCase("quit")) {
       System.out.println("Saying goodbye the server...");
       command = new QuitCommand();
+      interactiveConsole.setCurrentState(PlayerState.DISCONNECTED);
+    } else {
+      System.err.println("Invalid input!");
     }
 
     return command;

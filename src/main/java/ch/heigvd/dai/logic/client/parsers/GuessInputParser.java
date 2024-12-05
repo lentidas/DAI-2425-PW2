@@ -18,6 +18,7 @@
 
 package ch.heigvd.dai.logic.client.parsers;
 
+import ch.heigvd.dai.logic.PlayerState;
 import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GuessCommand;
@@ -30,8 +31,15 @@ public class GuessInputParser implements IInputParser {
 
     GameCommand command = null;
 
+    // If the user wishes to fill the puzzle now, we have to honour the request
+    if (input.length() > 1) {
+      command = new FillInputParser().parse(interactiveConsole, input);
+      interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_FILL);
+      return command;
+    }
+
     try {
-      command = GuessCommand.fromTcpBody(input);
+      command = GuessCommand.fromTcpBody(new String[] {input});
     } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid consonant!");
     }

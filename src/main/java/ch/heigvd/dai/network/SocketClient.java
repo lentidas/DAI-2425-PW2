@@ -18,25 +18,15 @@
 
 package ch.heigvd.dai.network;
 
+import ch.heigvd.dai.logic.client.InteractiveConsole;
 import ch.heigvd.dai.logic.commands.GameCommand;
 import ch.heigvd.dai.logic.commands.GameCommandType;
-import ch.heigvd.dai.logic.commands.HostCommand;
-import ch.heigvd.dai.logic.commands.InfoCommand;
-import ch.heigvd.dai.logic.commands.LastCommand;
-import ch.heigvd.dai.logic.commands.RoundCommand;
-import ch.heigvd.dai.logic.commands.StartCommand;
-import ch.heigvd.dai.logic.commands.StatusCommand;
-import ch.heigvd.dai.logic.commands.TurnCommand;
-import ch.heigvd.dai.logic.commands.WinnerCommand;
 import com.google.common.net.HostAndPort;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -56,25 +46,12 @@ public class SocketClient extends SocketAbstract {
   // TODO Improve this debugging by using a proper Java logging framework.
   private static final boolean DEBUG_MODE = true;
 
+  protected final InteractiveConsole interactiveConsole;
+
   public SocketClient(HostAndPort hostAndPort)
       throws NullPointerException, IllegalArgumentException, UnknownHostException {
     super(hostAndPort);
-
-    // Prepare a list of available commands for the first run.
-    // FIXME Adjust this. Temporarily, this adds all the possible commands possible for the
-    //  client. For now, only used for the help.
-    availableCommands.addAll(
-        Arrays.asList(
-            GameCommandType.JOIN,
-            GameCommandType.GO,
-            GameCommandType.FILL,
-            GameCommandType.GUESS,
-            GameCommandType.VOWEL,
-            GameCommandType.LETTERS,
-            GameCommandType.HOST,
-            GameCommandType.HELP,
-            GameCommandType.QUIT,
-            GameCommandType.SKIP));
+    interactiveConsole = new InteractiveConsole();
   }
 
   class InputReaderHandler implements Runnable {
@@ -92,75 +69,24 @@ public class SocketClient extends SocketAbstract {
           Reader inputReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
           BufferedReader bir = new BufferedReader(inputReader)) {
 
-        help();
-
-        // TODO Implement this wait through the availableCommands attribute if it is empty.
         // Listen for command line inputs while the socket is open.
         while (!socket.isClosed()) {
-
-          // Block the thread if there is no command possible.
-          try {
-            if (inputBlocked.get()) {
-              System.out.println("\nWaiting for server response...");
-              // Call to Thread.sleep() inside a loop is considered busy-waiting, but I've yet to
-              // learn proper thread synchronization in Java :)
-              while (inputBlocked.get()) {
-                Thread.sleep(200);
-              }
-            }
-            System.out.println("\nReady for command!");
-          } catch (InterruptedException e) {
-            // TODO Decide what to do with this exception
-          }
 
           // Read user input from console.
           String userInput = bir.readLine();
 
-          // Parse command from user and throw an error if not supported.
-          GameCommand command;
-          userInput = userInput.trim();
-          try {
-            command = GameCommand.fromTcpBody(userInput);
-          } catch (InvalidPropertiesFormatException ignore) {
-            System.out.println();
-            System.out.println("Unrecognized/Invalid command! Please try again.");
-            if (DEBUG_MODE) {
-              System.out.println("[DEBUG] Command: " + userInput);
-            }
-            help();
+          if (!interactiveConsole.needsInput()) {
+            System.err.println("No input is accepted at this time!");
             continue;
           }
 
           try {
             // Prepare the request to send to the server.
-            String request = null;
-
-            // Perform action appropriate to each command
-            switch (command.getType()) {
-              case JOIN, GO, FILL, GUESS, VOWEL, LETTERS, SKIP -> request = command.toTcpBody();
-              case HOST -> {
-                System.out.println(((HostCommand) command).getHost());
-                continue;
-              }
-              case HELP -> {
-                help();
-                continue;
-              }
-              case QUIT -> {
-                expectedQuit.set(true);
-                socket.close();
-                continue;
-              }
-              default -> {
-                System.out.println("Unrecognized/Invalid command! Please try again.");
-                help();
-                continue;
-              }
-            }
+            GameCommand command = interactiveConsole.parseUserInput(userInput);
 
             // Send request to server if it is non-null.
-            if (request != null) {
-              out.write(request + END_OF_LINE);
+            if (command != null) {
+              out.write(command.toTcpBody() + END_OF_LINE);
               out.flush();
             }
           } catch (Exception e) {
@@ -197,6 +123,11 @@ public class SocketClient extends SocketAbstract {
         // Listen for server responses while the socket is open.
         while (!socket.isClosed()) {
 
+          String prompt = interactiveConsole.getPrompt();
+          if (null != prompt) {
+            System.out.print(prompt);
+          }
+
           // Read response from server and parse it.
           String serverResponse = in.readLine();
 
@@ -208,7 +139,7 @@ public class SocketClient extends SocketAbstract {
 
           // Parse the response from the server.
           serverResponse = serverResponse.trim();
-          GameCommand response = null;
+          GameCommand response;
           try {
             response = GameCommand.fromTcpBody(serverResponse);
           } catch (InvalidPropertiesFormatException format) {
@@ -222,116 +153,7 @@ public class SocketClient extends SocketAbstract {
           }
 
           System.out.println(); // Print an empty line to improve readability on the console.
-          switch (response.getType()) {
-              // TODO Remove the commented cases that are not used.
-            case STATUS -> {
-              switch (((StatusCommand) response).getStatus()) {
-                case OK -> System.out.println("OK!");
-                case KO ->
-                    System.out.println(
-                        // FIXME Is there a way to have a less generic message?
-                        "Something is not OK!");
-                case FULL -> {
-                  // We should never arrive at the FULL case, because we are limited by the number
-                  // of client threads in the SocketServer class. It is conserved here for
-                  // consistency with the protocol specification.
-                  System.out.println("Party is full and there is no place to join.");
-                  socket.close();
-                }
-                case PLAYER_JOINED -> System.out.println("Another player joined the game!");
-                case PLAYER_QUIT -> System.out.println("Another player quit the game...");
-                case DUPLICATE_NAME -> System.out.println("Username is already in use.");
-                case WRONG_ANSWER -> System.out.println("Your guess is WRONG!");
-                case RIGHT_ANSWER -> System.out.println("CONGRATULATIONS! Your guess is RIGHT!");
-                  // case TIMEOUT -> System.out.println("TIMEOUT! Answer faster next time!");
-                case LETTER_MISSING ->
-                    System.out.println("MISSING! The puzzle does not contain that letter.");
-                case LETTER_EXISTS -> System.out.println("RIGHT! The puzzle contains that letter.");
-                  // case WRONG_FORMAT -> System.out.println("You can only guess consonants.");
-                case ALREADY_TRIED -> System.out.println("That letter was already tried before.");
-                  // case NO_FUNDS ->
-                  //     System.out.println("You do not have enough money to buy that letter.");
-                case BANKRUPT ->
-                    System.out.println(
-                        "Bad luck... The wheel says you're BANKRUPT! You lose the turn.");
-                case LOST_A_TURN ->
-                    System.out.println("Bad luck... The wheel says you miss the next turn!");
-              }
-            }
-
-            case END -> {
-              List<Object> args = response.getArgs();
-              Iterator<Object> iter = args.iterator();
-              System.out.println("Game ended!");
-              System.out.println("*** WINNER: " + iter.next() + " ***");
-              System.out.println("=== GAME RESULTS ===");
-              for (int i = 0; iter.hasNext(); ++i) {
-                if (i % 2 == 0) { // If even, print username.
-                  System.out.print(iter.next());
-                } else { // Else, print money with a new line.
-                  System.out.println(" - " + iter.next());
-                }
-              }
-              System.out.println("Please use JOIN to play again or QUIT to go home.");
-            }
-
-            case INFO -> {
-              InfoCommand cmd = (InfoCommand) response;
-              System.out.println("=== CURRENT PUZZLE ===");
-              System.out.println("Category: " + cmd.getCategory());
-              System.out.println("Puzzle: " + cmd.getPuzzle());
-              System.out.println("Used letters: " + cmd.getUsedLetters());
-            }
-
-            case LAST -> {
-              LastCommand cmd = (LastCommand) response;
-              System.out.println("CONGRATULATIONS! You go to the last round!");
-              System.out.println("=== LAST PUZZLE ===");
-              System.out.println("Category: " + cmd.getCategory());
-              System.out.println("Puzzle: " + cmd.getPuzzle());
-              System.out.println("Timeout: " + cmd.getTimeout() + " seconds");
-              System.out.println("What letters do you want to add?");
-            }
-
-            case LOBBY -> {
-              System.out.println("=== LOBBY ===");
-              // FIXME does not work yet
-              // for (Object player : response.getArgs()) {
-              //   System.out.println((String) player);
-              // }
-            }
-
-            case START -> {
-              StartCommand cmd = (StartCommand) response;
-              System.out.println("=== ROUND #" + cmd.getRoundNumber() + " ===");
-              System.out.println("Category: " + cmd.getCategory());
-              System.out.println("Puzzle: " + cmd.getPuzzle());
-            }
-
-            case TURN -> {
-              TurnCommand cmd = (TurnCommand) response;
-              System.out.println("It's your turn!");
-              System.out.println(
-                  "You're in luck! The wheel gave you " + cmd.getTurnMoney() + "$ for this round.");
-              System.out.println("Earned money overall: " + cmd.getTotalMoney() + "$");
-            }
-
-            case ROUND ->
-                System.out.println(
-                    "Round over! The full puzzle was: " + ((RoundCommand) response).getPuzzle());
-
-            case WINNER -> {
-              System.out.println("Thank you to all the participants for playing!");
-              System.out.println(
-                  "We've now reached the last round. And the player to play it is...");
-              System.out.println(((WinnerCommand) response).getUsername() + " !");
-            }
-
-            default -> {
-              System.out.println("Invalid/unknown command sent by server, ignore.");
-              System.out.println(response.toTcpBody());
-            }
-          }
+          interactiveConsole.parseServerResponse(response);
         } // end of while (!socket.isClosed())
 
         // Release the parent thread to print the quit message and finish the program.
@@ -379,94 +201,4 @@ public class SocketClient extends SocketAbstract {
       System.out.println("[Client] InterruptedException: " + e);
     }
   }
-
-  private void help() {
-    System.out.println();
-    System.out.println("=== AVAILABLE COMMANDS ===");
-    for (GameCommandType command : availableCommands) {
-      switch (command) {
-        case JOIN ->
-            System.out.print(
-                """
-                * JOIN - Provide a username and join the game.
-                  - JOIN user1
-                  - JOIN "My Name"
-                """);
-        case GO ->
-            System.out.print(
-                """
-               * GO - Start the game right away without waiting for the maximum number of players.
-               """);
-        case GUESS ->
-            System.out.print(
-                """
-              * GUESS - Guess a possible consonant in the puzzle (use capital letters only).
-                - GUESS P
-                - GUESS G
-              """);
-        case VOWEL ->
-            System.out.print(
-                """
-            * VOWEL - Buy a vowel (AEIOU) if you have the money to buy one (use capital letters only).
-              - GUESS A
-              - GUESS E
-            """);
-        case FILL ->
-            System.out.print(
-                """
-            * FILL - Try to guess the full puzzle (should be in capitals and between quotes.
-              - FILL "THIS IS A PUZZLE"
-            """);
-        case SKIP -> System.out.print("""
-            * SKIP - Skip your turn.
-            """);
-        case LETTERS -> System.out.print("""
-            * LETTERS - TODO
-            """); // TODO
-        case HELP ->
-            System.out.print(
-                """
-                * HELP - Print this help message (the message is dynamic depending on the available commands).
-                """);
-        case QUIT ->
-            System.out.print(
-                """
-                * QUIT - Quit the game and disconnect from the server.
-                """);
-      }
-    }
-  }
-
-  // TODO Decide if we will still use this function
-  // private void computeAvailableCommands(
-  //     GameCommand previousRequest, GameCommand serverResponse) {
-  //   availableCommands.clear();
-  //
-  //   switch (previousRequest.getType()) {
-  //
-  //     case JOIN -> {
-  //       availableCommands.addAll(Arrays.asList(GameCommandType.HOST, GameCommandType.HELP,
-  // GameCommandType.QUIT));
-  //       if (serverResponse.getType() == GameCommandType.STATUS && ((StatusCommand)
-  // serverResponse).getStatus() == StatusCode.OK) {
-  //         availableCommands.add(GameCommandType.GO);
-  //       } else {
-  //         availableCommands.add(GameCommandType.JOIN);
-  //       }
-  //     }
-  //
-  //     default -> {
-  //       switch (serverResponse.getType()) {
-  //         case TURN -> {
-  //           availableCommands.addAll(Arrays.asList(
-  //               GameCommandType.HOST,
-  //               GameCommandType.QUIT,
-  //               GameCommandType.HELP,
-  //               GameCommandType.GUESS,
-  //               GameCommandType.FILL));
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 }

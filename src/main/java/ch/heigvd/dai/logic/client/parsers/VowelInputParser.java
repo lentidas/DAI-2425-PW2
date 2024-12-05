@@ -31,7 +31,7 @@ public class VowelInputParser implements IInputParser {
     GameCommand command = null;
 
     try {
-      command = VowelCommand.fromTcpBody(input);
+      command = VowelCommand.fromTcpBody(new String[] {input});
     } catch (InvalidPropertiesFormatException e) {
       System.err.println("Invalid vowel!");
     }

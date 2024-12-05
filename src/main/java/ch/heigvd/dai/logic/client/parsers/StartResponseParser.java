@@ -31,8 +31,6 @@ public class StartResponseParser implements IResponseParser {
     if (response.getType() == GameCommandType.START) {
       StartCommand cmd = (StartCommand) response;
       System.out.println("=== ROUND #" + cmd.getRoundNumber() + " ===");
-      System.out.println("Category: " + cmd.getCategory());
-      System.out.println("Puzzle: " + cmd.getPuzzle());
       interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_TURN);
     }
   }
