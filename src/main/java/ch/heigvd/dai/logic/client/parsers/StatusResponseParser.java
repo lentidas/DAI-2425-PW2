@@ -52,6 +52,12 @@ public class StatusResponseParser implements IResponseParser {
     }
   }
 
+  /**
+   * Parses a response to a join request
+   *
+   * @param interactiveConsole Interactice CLI console
+   * @param response Response received
+   */
   private void parseJoinResponse(InteractiveConsole interactiveConsole, StatusCommand response) {
     switch (response.getStatus()) {
       case OK -> {
@@ -66,6 +72,12 @@ public class StatusResponseParser implements IResponseParser {
     }
   }
 
+  /**
+   * Parses a response to a letter guess request
+   *
+   * @param interactiveConsole Interactice CLI console
+   * @param response Response received
+   */
   private void parseLetterGuessResponse(
       InteractiveConsole interactiveConsole, StatusCommand response) {
     switch (response.getStatus()) {
@@ -96,6 +108,12 @@ public class StatusResponseParser implements IResponseParser {
     }
   }
 
+  /**
+   * Parses a response to an answer request
+   *
+   * @param interactiveConsole Interactice CLI console
+   * @param response Response received
+   */
   private void parseAnswerResponse(InteractiveConsole interactiveConsole, StatusCommand response) {
     switch (response.getStatus()) {
       case RIGHT_ANSWER -> System.out.println("Congratulations, you have completed this puzzle!");
@@ -108,6 +126,12 @@ public class StatusResponseParser implements IResponseParser {
     interactiveConsole.setCurrentState(PlayerState.WAIT_FOR_TURN);
   }
 
+  /**
+   * Parses a response to a "guess n letters" request
+   *
+   * @param interactiveConsole Interactice CLI console
+   * @param response Response received
+   */
   private void parseLettersResponse(InteractiveConsole interactiveConsole, StatusCommand response) {
     switch (response.getStatus()) {
       case ALREADY_TRIED ->
@@ -120,6 +144,12 @@ public class StatusResponseParser implements IResponseParser {
     }
   }
 
+  /**
+   * Parses a response to a lost turn
+   *
+   * @param interactiveConsole Interactice CLI console
+   * @param response Response received
+   */
   private void parseTurnWaitingResponse(
       InteractiveConsole interactiveConsole, StatusCommand response) {
     switch (response.getStatus()) {
@@ -129,6 +159,12 @@ public class StatusResponseParser implements IResponseParser {
     }
   }
 
+  /**
+   * Parses a response to a lobby change
+   *
+   * @param interactiveConsole Interactice CLI console
+   * @param response Response received
+   */
   private void parseLobbyChange(InteractiveConsole interactiveConsole, StatusCommand response) {
     switch (response.getStatus()) {
       case PLAYER_JOINED -> System.out.println("Another player joined the game!");
